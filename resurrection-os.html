@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🦇 Black Poppy Resurrection OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#080408;--crypt:#120a0f;--dusk:#1c1018;--velvet:#281420;
+  --rose:#c4547a;--bloom:#e8739a;--ghost:#f0d0dc;--ash:#7a6070;
+  --silver:#b8a8b0;--gold:#c8a035;--warn:#d4783a;--danger:#c84848;--ok:#4a9e72;
+  --sold:#5a3a7a;--border:rgba(196,84,122,0.18);--glow:0 0 24px rgba(196,84,122,0.25);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--void);color:var(--ghost);font-family:'IBM Plex Mono',monospace;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 0%,rgba(196,84,122,0.06),transparent),radial-gradient(ellipse 40% 60% at 85% 100%,rgba(40,20,32,0.7),transparent);pointer-events:none;z-index:0;}
+
+/* ── UPLOAD ── */
+#upload-screen{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:var(--void);}
+.upload-inner{text-align:center;max-width:560px;padding:2rem;}
+.upload-bat{font-size:64px;margin-bottom:1rem;display:block;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.upload-title{font-family:'Playfair Display',serif;font-size:28px;color:var(--bloom);margin-bottom:.5rem;}
+.upload-sub{font-size:12px;color:var(--ash);letter-spacing:.08em;margin-bottom:2rem;}
+.dropzone{border:2px dashed var(--rose);border-radius:16px;padding:3rem 2rem;cursor:pointer;transition:all .2s;background:rgba(196,84,122,0.04);margin-bottom:1rem;}
+.dropzone:hover,.dropzone.drag{border-color:var(--bloom);background:rgba(196,84,122,0.1);box-shadow:var(--glow);}
+.dz-icon{font-size:36px;margin-bottom:.75rem;}
+.dz-text{font-size:15px;color:var(--ghost);margin-bottom:.4rem;font-family:'Playfair Display',serif;}
+.dz-sub{font-size:11px;color:var(--ash);}
+.upload-hint{font-size:10px;color:var(--ash);letter-spacing:.06em;}
+.upload-error{font-size:12px;color:var(--danger);margin-top:1rem;padding:.75rem;background:rgba(200,72,72,.1);border:1px solid rgba(200,72,72,.3);border-radius:8px;}
+
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:200;background:rgba(8,4,8,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.25rem;gap:.75rem;flex-wrap:wrap;}
+.logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--bloom);white-space:nowrap;}
+.logo small{display:block;font-family:'IBM Plex Mono';font-size:10px;color:var(--ash);letter-spacing:.08em;margin-top:1px;}
+.hdr-stats{display:flex;gap:1.1rem;flex-shrink:0;}
+.hs{text-align:center;}
+.hs-v{font-size:16px;font-weight:700;}
+.hs-l{font-size:9px;color:var(--ash);letter-spacing:.07em;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.toggle-wrap{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ash);cursor:pointer;white-space:nowrap;}
+.toggle-wrap input{cursor:pointer;accent-color:var(--rose);}
+.reload-btn{background:transparent;border:1px solid var(--border);color:var(--ash);font-family:'IBM Plex Mono';font-size:11px;padding:5px 12px;border-radius:16px;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.reload-btn:hover{border-color:var(--rose);color:var(--bloom);}
+
+/* ── NAV ── */
+.nav{position:sticky;top:53px;z-index:199;background:var(--crypt);border-bottom:1px solid var(--border);display:flex;gap:4px;padding:.55rem 1.25rem;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nb{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ash);font-family:'IBM Plex Mono';font-size:11px;cursor:pointer;white-space:nowrap;transition:all .18s;letter-spacing:.04em;}
+.nb:hover,.nb.on{background:var(--velvet);color:var(--bloom);border-color:var(--rose);}
+
+/* ── MAIN ── */
+.main{position:relative;z-index:1;padding:1.25rem;max-width:1440px;margin:0 auto;}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem;}
+.sc{background:var(--crypt);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--rose),transparent);}
+.sc-v{font-size:26px;font-weight:700;font-family:'Playfair Display',serif;}
+.sc-l{font-size:10px;color:var(--ash);letter-spacing:.07em;text-transform:uppercase;margin-top:2px;}
+.sc-s{font-size:11px;color:var(--silver);margin-top:4px;}
+.c-bloom{color:var(--bloom)}.c-warn{color:var(--warn)}.c-danger{color:var(--danger)}.c-ok{color:var(--ok)}.c-gold{color:var(--gold)}.c-sold{color:#9b6fc4;}
+
+/* ── SECTION TITLE ── */
+.stitle{font-family:'Playfair Display',serif;font-size:19px;color:var(--ghost);margin-bottom:.9rem;display:flex;align-items:center;gap:10px;}
+.stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+/* ── FILTER BAR ── */
+.fbar{display:flex;gap:8px;margin-bottom:.75rem;flex-wrap:wrap;align-items:center;}
+.fi{background:var(--crypt);border:1px solid var(--border);color:var(--ghost);font-family:'IBM Plex Mono';font-size:12px;padding:6px 11px;border-radius:8px;outline:none;min-width:200px;}
+.fi:focus{border-color:var(--rose);}
+.fs{background:var(--crypt);border:1px solid var(--border);color:var(--ash);font-family:'IBM Plex Mono';font-size:11px;padding:6px 10px;border-radius:8px;outline:none;cursor:pointer;}
+.fs option{background:var(--crypt);}
+.fcnt{font-size:11px;color:var(--ash);margin-left:auto;letter-spacing:.04em;}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.9rem;}
+.chip{padding:4px 12px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono';cursor:pointer;border:1px solid var(--border);color:var(--ash);background:transparent;transition:all .18s;opacity:.7;letter-spacing:.03em;}
+.chip:hover,.chip.on{opacity:1;border-color:var(--rose);color:var(--bloom);background:rgba(196,84,122,.1);}
+.chip-cat{border-color:rgba(138,112,180,.4);color:#a888c8;}
+.chip-cat:hover,.chip-cat.on{border-color:#9b6fc4;color:#c498e8;background:rgba(155,111,196,.12);}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+
+/* ── CARD ── */
+.card{background:var(--crypt);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s;position:relative;}
+.card:hover{border-color:var(--rose);box-shadow:var(--glow);transform:translateY(-2px);}
+.card.hero-marked{border-color:var(--gold);}
+.card.is-sold{opacity:.5;border-color:rgba(90,58,122,.5);}
+.card.is-relisted{border-color:var(--ok);}
+.card-status-bar{height:3px;width:100%;}
+.status-active{background:var(--ok);}
+.status-sold{background:var(--sold);}
+.status-inactive{background:var(--ash);}
+.status-relisted{background:var(--bloom);}
+.card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--velvet);display:block;}
+.card-ph{width:100%;aspect-ratio:1;background:linear-gradient(135deg,var(--velvet),var(--dusk));display:flex;align-items:center;justify-content:center;font-size:36px;}
+.card-body{padding:10px 12px;}
+.card-brand{font-size:10px;color:var(--ash);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;}
+.card-title{font-size:12px;color:var(--ghost);line-height:1.45;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-seo{font-size:11px;color:var(--bloom);line-height:1.35;margin-bottom:6px;border-left:2px solid var(--rose);padding-left:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-price{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.cp-cur{font-size:15px;font-weight:700;color:var(--bloom);}
+.cp-arr{font-size:10px;color:var(--ash);}
+.cp-sug{font-size:12px;color:var(--gold);}
+.card-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;}
+.bdg{font-size:10px;padding:2px 7px;border-radius:8px;white-space:nowrap;}
+.bh1{background:rgba(122,96,112,.2);color:var(--ash);}
+.bh2{background:rgba(138,112,120,.25);color:var(--silver);}
+.bh3{background:rgba(200,160,53,.15);color:#b89030;}
+.bh4{background:rgba(196,84,122,.2);color:var(--rose);}
+.bh5{background:rgba(196,84,122,.35);color:var(--bloom);}
+.ba-fresh{background:rgba(74,158,114,.2);color:var(--ok);}
+.ba-ok{background:rgba(200,160,53,.15);color:#b89030;}
+.ba-crit{background:rgba(212,120,58,.2);color:var(--warn);}
+.ba-ghost{background:rgba(200,72,72,.2);color:var(--danger);}
+.ba-sold{background:rgba(90,58,122,.3);color:#b898d4;}
+.ba-relisted{background:rgba(74,158,114,.2);color:var(--ok);}
+.ba-inactive{background:rgba(122,96,112,.2);color:var(--ash);}
+.card-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px;}
+.btn{font-family:'IBM Plex Mono';font-size:10px;padding:4px 10px;border-radius:7px;cursor:pointer;border:1px solid;transition:all .18s;white-space:nowrap;}
+.btn-copy{border-color:var(--border);color:var(--ash);background:transparent;}
+.btn-copy:hover{border-color:var(--rose);color:var(--bloom);}
+.btn-relist{border-color:var(--rose);color:var(--bloom);background:rgba(196,84,122,.1);}
+.btn-relist:hover{background:rgba(196,84,122,.25);}
+.btn-done{border-color:var(--ok);color:var(--ok);background:rgba(74,158,114,.1);}
+.btn-sold{border-color:rgba(90,58,122,.6);color:#b898d4;background:transparent;}
+.btn-sold:hover{background:rgba(90,58,122,.2);}
+.btn-unsold{border-color:var(--ok);color:var(--ok);background:transparent;font-size:10px;}
+.btn-active{border-color:var(--ok);color:var(--ok);background:transparent;}
+.btn-active:hover{background:rgba(74,158,114,.1);}
+.btn-hero{border-color:var(--gold);color:var(--gold);background:transparent;padding:4px 8px;}
+.btn-hero.marked{background:rgba(200,160,53,.15);}
+.btn-sm{padding:3px 8px;font-size:10px;}
+
+/* ── RELIST VIEW ── */
+.relist-item{background:var(--crypt);border:1px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:all .2s;}
+.relist-item:hover{border-color:var(--rose);}
+.relist-item.done{opacity:.4;border-color:var(--ok);}
+.relist-item.is-sold{opacity:.25;}
+.ri-num{font-size:11px;color:var(--ash);width:22px;text-align:right;flex-shrink:0;}
+.ri-img{width:50px;height:50px;border-radius:7px;object-fit:cover;background:var(--velvet);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ri-info{flex:1;min-width:0;}
+.ri-title{font-size:12px;color:var(--ghost);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ri-meta{font-size:10px;color:var(--ash);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ri-actions{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{text-align:left;padding:7px 10px;color:var(--ash);font-size:10px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:500;}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(196,84,122,0.07);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(196,84,122,0.04);}
+.tbl tr.row-sold td{opacity:.4;}
+.tbl-title{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tbl-seo{max-width:260px;color:var(--bloom);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.action-badge{font-size:10px;padding:2px 7px;border-radius:7px;white-space:nowrap;}
+.ab-danger{background:rgba(200,72,72,.2);color:var(--danger);}
+.ab-warn{background:rgba(212,120,58,.2);color:var(--warn);}
+.ab-gold{background:rgba(200,160,53,.15);color:#b89030;}
+.ab-ok{background:rgba(74,158,114,.2);color:var(--ok);}
+
+/* ── COLLECTIONS ── */
+.col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+.col-card{background:var(--crypt);border:1px solid var(--border);border-radius:11px;padding:1rem 1.25rem;}
+.col-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--bloom);margin-bottom:.3rem;}
+.col-stats{font-size:11px;color:var(--ash);margin-bottom:.7rem;display:flex;gap:12px;flex-wrap:wrap;}
+.col-mini{display:flex;gap:4px;flex-wrap:wrap;}
+.col-swatch{font-size:10px;color:var(--silver);background:var(--dusk);border-radius:5px;padding:2px 7px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ── STRATEGY ── */
+.strategy-body{max-width:700px;}
+.scard{background:var(--crypt);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem;}
+.scard h3{font-family:'Playfair Display',serif;font-size:15px;color:var(--bloom);margin-bottom:.6rem;}
+.scard p,.scard li{font-size:12px;color:var(--silver);line-height:1.75;margin-bottom:.3rem;}
+.scard ul{padding-left:1.25rem;}
+
+/* ── CMD ── */
+.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem;}
+@media(max-width:640px){.cmd-grid{grid-template-columns:1fr;}}
+.cmd-box{background:var(--crypt);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.2rem;}
+.cmd-box h3{font-family:'Playfair Display',serif;font-size:14px;color:var(--bloom);margin-bottom:.7rem;}
+.cmd-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(196,84,122,0.08);font-size:11px;gap:8px;}
+.cmd-row:last-child{border-bottom:none;}
+.cmd-row-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--silver);}
+.cmd-row-val{font-weight:700;color:var(--bloom);flex-shrink:0;}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{margin-bottom:1rem;}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--ash);margin-bottom:4px;}
+.progress-bar{height:6px;background:var(--velvet);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--bloom));border-radius:3px;transition:width .4s;}
+
+/* ── MORE BTN ── */
+.more-btn{display:block;margin:1.25rem auto 0;background:var(--velvet);border:1px solid var(--rose);color:var(--bloom);font-family:'IBM Plex Mono';font-size:12px;padding:9px 28px;border-radius:20px;cursor:pointer;transition:all .18s;}
+.more-btn:hover{background:rgba(196,84,122,.2);}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--velvet);border:1px solid var(--rose);color:var(--bloom);font-family:'IBM Plex Mono';font-size:12px;padding:10px 18px;border-radius:10px;z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;}
+#toast.show{opacity:1;transform:translateY(0);}
+
+/* ── UTIL ── */
+.empty{text-align:center;padding:3rem;color:var(--ash);font-size:13px;}
+.sep{border:none;border-top:1px solid var(--border);margin:1.25rem 0;}
+.bulk-bar{display:flex;gap:8px;align-items:center;padding:.6rem .9rem;background:var(--velvet);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.bulk-bar span{font-size:11px;color:var(--ash);}
+</style>
+</head>
+<body>
+
+<!-- ══ UPLOAD SCREEN ══ -->
+<div id="upload-screen">
+  <div class="upload-inner">
+    <span class="upload-bat">🦇</span>
+    <h1 class="upload-title">Black Poppy Resurrection OS</h1>
+    <p class="upload-sub">Daily inventory resurrection tool — powered by your Vendoo export</p>
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+      <div class="dz-icon">📂</div>
+      <div class="dz-text">Drop your Vendoo CSV export here</div>
+      <div class="dz-sub">or click to browse</div>
+      <input type="file" id="file-input" accept=".csv,.txt" style="display:none">
+    </div>
+    <div class="upload-hint">Vendoo → Inventory → Export CSV (All Listings)</div>
+    <div id="upload-error" class="upload-error" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" style="display:none">
+  <header class="hdr">
+    <div class="logo">🦇 Black Poppy Resurrection OS<small id="hdr-sub">—</small></div>
+    <div class="hdr-stats">
+      <div class="hs"><div class="hs-v c-bloom" id="h-active">—</div><div class="hs-l">Active</div></div>
+      <div class="hs"><div class="hs-v c-danger" id="h-ghost">—</div><div class="hs-l">Ghosts</div></div>
+      <div class="hs"><div class="hs-v c-warn" id="h-crit">—</div><div class="hs-l">Critical</div></div>
+      <div class="hs"><div class="hs-v c-gold" id="h-hero">—</div><div class="hs-l">Heroes</div></div>
+      <div class="hs"><div class="hs-v c-sold" id="h-sold">—</div><div class="hs-l">Sold</div></div>
+    </div>
+    <div class="hdr-right">
+      <label class="toggle-wrap">
+        <input type="checkbox" id="show-all-chk" onchange="toggleShowAll()">
+        <span>All statuses</span>
+      </label>
+      <button class="reload-btn" onclick="resetApp()">↺ New CSV</button>
+    </div>
+  </header>
+  <nav class="nav" id="nav">
+    <button class="nb on" data-view="cmd">⚡ Command</button>
+    <button class="nb" data-view="relist">🔄 Relist</button>
+    <button class="nb" data-view="heroes">🦇 Heroes</button>
+    <button class="nb" data-view="ghosts">👻 Ghosts</button>
+    <button class="nb" data-view="titles">✍️ SEO Titles</button>
+    <button class="nb" data-view="pricing">💰 Pricing</button>
+    <button class="nb" data-view="collections">🌹 Collections</button>
+    <button class="nb" data-view="sold">💸 Sold</button>
+    <button class="nb" data-view="strategy">🗺️ Strategy</button>
+    <button class="nb" data-view="all">📦 All</button>
+  </nav>
+  <main class="main" id="view"></main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══ PERSIST STATE ══
+function loadPersist(key, def) {
+  try { return JSON.parse(localStorage.getItem(key) || def); } catch(e) { return JSON.parse(def); }
+}
+
+const S = {
+  items: [],
+  view: 'cmd',
+  showAll: false,
+  filters: { search: '', col: 'all', cat: 'all', stars: 0, age: 'all' },
+  allPage: 0,
+  // relistData: { sku: { date, count, seoTitle } }
+  relistData: loadPersist('bp-relist', '{}'),
+  // statusOverride: { sku: 'sold'|'active'|'inactive' }
+  statusOverride: loadPersist('bp-status', '{}'),
+  // heroMark: { sku: true }
+  heroMark: loadPersist('bp-heroes', '{}'),
+};
+
+function saveState() {
+  localStorage.setItem('bp-relist',  JSON.stringify(S.relistData));
+  localStorage.setItem('bp-status',  JSON.stringify(S.statusOverride));
+  localStorage.setItem('bp-heroes',  JSON.stringify(S.heroMark));
+}
+
+// ══ CSV PARSER ══
+function parseCSV(text) {
+  text = text.replace(/^﻿/, '');
+  const rows = []; let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += c;
+    } else if (c === '"') { inQ = true; }
+    else if (c === ',') { row.push(field.trim()); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      row.push(field.trim()); field = '';
+      if (row.join('').trim()) rows.push(row);
+      row = [];
+      if (c === '\r' && text[i+1] === '\n') i++;
+    } else { field += c; }
+  }
+  if (field || row.length) { row.push(field.trim()); if (row.join('').trim()) rows.push(row); }
+  return rows;
+}
+
+// ══ FIELD MAP ══
+const ALIASES = {
+  title:      ['listing title','title','item title','name'],
+  status:     ['status','listing status','item status'],
+  price:      ['price','listing price','sell price','current price','asking price','sale price'],
+  origPrice:  ['original price','retail price','msrp','original retail','compare at price'],
+  brand:      ['brand','designer','maker','label'],
+  category:   ['category','item type','type','clothing type'],
+  subcategory:['subcategory','sub category','sub-category'],
+  department: ['department','gender'],
+  size:       ['size','item size','clothing size'],
+  color:      ['color','colour','primary color'],
+  condition:  ['condition','item condition'],
+  sku:        ['sku','item id','listing id','id','item number'],
+  dateListed: ['date listed','listed date','created date','date created','list date','created at','listed at','original list date','date added'],
+  platforms:  ['platforms','listed on','marketplace','listed platforms'],
+  image:      ['image','image url','image 1','photo','main image','primary image','thumbnail','picture url'],
+  description:['description','listing description'],
+  tags:       ['tags','keywords'],
+  collection: ['collection','closet section','poshmark closet section','section'],
+  likes:      ['likes','hearts','favorites','saves','watchers'],
+};
+
+function findCol(headers, key) {
+  const al = ALIASES[key] || [];
+  for (const a of al) {
+    const i = headers.findIndex(h => h.toLowerCase().trim() === a);
+    if (i >= 0) return i;
+  }
+  for (const a of al) {
+    const i = headers.findIndex(h => h.toLowerCase().includes(a.split(' ')[0]) && a.length > 3);
+    if (i >= 0) return i;
+  }
+  return -1;
+}
+
+function getPlatforms(row, headers, pidx) {
+  if (pidx >= 0 && row[pidx]?.trim()) return row[pidx].split(/[,;|\/]+/).map(p => p.trim()).filter(Boolean);
+  const known = ['poshmark','depop','mercari','ebay','etsy','facebook','grailed','kidizen','tradesy','vinted'];
+  return known.filter(p => {
+    const i = headers.findIndex(h => h.toLowerCase() === p || h.toLowerCase() === p + ' id');
+    if (i < 0) return false;
+    const v = (row[i] || '').toLowerCase().trim();
+    return v && !['false','no','0','n/a','','null'].includes(v);
+  }).map(p => p.charAt(0).toUpperCase() + p.slice(1));
+}
+
+function parseDate(s) {
+  if (!s) return null;
+  s = s.trim();
+  let d = new Date(s);
+  if (!isNaN(d)) return d;
+  const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (m) { const yr = m[3].length === 2 ? '20'+m[3] : m[3]; d = new Date(+yr, +m[1]-1, +m[2]); if (!isNaN(d)) return d; }
+  return null;
+}
+
+const INACTIVE_WORDS = ['sold','inactive','draft','not listed','removed','deleted','unlisted','ended','expired','closed'];
+const ACTIVE_WORDS   = ['active','listed','live','for sale','available','published'];
+
+function rawStatus(statusStr) {
+  const s = (statusStr || '').toLowerCase().trim();
+  if (INACTIVE_WORDS.some(w => s.includes(w))) return s.includes('sold') ? 'sold' : 'inactive';
+  if (ACTIVE_WORDS.some(w => s.includes(w))) return 'active';
+  return s ? 'inactive' : 'active';
+}
+
+function effectiveStatus(item) {
+  const ov = S.statusOverride[item.sku];
+  if (ov) return ov;
+  if (S.relistData[item.sku]) return 'relisted';
+  return item._rawStatus;
+}
+
+function ageClass(days) {
+  if (days < 90)  return { cls:'ba-fresh', label:'Fresh',             key:'fresh' };
+  if (days < 365) return { cls:'ba-ok',    label:days+'d Aging',      key:'ok'    };
+  if (days < 500) return { cls:'ba-crit',  label:days+'d Critical',   key:'crit'  };
+  return                 { cls:'ba-ghost', label:days+'d Ghost',       key:'ghost' };
+}
+
+function calcHero(item, sortedPrices) {
+  if (S.heroMark[item.sku]) return 5;
+  let sc = 0;
+  const rank = sortedPrices.findIndex(p => p >= item.price);
+  const pct  = rank / Math.max(sortedPrices.length - 1, 1);
+  if (pct >= 0.75) sc += 2; else if (pct >= 0.40) sc += 1;
+  const cond = (item.condition || '').toLowerCase();
+  if (cond === 'nwt' || cond === 'nwot' || cond.startsWith('new')) sc += 1;
+  if (item.age < 90) sc += 1; else if (item.age >= 500) sc -= 1;
+  if (item.likes >= 5) sc += 1;
+  if (item.platforms.length >= 3) sc += 1;
+  return Math.min(5, Math.max(1, sc + 1));
+}
+
+// ══ FBP AESTHETIC + SS26 KEYWORD LIBRARY ══
+// Curated for Funky Black Poppy's dark-romantic / goth resale identity,
+// refreshed with Spring/Summer 2026 trend vocabulary.
+// ── TITLE INTELLIGENCE ENGINE ──────────────────────────────────────────────
+
+// Material keywords found IN title text → aesthetic mappings
+const MATERIAL_MAP = [
+  [/sequin|sequined|sparkl|glitter|rhinestone/i, ['Y2K Glam','Disco Sparkle','Glam Goth','Dark Glam','Statement']],
+  [/velvet/i,                                    ['Velvet Goth','Dark Editorial','Vampire','Moody Luxe','Dark Romantic']],
+  [/lace|lacey/i,                                ['Fairy Grunge','Dark Romantic','Coquette','Romantic Goth','Whimsigoth']],
+  [/mesh|sheer|see.?through/i,                   ['Sheer Layering','Dark Editorial','Y2K','Coquette','Lingerie Dressing']],
+  [/satin|silk|silky/i,                          ['Slip Dress Era','Lingerie Dressing','Dark Romantic','Bias Cut','Coquette']],
+  [/leather|faux.?leather|pvc|patent/i,          ['Moto Goth','Edgy','Alt','Mall Goth','Dark Aesthetic']],
+  [/denim|jean/i,                                ['Y2K Denim','Low Rise','Grunge','90s Alt','Vintage']],
+  [/velour|velvet|terry/i,                       ['Y2K Velour','Dark Romantic','Cozy Goth','Luxe']],
+  [/crochet|knit|sweater/i,                      ['Boho Goth','Whimsigoth','Fairy Grunge','Romantic','Witchy']],
+  [/chiffon|organza|tulle/i,                     ['Ethereal','Dark Romantic','Fairy Grunge','Romantic Goth','Dreamy']],
+  [/floral|fleur|rose|petal/i,                   ['Dark Floral','Gothic Romance','Whimsigoth','Coquette','Romantic']],
+  [/plaid|tartan|check/i,                        ['Dark Academia','Goth School','Mall Goth','Alt Academic','Grunge']],
+  [/corset|bustier|boned/i,                      ['Corsetry','Dark Romantic','SS26 Trend','Lingerie Dressing','Coquette']],
+  [/graphic|print|band|logo/i,                   ['Mall Goth','Y2K Graphic','Grunge','Vintage','Alt']],
+  [/ribbed|jersey|bodycon/i,                     ['Y2K','Dark Aesthetic','Minimalist Goth','Coquette']],
+];
+
+// Garment descriptor extraction from title text
+const GARMENT_MAP = [
+  [/mini\s+skirt|miniskirt/i,      'Mini Skirt',    ['Mini Skirt','Micro Hem','Flirty']],
+  [/maxi\s+skirt|maxi\s+dress/i,   'Maxi',          ['Maxi','Flowy','Romantic']],
+  [/midi\s+skirt|midi\s+dress/i,   'Midi',          ['Midi','Bias Cut','Romantic']],
+  [/skirt/i,                       'Skirt',         ['Skirt','Flirty']],
+  [/slip\s+dress|slip/i,           'Slip Dress',    ['Slip Dress','Lingerie Dressing','Coquette']],
+  [/mini\s+dress/i,                'Mini Dress',    ['Mini Dress','Y2K','Baby Doll']],
+  [/dress|gown/i,                  'Dress',         ['Dress','Romantic']],
+  [/corset\s+top|bustier/i,        'Corset Top',    ['Corset Top','SS26 Trend','Lingerie Dressing']],
+  [/crop\s+top|cropped/i,          'Crop Top',      ['Crop Top','Y2K','Coquette']],
+  [/cami|camisole/i,               'Cami',          ['Cami','Lingerie Dressing','Slip Style']],
+  [/blouse/i,                      'Blouse',        ['Blouse','Romantic','Feminine']],
+  [/top|tee|tshirt|t-shirt/i,      'Top',           ['Top','Vintage','Casual']],
+  [/blazer/i,                      'Blazer',        ['Blazer','Dark Academia','Tailored']],
+  [/jacket|coat/i,                 'Jacket',        ['Jacket','Outerwear','Vintage']],
+  [/jean|denim\s+pant/i,           'Jeans',         ['Low Rise','Y2K Denim','Grunge']],
+  [/pant|trouser/i,                'Pants',         ['Flared','Wide Leg','Vintage']],
+  [/short/i,                       'Shorts',        ['Y2K','Hot Shorts','Grunge']],
+  [/boot|heel|shoe|platform/i,     'Shoes',         ['Platform','Grunge Footwear','Alt']],
+  [/bag|purse|handbag/i,           'Bag',           ['Statement Bag','Vintage Accessory']],
+];
+
+// Color detection from title text — ordered longest first to prevent partial matches
+const COLOR_WORDS = [
+  'black','white','ivory','cream','beige','brown','tan','camel','nude','blush',
+  'pink','hot pink','dusty pink','rose','mauve','burgundy','wine','maroon','red',
+  'cherry red','orange','peach','coral','yellow','butter yellow','gold','golden',
+  'olive','sage','green','emerald','mint','teal','turquoise','blue','navy','royal blue',
+  'cobalt','sky blue','baby blue','purple','plum','lavender','lilac','violet','grey',
+  'gray','charcoal','silver','multicolor','multi','tie dye','ombre','leopard',
+  'animal print','floral','plaid','striped','stripe',
+];
+
+// FBP SS26 seasonal aesthetic tags to inject by context
+const SS26_TAGS = {
+  sheer:   ['Sheer Layering','SS26 Trend','Lingerie Dressing'],
+  corset:  ['Corsetry','SS26 Trend','Dark Romantic'],
+  slip:    ['Slip Era','Bias Cut','Coquette'],
+  ballet:  ['Balletcore','Soft Aesthetic','Coquette'],
+  ribbon:  ['Ribbon Detail','SS26 Trend','Romantic'],
+  lace:    ['Lace Trim','Fairy Grunge','SS26 Trend'],
+  dropped: ['Dropped Waist','SS26 Silhouette','Dark Romantic'],
+};
+
+// FBP Core Aesthetic Vocabulary — platform-safe, resale-SEO proven
+const FBP_CORE = [
+  'Y2K','Dark Romantic','Whimsigoth','Gothic','Coquette','Mall Goth',
+  'Vintage','Grunge','Dark Academia','Witchy','Fairy Grunge','Ethereal',
+  'Romantic Goth','Alt','Boho Goth','Dark Aesthetic','Moody',
+];
+
+function titleCase(s) {
+  return (s||'').replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1));
+}
+
+function condPrefix(item) {
+  const c = (item.condition || '').toLowerCase();
+  if (c === 'nwt' || c === 'new with tags') return 'NWT';
+  if (c === 'nwot' || c === 'new without tags') return 'NWOT';
+  return '';
+}
+
+// ── Parse intelligence from TITLE TEXT, supplement with CSV fields ──────────
+function parseTitleIntelligence(item) {
+  const raw = (item.title || '').replace(/\s*[-–—|✦✧•·]\s*/g, ' ');
+
+  // Strip filler words that pollute titles
+  const filler = /\b(women'?s?|mens?|girls?|boys?|unisex|adult|junior|plus\s*size|size\s+\w+|fully\s+lined|lined|new\s+with\s+tags|nwt|nwot|pre-?owned|gently\s+used|excellent\s+condition|good\s+condition|fair\s+condition|great\s+condition)\b/gi;
+  const cleaned = raw.replace(filler, ' ').replace(/\s+/g, ' ').trim();
+
+  // Brand: prefer CSV field (Vendoo usually has it right)
+  const brand = (item.brand && item.brand.toLowerCase() !== 'unbranded' && item.brand.length < 40)
+    ? item.brand : '';
+
+  // Color: scan TITLE TEXT first (most reliable), fall back to CSV color field
+  let color = '';
+  const titleLower = raw.toLowerCase();
+  // Sort by length desc so "cherry red" matches before "red"
+  const sortedColors = [...COLOR_WORDS].sort((a,b) => b.length - a.length);
+  for (const c of sortedColors) {
+    if (titleLower.includes(c)) { color = titleCase(c); break; }
+  }
+  // If title had no color, use CSV color only if it's a real color word
+  if (!color && item.color) {
+    const csvCol = item.color.toLowerCase().trim();
+    if (sortedColors.some(c => csvCol === c || csvCol.startsWith(c))) {
+      color = titleCase(item.color);
+    }
+  }
+
+  // Material: scan title for fabric/texture keywords
+  const materials = [];
+  const aestheticBoosts = [];
+  for (const [re, aes] of MATERIAL_MAP) {
+    if (re.test(raw)) {
+      const matWord = raw.match(re)?.[0];
+      if (matWord) materials.push(titleCase(matWord));
+      aes.forEach(a => aestheticBoosts.push(a));
+    }
+  }
+
+  // Garment: scan title text (more reliable than CSV category)
+  let garmentLabel = '';
+  let garmentAes = [];
+  for (const [re, label, aes] of GARMENT_MAP) {
+    if (re.test(raw)) { garmentLabel = label; garmentAes = aes; break; }
+  }
+  // Fall back to CSV category if garment not found in title
+  if (!garmentLabel && item.category) garmentLabel = item.category;
+
+  // Size: prefer CSV size field
+  const size = item.size || '';
+
+  // SS26 boosts: scan for SS26 keywords in title/description
+  const haystack = `${raw} ${item.description || ''}`.toLowerCase();
+  const ss26Boosts = [];
+  for (const [key, tags] of Object.entries(SS26_TAGS)) {
+    if (haystack.includes(key)) tags.forEach(t => ss26Boosts.push(t));
+  }
+
+  // Build ordered aesthetic tag list: material-driven first, SS26 second, FBP core fill
+  const allAesthetic = [...new Set([
+    ...aestheticBoosts,
+    ...garmentAes,
+    ...ss26Boosts,
+  ])];
+  // Fill to at least 5 with rotating FBP core (seeded by brand name for variety)
+  const seed = (brand + garmentLabel).split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  let fi = seed % FBP_CORE.length;
+  while (allAesthetic.length < 5) {
+    const tag = FBP_CORE[fi % FBP_CORE.length];
+    if (!allAesthetic.includes(tag)) allAesthetic.push(tag);
+    fi++;
+  }
+
+  // Clean descriptor: color + primary material + garment (deduplicated)
+  const descriptor = [color, materials[0] || '', garmentLabel]
+    .filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).join(' ');
+
+  return { brand, color, material: materials[0] || '', materials, garmentLabel, size, descriptor, aesthetic: allAesthetic, cleaned };
+}
+
+// ── Per-platform copy-ready titles, SS26-aware ───────────────────────────────
+function platformTitles(item) {
+  const cond = condPrefix(item);
+  const T = parseTitleIntelligence(item);
+  const { brand, color, material, garmentLabel, size, descriptor, aesthetic } = T;
+
+  const sizeTag  = size ? 'Sz ' + size : '';
+  const sizeWord = size ? 'Size ' + size : '';
+  const aes      = aesthetic; // already capped/filled
+
+  // POSHMARK — brand-forward ≤80 chars, shoppers search brand + keyword combos
+  // Format: [NWT] Brand Color Material Garment AesTag1 AesTag2 Sz X
+  const poshParts = [cond, brand, descriptor, aes[0], aes[1], sizeTag].filter(Boolean);
+  let posh = poshParts.join(' ').replace(/\s+/g,' ').trim();
+  if (posh.length > 80) {
+    // Trim: drop second aes tag first, then size, then first aes
+    const poshShort = [cond, brand, descriptor, aes[0], sizeTag].filter(Boolean).join(' ').trim();
+    posh = poshShort.length <= 80 ? poshShort : [cond, brand, descriptor, sizeTag].filter(Boolean).join(' ').trim().slice(0,80);
+  }
+
+  // ETSY — long-tail comma-stacked, ≤140 chars, algorithm loves comma segments
+  // Format: Brand Color Material Garment, AesTag AesTag AesTag, SS26 Tag, Size X
+  const etsyBase = [cond, brand, descriptor].filter(Boolean).map(titleCase).join(' ');
+  const etsyAes  = aes.slice(0,3).join(', ');
+  const etsyTrail = [aes[3], aes[4]].filter(Boolean).join(', ');
+  let etsy = [etsyBase, etsyAes, etsyTrail, sizeWord].filter(Boolean).join(', ')
+    .replace(/\s+/g,' ').trim().slice(0,140);
+
+  // DEPOP — lowercase, emoji accent, hashtags at end, gen-z search voice ≤160
+  const depopDesc = [color, material, garmentLabel].filter(Boolean).join(' ').toLowerCase();
+  const depopAes  = aes[0] ? aes[0].toLowerCase() : '';
+  const hashes = [...new Set([
+    color.toLowerCase().replace(/\s+/g,''),
+    material.toLowerCase().replace(/\s+/g,''),
+    garmentLabel.toLowerCase().replace(/\s+/g,''),
+    ...aes.slice(0,4).map(t => t.toLowerCase().replace(/[^a-z0-9]/g,''))
+  ])].filter(Boolean).map(h => '#'+h).join(' ');
+  const depopEmoji = material.toLowerCase().includes('sequin') || material.toLowerCase().includes('sparkl') ? '✨' :
+                     material.toLowerCase().includes('velvet') ? '🖤' :
+                     material.toLowerCase().includes('lace')   ? '🌹' :
+                     material.toLowerCase().includes('mesh')   ? '🕸️' : '🖤';
+  let depop = `${brand ? brand.toLowerCase()+' ' : ''}${depopDesc} ${depopEmoji} ${depopAes}${size ? ' sz '+size.toLowerCase() : ''} ${hashes}`
+    .replace(/\s+/g,' ').trim().slice(0,160);
+
+  // SHOPIFY — clean SEO title, pipe-segmented for collection browsing ≤110
+  // Format: Color Material Garment — AesTag1 AesTag2 | Brand | Size X
+  const shopifyDesc = descriptor || garmentLabel;
+  const shopifyAes  = aes.slice(0,2).join(' ');
+  let shopify = `${titleCase(shopifyDesc)} — ${shopifyAes}${brand ? ' | '+brand : ''}${sizeWord ? ' | '+sizeWord : ''}`
+    .replace(/\s+/g,' ').trim().slice(0,110);
+
+  // THRIFTED (Vinted / ThredUp / aesthetic resale) — aesthetic-tag pipeline ≤120
+  // Format: Color Material Garment | AesTag AesTag AesTag | Size | Brand
+  const thriftedAes = aes.slice(0,3).join(' ');
+  let thrifted = `${titleCase(descriptor)} | ${thriftedAes} | ${size || 'OS'}${brand ? ' | '+brand : ''}`
+    .replace(/\s+/g,' ').trim().slice(0,120);
+
+  return { poshmark: posh, etsy, depop, shopify, thrifted };
+}
+
+function seoTitle(item) {
+  // Primary title used on cards = Poshmark variant (brand-forward, concise)
+  const pt = platformTitles(item);
+  return pt.poshmark.length > 10 ? pt.poshmark : (item.title || '').substring(0, 80);
+}
+
+function pricingAction(item) {
+  if (item.age >= 500) {
+    if (item.heroScore >= 4) return { label:'Drop 15% + offer likers', cls:'ab-warn', pct:-15 };
+    return { label:'Delete & relist -20%', cls:'ab-danger', pct:-20 };
+  }
+  if (item.age >= 365) {
+    if (item.heroScore >= 4) return { label:'Drop 10% + share daily', cls:'ab-warn', pct:-10 };
+    return { label:'Drop 15%', cls:'ab-warn', pct:-15 };
+  }
+  if (item.age >= 180) return { label:'Drop 10%', cls:'ab-gold', pct:-10 };
+  if (item.age >= 90)  return { label:'Monitor + share', cls:'ab-ok', pct:0 };
+  if (item.heroScore >= 5) return { label:'Consider +15%', cls:'ab-ok', pct:15 };
+  return { label:'Hold', cls:'ab-ok', pct:0 };
+}
+
+// ══ NORMALIZE ══
+function normalizeItems(rows) {
+  const headers = rows[0].map(h => h.trim());
+  const C = {};
+  for (const k of Object.keys(ALIASES)) C[k] = findCol(headers, k);
+  const g = (row, k) => (row[C[k]] !== undefined ? row[C[k]] : '').trim();
+
+  const prices = [];
+  const items = rows.slice(1).map((row, ri) => {
+    const price = parseFloat(g(row, 'price').replace(/[$,]/g, '')) || 0;
+    const origPrice = parseFloat(g(row, 'origPrice').replace(/[$,]/g, '')) || 0;
+    const dateListed = parseDate(g(row, 'dateListed'));
+    const age = dateListed ? Math.round((Date.now() - dateListed.getTime()) / 86400000) : 0;
+    const platforms = getPlatforms(row, headers, C.platforms);
+    prices.push(price);
+    const sku = g(row, 'sku') || `row-${ri}`;
+    return {
+      title:       g(row, 'title') || `Item ${ri+1}`,
+      _rawStatus:  rawStatus(g(row, 'status')),
+      price, origPrice, age,
+      brand:       g(row, 'brand'),
+      category:    g(row, 'category'),
+      subcategory: g(row, 'subcategory'),
+      department:  g(row, 'department'),
+      size:        g(row, 'size'),
+      color:       g(row, 'color'),
+      condition:   g(row, 'condition'),
+      sku,
+      dateListed,
+      platforms,
+      image:       g(row, 'image'),
+      description: g(row, 'description'),
+      collection:  g(row, 'collection') || g(row, 'category') || 'Uncategorized',
+      likes:       parseInt(g(row, 'likes')) || 0,
+      heroScore:   0,
+    };
+  }).filter(i => i.title && i.title !== 'Item 1' || i.price > 0);
+
+  const sortedPrices = [...prices].sort((a, b) => a - b);
+  for (const item of items) {
+    item.heroScore    = calcHero(item, sortedPrices);
+    item.platTitles   = platformTitles(item);
+    item.seoTitle     = item.platTitles.poshmark.length > 10 ? item.platTitles.poshmark : item.title.substring(0,80);
+    item.ageInfo      = ageClass(item.age);
+    item.pricingRec   = pricingAction(item);
+  }
+  return items;
+}
+
+// ══ LOAD / SHOW ══
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = parseCSV(e.target.result);
+      if (rows.length < 2) throw new Error('CSV appears empty or unreadable.');
+      S.items = normalizeItems(rows);
+      if (!S.items.length) throw new Error('No valid listings found in the CSV.');
+      showApp();
+    } catch (err) {
+      const el = document.getElementById('upload-error');
+      el.textContent = '⚠ ' + err.message;
+      el.style.display = 'block';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function showApp() {
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  updateHeader();
+  setView('cmd');
+}
+
+function resetApp() {
+  S.items = []; S.view = 'cmd'; S.allPage = 0;
+  S.filters = { search: '', col: 'all', cat: 'all', stars: 0, age: 'all' };
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('upload-screen').style.display = 'flex';
+  document.getElementById('upload-error').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+// ══ COMPUTED ══
+function getWorking() {
+  return S.items.filter(i => {
+    const st = effectiveStatus(i);
+    if (st === 'sold') return S.view === 'sold';
+    if (S.showAll) return S.view !== 'sold';
+    return st === 'active' || st === 'relisted';
+  });
+}
+
+function getAllSold() {
+  return S.items.filter(i => effectiveStatus(i) === 'sold');
+}
+
+function updateHeader() {
+  const all   = S.items;
+  const working = S.items.filter(i => { const st = effectiveStatus(i); return st === 'active' || st === 'relisted'; });
+  const sold  = getAllSold();
+  const ghosts= working.filter(i => i.age >= 500);
+  const crit  = working.filter(i => i.age >= 365 && i.age < 500);
+  const heroes= working.filter(i => i.heroScore >= 4);
+  document.getElementById('h-active').textContent = working.length;
+  document.getElementById('h-ghost').textContent  = ghosts.length;
+  document.getElementById('h-crit').textContent   = crit.length;
+  document.getElementById('h-hero').textContent   = heroes.length;
+  document.getElementById('h-sold').textContent   = sold.length;
+  document.getElementById('hdr-sub').textContent  = `${all.length} total · ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+}
+
+function toggleShowAll() {
+  S.showAll = document.getElementById('show-all-chk').checked;
+  updateHeader(); setView(S.view);
+}
+
+// ══ NAV ══
+function setView(v) {
+  S.view = v; S.allPage = 0;
+  document.querySelectorAll('.nb').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  const renders = { cmd, relist, heroes, ghosts, titles, pricing, collections, sold: soldView, strategy, all };
+  (renders[v] || cmd)();
+}
+
+document.getElementById('nav').addEventListener('click', e => {
+  const b = e.target.closest('[data-view]'); if (b) setView(b.dataset.view);
+});
+
+// ══ HELPERS ══
+function stars(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
+function fmt(n)   { return '$' + (+n || 0).toFixed(2); }
+function todayStr(){ return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+
+function imgEl(item, cls) {
+  if (item.image) return `<img class="${cls}" src="${item.image}" loading="lazy" onerror="this.outerHTML='<div class=\\'${cls} card-ph\\'>🦇</div>'">`;
+  return `<div class="${cls} card-ph">🦇</div>`;
+}
+
+function statusBar(st) {
+  const map = { active:'status-active', sold:'status-sold', inactive:'status-inactive', relisted:'status-relisted' };
+  return `<div class="card-status-bar ${map[st]||'status-inactive'}"></div>`;
+}
+
+function cardEl(item, opts = {}) {
+  const st = effectiveStatus(item);
+  const rd = S.relistData[item.sku];
+  const isMarked = !!S.heroMark[item.sku];
+  const pa = item.pricingRec;
+  const sugPrice = pa.pct ? (item.price * (1 + pa.pct/100)).toFixed(2) : null;
+  return `
+  <div class="card${isMarked?' hero-marked':''}${st==='sold'?' is-sold':''}${st==='relisted'?' is-relisted':''}">
+    ${statusBar(st)}
+    ${imgEl(item, 'card-img')}
+    <div class="card-body">
+      <div class="card-brand">
+        <span>${item.brand || '—'}</span>
+        <span style="color:var(--ash);font-size:9px">${item.category || ''}${item.size ? ' · Sz '+item.size : ''}</span>
+      </div>
+      <div class="card-title">${item.title}</div>
+      ${opts.showSEO && item.seoTitle !== item.title ? `<div class="card-seo">✦ ${item.seoTitle}</div>` : ''}
+      <div class="card-price">
+        <span class="cp-cur">${fmt(item.price)}</span>
+        ${sugPrice ? `<span class="cp-arr">→</span><span class="cp-sug">suggest ${fmt(sugPrice)}</span>` : ''}
+      </div>
+      <div class="card-badges">
+        <span class="bdg bh${item.heroScore}">${stars(item.heroScore)}</span>
+        <span class="bdg ${item.ageInfo.cls}">${item.ageInfo.label}</span>
+        ${item.condition ? `<span class="bdg ba-ok">${item.condition}</span>` : ''}
+        ${rd ? `<span class="bdg ba-relisted">Relisted ${rd.date}${rd.count>1?' ×'+rd.count:''}</span>` : ''}
+        ${st === 'sold' ? '<span class="bdg ba-sold">Sold</span>' : ''}
+        ${st === 'inactive' ? `<span class="bdg ba-inactive">${item._rawStatus}</span>` : ''}
+        ${item.platforms.length ? `<span class="bdg ba-ok" style="font-size:9px">${item.platforms.length} platforms</span>` : ''}
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-copy" onclick="copyText('${esc(item.seoTitle)}')">Copy Title</button>
+        <button class="btn btn-hero${isMarked?' marked':''}" onclick="toggleHero('${item.sku}')" title="Toggle Hero">
+          ${isMarked ? '⭐' : '☆'}
+        </button>
+        ${st !== 'sold' ? `
+        <button class="btn btn-relist${rd?' btn-done':''}" onclick="toggleRelist('${item.sku}')">
+          ${rd ? '✓ Relisted' : '→ Relist'}
+        </button>
+        <button class="btn btn-sold" onclick="markStatus('${item.sku}','sold')">Mark Sold</button>
+        ` : `<button class="btn btn-unsold" onclick="markStatus('${item.sku}','active')">↩ Mark Active</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function esc(s) { return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function copyText(t) {
+  navigator.clipboard.writeText(t).then(() => toast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = t; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); toast('Copied!');
+  });
+}
+
+function toast(msg, dur = 1800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+function toggleHero(sku) {
+  if (S.heroMark[sku]) delete S.heroMark[sku]; else S.heroMark[sku] = true;
+  const sortedPrices = S.items.map(i => i.price).sort((a,b) => a-b);
+  const item = S.items.find(i => i.sku === sku);
+  if (item) { item.heroScore = calcHero(item, sortedPrices); item.pricingRec = pricingAction(item); }
+  saveState(); updateHeader(); setView(S.view);
+}
+
+function markStatus(sku, status) {
+  S.statusOverride[sku] = status;
+  saveState(); updateHeader(); setView(S.view);
+}
+
+function toggleRelist(sku) {
+  if (S.relistData[sku]) {
+    delete S.relistData[sku];
+    delete S.statusOverride[sku];
+  } else {
+    const prev = S.relistData[sku];
+    const count = prev ? prev.count + 1 : 1;
+    const item = S.items.find(i => i.sku === sku);
+    S.relistData[sku] = { date: todayStr(), count, seoTitle: item?.seoTitle || '' };
+    if (!S.statusOverride[sku]) S.statusOverride[sku] = 'relisted';
+  }
+  saveState(); updateHeader(); setView(S.view);
+}
+
+// ══ CATEGORY CHIPS ══
+function buildCatChips(items, selected, onChange) {
+  const catSet = new Set(items.map(i => i.category).filter(Boolean));
+  const cats = ['all', ...catSet].slice(0, 20);
+  return `<div class="chips">${cats.map(c =>
+    `<button class="chip chip-cat${selected===c?' on':''}" onclick="${onChange}('${esc(c)}')">${c==='all'?'All Categories':c}</button>`
+  ).join('')}</div>`;
+}
+
+function buildColChips(items, selected, onChange) {
+  const colSet = new Set(items.map(i => i.collection).filter(Boolean));
+  const cols = ['all', ...colSet].slice(0, 12);
+  return `<div class="chips">${cols.map(c =>
+    `<button class="chip${selected===c?' on':''}" onclick="${onChange}('${esc(c)}')">${c==='all'?'All Collections':c}</button>`
+  ).join('')}</div>`;
+}
+
+// ══ VIEW: COMMAND ══
+function cmd() {
+  const items = getWorking();
+  const ghosts = items.filter(i => i.age >= 500);
+  const crit   = items.filter(i => i.age >= 365 && i.age < 500);
+  const heroes  = items.filter(i => i.heroScore >= 4);
+  const relisted = items.filter(i => effectiveStatus(i) === 'relisted');
+  const avgAge  = items.length ? Math.round(items.reduce((s,i) => s+i.age, 0)/items.length) : 0;
+  const avgPrice = items.length ? (items.reduce((s,i) => s+i.price,0)/items.length) : 0;
+  const relistDone = Object.keys(S.relistData).length;
+  const relistPct  = items.length ? Math.round(relistDone/items.length*100) : 0;
+
+  const colMap = {};
+  for (const i of items) colMap[i.collection] = (colMap[i.collection]||0)+1;
+  const colRows = Object.entries(colMap).sort((a,b) => b[1]-a[1]).slice(0, 8);
+
+  const queue = [...items].filter(i => !S.relistData[i.sku])
+    .sort((a,b) => (b.heroScore-a.heroScore)||(b.age-a.age)).slice(0, 6);
+
+  document.getElementById('view').innerHTML = `
+  <div class="stat-row">
+    <div class="sc"><div class="sc-v c-bloom">${items.length}</div><div class="sc-l">Active</div><div class="sc-s">avg ${fmt(avgPrice)}</div></div>
+    <div class="sc"><div class="sc-v c-danger">${ghosts.length}</div><div class="sc-l">Ghosts 500d+</div><div class="sc-s">Delete & relist</div></div>
+    <div class="sc"><div class="sc-v c-warn">${crit.length}</div><div class="sc-l">Critical 365d+</div><div class="sc-s">Drop price now</div></div>
+    <div class="sc"><div class="sc-v c-gold">${heroes.length}</div><div class="sc-l">Heroes ★★★★+</div><div class="sc-s">Feature & promote</div></div>
+    <div class="sc"><div class="sc-v c-ok">${relisted.length}</div><div class="sc-l">Relisted Today</div><div class="sc-s">avg age ${avgAge}d</div></div>
+    <div class="sc"><div class="sc-v c-sold">${getAllSold().length}</div><div class="sc-l">Sold</div><div class="sc-s">marked this session</div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Daily Relist Progress</span><span>${relistDone} relisted</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${relistPct}%"></div></div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-box">
+      <h3>🔄 Top Relist Picks</h3>
+      ${queue.map(i => `
+        <div class="cmd-row">
+          <span class="cmd-row-label" title="${i.title}">${i.title}</span>
+          <span class="cmd-row-val">${stars(i.heroScore)} ${i.age}d</span>
+        </div>`).join('') || '<div class="cmd-row"><span style="color:var(--ok)">All done! 🎉</span></div>'}
+      <div style="margin-top:.65rem">
+        <button class="nb" style="font-size:11px" onclick="setView('relist')">Open Full Queue →</button>
+      </div>
+    </div>
+    <div class="cmd-box">
+      <h3>🌹 Collections</h3>
+      ${colRows.map(([name, count]) => `
+        <div class="cmd-row">
+          <span class="cmd-row-label">${name}</span>
+          <span class="cmd-row-val">${count}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="stitle">🦇 Today's Heroes — Feature These</div>
+  <div class="grid">${heroes.slice(0, 6).map(i => cardEl(i, {showSEO:true})).join('') || '<div class="empty">No heroes yet — use ☆ to mark your best pieces.</div>'}</div>
+  ${heroes.length > 6 ? `<button class="more-btn" onclick="setView('heroes')">See All ${heroes.length} Heroes →</button>` : ''}`;
+}
+
+// ══ VIEW: RELIST ══
+function relist() {
+  const items = getWorking();
+  const todo  = [...items].filter(i => !S.relistData[i.sku]).sort((a,b) => (b.heroScore-a.heroScore)||(b.age-a.age));
+  const done  = [...items].filter(i => S.relistData[i.sku]).sort((a,b) => new Date(b.relistData?.date||0)-new Date(a.relistData?.date||0));
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">🔄 Relist Queue <span style="font-size:12px;color:var(--ash);font-family:'IBM Plex Mono'">${done.length}/${items.length} done</span></div>
+  <div class="bulk-bar">
+    <span>Bulk actions:</span>
+    <button class="btn btn-copy btn-sm" onclick="if(confirm('Reset all relist tracking?')){S.relistData={};saveState();setView('relist')}">Reset Tracking</button>
+    <button class="btn btn-copy btn-sm" onclick="exportRelist()">Export Relist Log</button>
+  </div>
+  ${[...todo, ...done].map((i, idx) => {
+    const rd = S.relistData[i.sku];
+    const pa = i.pricingRec;
+    return `
+    <div class="relist-item${rd?' done':''}">
+      <div class="ri-num">${idx+1}</div>
+      ${i.image ? `<img class="ri-img" src="${i.image}" loading="lazy" onerror="this.innerHTML='🦇'">` : `<div class="ri-img">🦇</div>`}
+      <div class="ri-info">
+        <div class="ri-title">${i.title}</div>
+        <div class="ri-meta">
+          <span class="bdg ${i.ageInfo.cls}">${i.ageInfo.label}</span>
+          <span>${stars(i.heroScore)}</span>
+          <span>${fmt(i.price)}</span>
+          <span class="action-badge ${pa.cls}">${pa.label}</span>
+          ${rd ? `<span style="color:var(--ok);font-size:10px">✓ Relisted ${rd.date}${rd.count>1?' (×'+rd.count+')':''}</span>` : ''}
+        </div>
+      </div>
+      <div class="ri-actions">
+        <button class="btn btn-copy btn-sm" onclick="copyText('${esc(i.seoTitle)}')">Copy Title</button>
+        <button class="btn btn-sold btn-sm" onclick="markStatus('${i.sku}','sold')">Sold</button>
+        <button class="btn ${rd?'btn-done':'btn-relist'} btn-sm" onclick="toggleRelistRow('${i.sku}')">
+          ${rd ? '✓ Relisted' : '→ Relist'}
+        </button>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">No listings to relist.</div>'}`;
+}
+
+function toggleRelistRow(sku) { toggleRelist(sku); }
+
+function exportRelist() {
+  const rows = [['SKU','Title','Relisted Date','Times Relisted','SEO Title']];
+  for (const [sku, d] of Object.entries(S.relistData)) {
+    const item = S.items.find(i => i.sku === sku);
+    rows.push([sku, item?.title||'', d.date, d.count, d.seoTitle||'']);
+  }
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `relist-log-${todayStr().replace(/\s/g,'-')}.csv`;
+  a.click(); toast('Exported!');
+}
+
+// ══ VIEW: HEROES ══
+function heroes() {
+  const all = getWorking();
+  const catFilter = S.filters.cat;
+  let items = all.filter(i => i.heroScore >= 4);
+  if (catFilter !== 'all') items = items.filter(i => i.category === catFilter);
+  items.sort((a,b) => b.heroScore - a.heroScore || b.price - a.price);
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">🦇 Heroes — ${items.length} listings ★★★★+</div>
+  <p style="font-size:11px;color:var(--ash);margin-bottom:.75rem">Feature these on social, send offers, consider price raises. Use ☆ to manually designate any item.</p>
+  ${buildCatChips(all.filter(i=>i.heroScore>=4), catFilter, 'filterHeroesCat')}
+  <div class="grid">${items.map(i => cardEl(i, {showSEO:true})).join('') || '<div class="empty">No heroes in this category. Mark items with ☆ or switch category filter.</div>'}</div>`;
+}
+window.filterHeroesCat = cat => { S.filters.cat = cat; setView('heroes'); };
+
+// ══ VIEW: GHOSTS ══
+function ghosts() {
+  const all = getWorking();
+  const catFilter = S.filters.cat;
+  let items = all.filter(i => i.age >= 500);
+  if (catFilter !== 'all') items = items.filter(i => i.category === catFilter);
+  items.sort((a,b) => b.age - a.age);
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">👻 Ghosts — ${items.length} listings 500d+</div>
+  <p style="font-size:11px;color:var(--ash);margin-bottom:.75rem">Algorithm-dead. Must delete original listing, relist fresh with new title & price drop. Do not just renew.</p>
+  ${buildCatChips(all.filter(i=>i.age>=500), catFilter, 'filterGhostsCat')}
+  <div class="grid">${items.map(i => cardEl(i, {showSEO:true})).join('') || '<div class="empty">No ghosts! All listings under 500 days. 🎉</div>'}</div>`;
+}
+window.filterGhostsCat = cat => { S.filters.cat = cat; setView('ghosts'); };
+
+// ══ VIEW: SEO TITLES ══
+function titles() {
+  const all = getWorking();
+  const catFilter = S.filters.cat;
+  let items = catFilter !== 'all' ? all.filter(i => i.category === catFilter) : all;
+  items = [...items].sort((a,b) => b.heroScore - a.heroScore || b.age - a.age);
+
+  const PLATS = [
+    ['poshmark','Poshmark','#c4547a'],
+    ['etsy','Etsy','#d4783a'],
+    ['depop','Depop','#c84848'],
+    ['shopify','Shopify','#4a9e72'],
+    ['thrifted','Thrifted / ThredUp / Vinted','#9b6fc4'],
+  ];
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">✍️ SS26 Titles — ${items.length} listings</div>
+  <p style="font-size:11px;color:var(--ash);margin-bottom:.4rem">FBP dark-romantic aesthetic + Spring/Summer 2026 trend vocabulary. Each platform has its own copy-ready format — click any title or its button to copy.</p>
+  <p style="font-size:10px;color:var(--ash);margin-bottom:.75rem">Poshmark: brand-forward ≤80c · Etsy: long-tail keyword stack · Depop: lowercase + hashtags · Shopify: clean SEO · Thrifted: aesthetic tags</p>
+  ${buildCatChips(all, catFilter, 'filterTitlesCat')}
+  <div class="bulk-bar"><span>Bulk:</span>
+    <button class="btn btn-copy btn-sm" onclick="exportTitles()">Export All Titles CSV</button>
+  </div>
+  ${items.map(i => {
+    const st = effectiveStatus(i);
+    const rd = S.relistData[i.sku];
+    const pt = i.platTitles || platformTitles(i);
+    return `
+    <div class="scard" style="padding:.85rem 1rem;margin-bottom:.7rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:.5rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;color:var(--ghost)">${i.title}</div>
+          <div style="font-size:10px;color:var(--ash);margin-top:2px">
+            ${stars(i.heroScore)} · <span class="bdg ${i.ageInfo.cls}">${i.age}d</span> · ${fmt(i.price)} ·
+            <span class="bdg ${st==='sold'?'ba-sold':st==='relisted'?'ba-relisted':'ba-ok'}">${rd?'Relisted '+rd.date:st}</span>
+          </div>
+        </div>
+        ${st!=='sold'?`<button class="btn btn-sold btn-sm" onclick="markStatus('${i.sku}','sold')">Mark Sold</button>`:`<button class="btn btn-unsold btn-sm" onclick="markStatus('${i.sku}','active')">↩ Active</button>`}
+      </div>
+      ${PLATS.map(([key,label,clr]) => `
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid rgba(196,84,122,0.08)">
+          <span style="font-size:9px;color:${clr};min-width:128px;text-transform:uppercase;letter-spacing:.05em;font-weight:700">${label}</span>
+          <span onclick="copyText('${esc(pt[key])}')" title="Click to copy" style="flex:1;font-size:11px;color:var(--silver);cursor:pointer;line-height:1.4">${pt[key]}</span>
+          <button class="btn btn-copy btn-sm" onclick="copyText('${esc(pt[key])}')">Copy</button>
+        </div>`).join('')}
+    </div>`;
+  }).join('') || '<div class="empty">No listings.</div>'}`;
+}
+window.exportTitles = function() {
+  const items = getWorking();
+  const rows = [['SKU','Original Title','Poshmark','Etsy','Depop','Shopify','Thrifted']];
+  for (const i of items) {
+    const pt = i.platTitles || platformTitles(i);
+    rows.push([i.sku, i.title, pt.poshmark, pt.etsy, pt.depop, pt.shopify, pt.thrifted]);
+  }
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `ss26-titles-${todayStr().replace(/\s/g,'-')}.csv`;
+  a.click(); toast('Exported!');
+};
+window.filterTitlesCat = cat => { S.filters.cat = cat; setView('titles'); };
+
+// ══ VIEW: PRICING ══
+function pricing() {
+  const all = getWorking();
+  const catFilter = S.filters.cat;
+  let items = catFilter !== 'all' ? all.filter(i => i.category === catFilter) : all;
+  items = [...items].sort((a,b) => b.age - a.age);
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">💰 Pricing Strategy — ${items.length} listings</div>
+  ${buildCatChips(all, catFilter, 'filterPricingCat')}
+  <div style="overflow-x:auto"><table class="tbl">
+    <thead><tr><th>Item</th><th>★</th><th>Age</th><th>Current</th><th>Suggested</th><th>Rec. Action</th><th></th></tr></thead>
+    <tbody>${items.map(i => {
+      const pa = i.pricingRec;
+      const sug = pa.pct ? fmt(i.price*(1+pa.pct/100)) : '—';
+      const rd = S.relistData[i.sku];
+      return `<tr>
+        <td class="tbl-title" title="${i.title}">${i.title}</td>
+        <td>${stars(i.heroScore)}</td>
+        <td><span class="bdg ${i.ageInfo.cls}">${i.age}d</span></td>
+        <td>${fmt(i.price)}</td>
+        <td>${pa.pct ? `<span style="color:var(--gold)">${sug}</span>` : '—'}</td>
+        <td><span class="action-badge ${pa.cls}">${pa.label}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-copy btn-sm" onclick="copyText('${esc(i.seoTitle)}')">Title</button>
+          ${!rd?`<button class="btn btn-relist btn-sm" onclick="toggleRelist('${i.sku}')">Relist</button>`:`<span style="color:var(--ok);font-size:10px">✓ ${rd.date}</span>`}
+          <button class="btn btn-sold btn-sm" onclick="markStatus('${i.sku}','sold')">Sold</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+window.filterPricingCat = cat => { S.filters.cat = cat; setView('pricing'); };
+
+// ══ VIEW: COLLECTIONS ══
+function collections() {
+  const items = getWorking();
+  const colMap = {};
+  for (const i of items) { if (!colMap[i.collection]) colMap[i.collection]=[]; colMap[i.collection].push(i); }
+  const cols = Object.entries(colMap).sort((a,b) => b[1].length - a[1].length);
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">🌹 Collections — ${cols.length} groups</div>
+  <div class="col-grid">${cols.map(([name, its]) => {
+    const heroes = its.filter(i => i.heroScore >= 4).length;
+    const ghosts = its.filter(i => i.age >= 500).length;
+    const avg    = its.length ? (its.reduce((s,i)=>s+i.price,0)/its.length).toFixed(0) : 0;
+    const cats   = [...new Set(its.map(i => i.category).filter(Boolean))].slice(0,5);
+    return `
+    <div class="col-card">
+      <div class="col-name">${name}</div>
+      <div class="col-stats">
+        <span>${its.length} listings</span>
+        <span>avg $${avg}</span>
+        <span class="c-gold">${heroes} heroes</span>
+        <span class="c-danger">${ghosts} ghosts</span>
+      </div>
+      ${cats.length ? `<div style="font-size:10px;color:var(--ash);margin-bottom:.5rem">Categories: ${cats.join(', ')}</div>` : ''}
+      <div class="col-mini">${its.slice(0,8).map(i => `<span class="col-swatch">${i.title.substring(0,26)}</span>`).join('')}${its.length>8?`<span class="col-swatch" style="color:var(--ash)">+${its.length-8} more</span>`:''}</div>
+    </div>`;
+  }).join('') || '<div class="empty">No collections found.</div>'}</div>`;
+}
+
+// ══ VIEW: SOLD ══
+function soldView() {
+  const items = getAllSold().sort((a,b) => b.price - a.price);
+  const totalValue = items.reduce((s,i) => s+i.price, 0);
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">💸 Sold Items — ${items.length} listings</div>
+  <div class="bulk-bar">
+    <span>Total listed value sold: <strong style="color:var(--bloom)">${fmt(totalValue)}</strong></span>
+    <button class="btn btn-copy btn-sm" onclick="exportSold()">Export Sold List</button>
+    <button class="btn btn-copy btn-sm" onclick="if(confirm('Clear all sold marks?')){for(const k of Object.keys(S.statusOverride)){if(S.statusOverride[k]==='sold')delete S.statusOverride[k];}saveState();setView('sold')}">Clear All Sold</button>
+  </div>
+  <p style="font-size:11px;color:var(--ash);margin-bottom:.75rem">Items with "Sold" status from Vendoo CSV or manually marked here. Mark active to restore to inventory.</p>
+  <div class="grid">${items.map(i => cardEl(i)).join('') || '<div class="empty">No sold items detected. Items marked Sold here or in your CSV will appear.</div>'}</div>`;
+}
+
+function exportSold() {
+  const items = getAllSold();
+  const rows = [['SKU','Title','Price','Brand','Category','Condition','Age (days)','Platforms']];
+  for (const i of items) rows.push([i.sku, i.title, i.price, i.brand, i.category, i.condition, i.age, i.platforms.join(';')]);
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `sold-items-${todayStr().replace(/\s/g,'-')}.csv`;
+  a.click(); toast('Exported!');
+}
+
+// ══ VIEW: STRATEGY ══
+function strategy() {
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">🗺️ Resurrection Strategy</div>
+  <div class="strategy-body">
+  <div class="scard"><h3>🦇 The Core Problem</h3>
+  <p>Listings older than 90 days lose algorithm visibility. After 365 days they're near-invisible. After 500 days (Ghosts) — zero organic traffic. The fix is never "renew" — it's delete original, optimize title, relist fresh.</p></div>
+  <div class="scard"><h3>📋 Daily Workflow (15 min)</h3><ul>
+    <li><strong>1.</strong> Export fresh Vendoo CSV → Load into this app</li>
+    <li><strong>2.</strong> Check Sold tab — mark any already-sold items to remove from queue</li>
+    <li><strong>3.</strong> Open Relist Today → work top-to-bottom (sorted by hero score + age)</li>
+    <li><strong>4.</strong> Copy optimized SEO title from each card before relisting on each platform</li>
+    <li><strong>5.</strong> Click "→ Relist" to log the date — tracks your relist history</li>
+    <li><strong>6.</strong> Open Pricing tab → send offers on Critical items before closing</li>
+    <li><strong>7.</strong> Share Heroes on all platforms</li>
+  </ul></div>
+  <div class="scard"><h3>👻 Ghost Protocol (500d+)</h3><ul>
+    <li>Delete the listing entirely from each platform (not renew/refresh)</li>
+    <li>Wait 24h before relisting — algorithm treats same-day repost as duplicate</li>
+    <li>Use the app's Optimized SEO Title (brand + color + category + size)</li>
+    <li>Drop price 20% minimum — same price on relist triggers algorithm suppression</li>
+    <li>Re-photograph if possible — new images boost CTR significantly</li>
+    <li>Relist to all platforms simultaneously for maximum initial velocity</li>
+  </ul></div>
+  <div class="scard"><h3>🦇 Hero Strategy (★★★★+)</h3><ul>
+    <li>Heroes are high-value pieces worth featuring as flagship content</li>
+    <li>Post on Instagram Reels / TikTok as "item of the day" — direct link to listing</li>
+    <li>Consider a slight price raise if recently listed (underpricing signals low value)</li>
+    <li>Bundle heroes with slower movers to clear both in one sale</li>
+    <li>Never drop a hero price without maximizing organic reach first</li>
+    <li>Use ☆ button to manually designate any item as Hero regardless of score</li>
+  </ul></div>
+  <div class="scard"><h3>✍️ SEO Title Formula</h3>
+  <p>Format: <strong>CONDITION BRAND COLOR CATEGORY SIZE</strong></p>
+  <p>Example: <em>NWT Free People Black Lace Maxi Dress Sz S</em></p><ul>
+    <li>Front-load brand + condition — buyers search brand first</li>
+    <li>Include exact size — shoppers filter by size constantly</li>
+    <li>Add 1-2 style keywords: y2k, gothic, cottagecore, vintage, boho</li>
+    <li>Avoid filler: "Beautiful", "Gorgeous", "Amazing" — waste of character space</li>
+    <li>Keep under 80 characters — search results cut off beyond that</li>
+  </ul></div>
+  <div class="scard"><h3>💰 Pricing Tiers</h3><ul>
+    <li><strong>Ghosts (500d+, low score):</strong> Delete & relist at -20%</li>
+    <li><strong>Ghosts (500d+, hero):</strong> Drop 15% + send offers to likers</li>
+    <li><strong>Critical (365-499d):</strong> Drop 10-15% immediately</li>
+    <li><strong>Aging (90-364d):</strong> Drop 10% if no activity after 30 days</li>
+    <li><strong>Fresh heroes (under 90d, ★5):</strong> Consider raising 10-15%</li>
+    <li><strong>Fresh (under 90d):</strong> Hold and share daily</li>
+  </ul></div>
+  </div>`;
+}
+
+// ══ VIEW: ALL LISTINGS ══
+function all() {
+  const PAGE = 60;
+  const allItems = getWorking();
+
+  function filtered() {
+    const q = S.filters.search.toLowerCase();
+    return allItems.filter(i => {
+      if (q && !i.title.toLowerCase().includes(q) && !(i.brand||'').toLowerCase().includes(q) && !(i.collection||'').toLowerCase().includes(q)) return false;
+      if (S.filters.col !== 'all' && i.collection !== S.filters.col) return false;
+      if (S.filters.cat !== 'all' && i.category !== S.filters.cat) return false;
+      if (S.filters.stars > 0 && i.heroScore < S.filters.stars) return false;
+      if (S.filters.age !== 'all' && i.ageInfo.key !== S.filters.age) return false;
+      return true;
+    });
+  }
+
+  function renderGrid() {
+    const f = filtered();
+    const page = f.slice(0, (S.allPage+1)*PAGE);
+    const g = document.getElementById('all-grid');
+    if (g) g.innerHTML = page.map(i => cardEl(i, {showSEO:true})).join('') || '<div class="empty">No listings match filters.</div>';
+    const c = document.getElementById('all-cnt');
+    if (c) c.textContent = f.length + ' listings';
+    const m = document.getElementById('all-more');
+    if (m) m.style.display = f.length > page.length ? 'block' : 'none';
+  }
+
+  const colSet = [...new Set(allItems.map(i => i.collection).filter(Boolean))];
+  const catSet = [...new Set(allItems.map(i => i.category).filter(Boolean))];
+
+  document.getElementById('view').innerHTML = `
+  <div class="stitle">📦 All Listings</div>
+  <div class="fbar">
+    <input class="fi" id="all-search" placeholder="Search title, brand, collection…" value="${S.filters.search}" oninput="S.filters.search=this.value;S.allPage=0;window._renderAllGrid()">
+    <select class="fs" onchange="S.filters.col=this.value;S.allPage=0;window._renderAllGrid()">
+      <option value="all">All Collections</option>
+      ${colSet.map(c => `<option value="${esc(c)}"${S.filters.col===c?' selected':''}>${c}</option>`).join('')}
+    </select>
+    <select class="fs" onchange="S.filters.cat=this.value;S.allPage=0;window._renderAllGrid()">
+      <option value="all">All Categories</option>
+      ${catSet.map(c => `<option value="${esc(c)}"${S.filters.cat===c?' selected':''}>${c}</option>`).join('')}
+    </select>
+    <select class="fs" onchange="S.filters.stars=+this.value;S.allPage=0;window._renderAllGrid()">
+      <option value="0">Any Stars</option>
+      <option value="4">★★★★+ Heroes</option>
+      <option value="5">★★★★★ Only</option>
+      <option value="3">★★★+</option>
+    </select>
+    <select class="fs" onchange="S.filters.age=this.value;S.allPage=0;window._renderAllGrid()">
+      <option value="all">Any Age</option>
+      <option value="fresh">Fresh &lt;90d</option>
+      <option value="ok">Aging 90–364d</option>
+      <option value="crit">Critical 365–499d</option>
+      <option value="ghost">Ghosts 500d+</option>
+    </select>
+    <span class="fcnt" id="all-cnt"></span>
+  </div>
+  <div class="grid" id="all-grid"></div>
+  <button class="more-btn" id="all-more" onclick="S.allPage++;window._renderAllGrid()" style="display:none">Load More</button>`;
+
+  window._renderAllGrid = renderGrid;
+  renderGrid();
+}
+
+// ══ UPLOAD WIRING ══
+const dropzone  = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+
+dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', ()  => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('drag');
+  const f = e.dataTransfer.files[0]; if (f) loadFile(f);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+</script>
+</body>
+</html>
