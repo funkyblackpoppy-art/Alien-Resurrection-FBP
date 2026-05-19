@@ -409,58 +409,81 @@ function calcHero(item, sortedPrices) {
 // ══ FBP AESTHETIC + SS26 KEYWORD LIBRARY ══
 // Curated for Funky Black Poppy's dark-romantic / goth resale identity,
 // refreshed with Spring/Summer 2026 trend vocabulary.
-const FBP_LIB = {
-  // Universal FBP aesthetic descriptors (rotated, not all used at once)
-  core: ['gothic','whimsigoth','dark romantic','y2k','grunge','dark academia',
-         'witchy','coquette','mall goth','boho goth','vintage','fairy grunge',
-         'romantic goth','occult','ethereal','moody'],
-  // SS26 runway/resale trend words
-  ss26: ['sheer layering','lace','mesh','corsetry','slip','butter yellow',
-         'cherry red','romantic grunge','balletcore','dropped waist',
-         'bias cut','ribbon detail','lingerie dressing','sheer'],
-  // Collection → aesthetic flavor
-  collection: {
-    'black poppy archive': ['y2k','dark romantic','archival','2000s'],
-    'velvet funeral':      ['velvet','lace','sheer','dark editorial','vampire'],
-    'rain witch':          ['boho goth','earth tone','layered','witchy','folk'],
-    'mall goth resurrection': ['mall goth','90s','pvc','chains','nu metal'],
-    'haunted librarian':   ['dark academia','blazer','scholarly','autumnal'],
-    'glam crypt':          ['glam rock','sequin','disco','statement'],
-  },
-  // Garment-specific aesthetic boosters keyed off category text
-  garment: [
-    [/dress|gown|frock/i,        ['slip dress','babydoll','maxi','romantic']],
-    [/top|tee|blouse|shirt|cami/i,['corset top','mesh top','baby tee','crop']],
-    [/skirt/i,                   ['mini skirt','pleated','lace trim']],
-    [/pant|trouser|jean|denim/i, ['low rise','baggy','flared','distressed']],
-    [/jacket|coat|blazer/i,      ['cropped','tailored','vintage outerwear']],
-    [/boot|shoe|heel|platform/i, ['platform','chunky','grunge footwear']],
-    [/bag|purse|accessor/i,      ['statement','vintage accessory']],
-    [/lingerie|slip|corset/i,    ['lingerie dressing','sheer','romantic']],
-  ],
+// ── TITLE INTELLIGENCE ENGINE ──────────────────────────────────────────────
+
+// Material keywords found IN title text → aesthetic mappings
+const MATERIAL_MAP = [
+  [/sequin|sequined|sparkl|glitter|rhinestone/i, ['Y2K Glam','Disco Sparkle','Glam Goth','Dark Glam','Statement']],
+  [/velvet/i,                                    ['Velvet Goth','Dark Editorial','Vampire','Moody Luxe','Dark Romantic']],
+  [/lace|lacey/i,                                ['Fairy Grunge','Dark Romantic','Coquette','Romantic Goth','Whimsigoth']],
+  [/mesh|sheer|see.?through/i,                   ['Sheer Layering','Dark Editorial','Y2K','Coquette','Lingerie Dressing']],
+  [/satin|silk|silky/i,                          ['Slip Dress Era','Lingerie Dressing','Dark Romantic','Bias Cut','Coquette']],
+  [/leather|faux.?leather|pvc|patent/i,          ['Moto Goth','Edgy','Alt','Mall Goth','Dark Aesthetic']],
+  [/denim|jean/i,                                ['Y2K Denim','Low Rise','Grunge','90s Alt','Vintage']],
+  [/velour|velvet|terry/i,                       ['Y2K Velour','Dark Romantic','Cozy Goth','Luxe']],
+  [/crochet|knit|sweater/i,                      ['Boho Goth','Whimsigoth','Fairy Grunge','Romantic','Witchy']],
+  [/chiffon|organza|tulle/i,                     ['Ethereal','Dark Romantic','Fairy Grunge','Romantic Goth','Dreamy']],
+  [/floral|fleur|rose|petal/i,                   ['Dark Floral','Gothic Romance','Whimsigoth','Coquette','Romantic']],
+  [/plaid|tartan|check/i,                        ['Dark Academia','Goth School','Mall Goth','Alt Academic','Grunge']],
+  [/corset|bustier|boned/i,                      ['Corsetry','Dark Romantic','SS26 Trend','Lingerie Dressing','Coquette']],
+  [/graphic|print|band|logo/i,                   ['Mall Goth','Y2K Graphic','Grunge','Vintage','Alt']],
+  [/ribbed|jersey|bodycon/i,                     ['Y2K','Dark Aesthetic','Minimalist Goth','Coquette']],
+];
+
+// Garment descriptor extraction from title text
+const GARMENT_MAP = [
+  [/mini\s+skirt|miniskirt/i,      'Mini Skirt',    ['Mini Skirt','Micro Hem','Flirty']],
+  [/maxi\s+skirt|maxi\s+dress/i,   'Maxi',          ['Maxi','Flowy','Romantic']],
+  [/midi\s+skirt|midi\s+dress/i,   'Midi',          ['Midi','Bias Cut','Romantic']],
+  [/skirt/i,                       'Skirt',         ['Skirt','Flirty']],
+  [/slip\s+dress|slip/i,           'Slip Dress',    ['Slip Dress','Lingerie Dressing','Coquette']],
+  [/mini\s+dress/i,                'Mini Dress',    ['Mini Dress','Y2K','Baby Doll']],
+  [/dress|gown/i,                  'Dress',         ['Dress','Romantic']],
+  [/corset\s+top|bustier/i,        'Corset Top',    ['Corset Top','SS26 Trend','Lingerie Dressing']],
+  [/crop\s+top|cropped/i,          'Crop Top',      ['Crop Top','Y2K','Coquette']],
+  [/cami|camisole/i,               'Cami',          ['Cami','Lingerie Dressing','Slip Style']],
+  [/blouse/i,                      'Blouse',        ['Blouse','Romantic','Feminine']],
+  [/top|tee|tshirt|t-shirt/i,      'Top',           ['Top','Vintage','Casual']],
+  [/blazer/i,                      'Blazer',        ['Blazer','Dark Academia','Tailored']],
+  [/jacket|coat/i,                 'Jacket',        ['Jacket','Outerwear','Vintage']],
+  [/jean|denim\s+pant/i,           'Jeans',         ['Low Rise','Y2K Denim','Grunge']],
+  [/pant|trouser/i,                'Pants',         ['Flared','Wide Leg','Vintage']],
+  [/short/i,                       'Shorts',        ['Y2K','Hot Shorts','Grunge']],
+  [/boot|heel|shoe|platform/i,     'Shoes',         ['Platform','Grunge Footwear','Alt']],
+  [/bag|purse|handbag/i,           'Bag',           ['Statement Bag','Vintage Accessory']],
+];
+
+// Color detection from title text — ordered longest first to prevent partial matches
+const COLOR_WORDS = [
+  'black','white','ivory','cream','beige','brown','tan','camel','nude','blush',
+  'pink','hot pink','dusty pink','rose','mauve','burgundy','wine','maroon','red',
+  'cherry red','orange','peach','coral','yellow','butter yellow','gold','golden',
+  'olive','sage','green','emerald','mint','teal','turquoise','blue','navy','royal blue',
+  'cobalt','sky blue','baby blue','purple','plum','lavender','lilac','violet','grey',
+  'gray','charcoal','silver','multicolor','multi','tie dye','ombre','leopard',
+  'animal print','floral','plaid','striped','stripe',
+];
+
+// FBP SS26 seasonal aesthetic tags to inject by context
+const SS26_TAGS = {
+  sheer:   ['Sheer Layering','SS26 Trend','Lingerie Dressing'],
+  corset:  ['Corsetry','SS26 Trend','Dark Romantic'],
+  slip:    ['Slip Era','Bias Cut','Coquette'],
+  ballet:  ['Balletcore','Soft Aesthetic','Coquette'],
+  ribbon:  ['Ribbon Detail','SS26 Trend','Romantic'],
+  lace:    ['Lace Trim','Fairy Grunge','SS26 Trend'],
+  dropped: ['Dropped Waist','SS26 Silhouette','Dark Romantic'],
 };
 
-function aestheticTags(item, max = 4) {
-  const hay = `${item.title} ${item.description} ${item.category} ${item.subcategory} ${item.collection}`.toLowerCase();
-  const tags = new Set();
-  // Collection-driven flavor first
-  for (const [col, words] of Object.entries(FBP_LIB.collection)) {
-    if (hay.includes(col)) words.forEach(w => tags.add(w));
-  }
-  // Garment-driven
-  for (const [re, words] of FBP_LIB.garment) {
-    if (re.test(hay)) { words.forEach(w => tags.add(w)); break; }
-  }
-  // Pull any core/ss26 words already present in the listing text
-  [...FBP_LIB.core, ...FBP_LIB.ss26].forEach(w => { if (hay.includes(w)) tags.add(w); });
-  // Backfill with rotating core aesthetic so every item gets styled
-  let ci = (item.sku || '').length;
-  while (tags.size < max) {
-    tags.add(FBP_LIB.core[ci % FBP_LIB.core.length]);
-    ci++;
-    if (ci > 50) break;
-  }
-  return [...tags].slice(0, max);
+// FBP Core Aesthetic Vocabulary — platform-safe, resale-SEO proven
+const FBP_CORE = [
+  'Y2K','Dark Romantic','Whimsigoth','Gothic','Coquette','Mall Goth',
+  'Vintage','Grunge','Dark Academia','Witchy','Fairy Grunge','Ethereal',
+  'Romantic Goth','Alt','Boho Goth','Dark Aesthetic','Moody',
+];
+
+function titleCase(s) {
+  return (s||'').replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1));
 }
 
 function condPrefix(item) {
@@ -470,43 +493,141 @@ function condPrefix(item) {
   return '';
 }
 
-function titleCase(s) {
-  return (s||'').replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1));
+// ── Parse intelligence from TITLE TEXT, supplement with CSV fields ──────────
+function parseTitleIntelligence(item) {
+  const raw = (item.title || '').replace(/\s*[-–—|✦✧•·]\s*/g, ' ');
+
+  // Strip filler words that pollute titles
+  const filler = /\b(women'?s?|mens?|girls?|boys?|unisex|adult|junior|plus\s*size|size\s+\w+|fully\s+lined|lined|new\s+with\s+tags|nwt|nwot|pre-?owned|gently\s+used|excellent\s+condition|good\s+condition|fair\s+condition|great\s+condition)\b/gi;
+  const cleaned = raw.replace(filler, ' ').replace(/\s+/g, ' ').trim();
+
+  // Brand: prefer CSV field (Vendoo usually has it right)
+  const brand = (item.brand && item.brand.toLowerCase() !== 'unbranded' && item.brand.length < 40)
+    ? item.brand : '';
+
+  // Color: scan TITLE TEXT first (most reliable), fall back to CSV color field
+  let color = '';
+  const titleLower = raw.toLowerCase();
+  // Sort by length desc so "cherry red" matches before "red"
+  const sortedColors = [...COLOR_WORDS].sort((a,b) => b.length - a.length);
+  for (const c of sortedColors) {
+    if (titleLower.includes(c)) { color = titleCase(c); break; }
+  }
+  // If title had no color, use CSV color only if it's a real color word
+  if (!color && item.color) {
+    const csvCol = item.color.toLowerCase().trim();
+    if (sortedColors.some(c => csvCol === c || csvCol.startsWith(c))) {
+      color = titleCase(item.color);
+    }
+  }
+
+  // Material: scan title for fabric/texture keywords
+  const materials = [];
+  const aestheticBoosts = [];
+  for (const [re, aes] of MATERIAL_MAP) {
+    if (re.test(raw)) {
+      const matWord = raw.match(re)?.[0];
+      if (matWord) materials.push(titleCase(matWord));
+      aes.forEach(a => aestheticBoosts.push(a));
+    }
+  }
+
+  // Garment: scan title text (more reliable than CSV category)
+  let garmentLabel = '';
+  let garmentAes = [];
+  for (const [re, label, aes] of GARMENT_MAP) {
+    if (re.test(raw)) { garmentLabel = label; garmentAes = aes; break; }
+  }
+  // Fall back to CSV category if garment not found in title
+  if (!garmentLabel && item.category) garmentLabel = item.category;
+
+  // Size: prefer CSV size field
+  const size = item.size || '';
+
+  // SS26 boosts: scan for SS26 keywords in title/description
+  const haystack = `${raw} ${item.description || ''}`.toLowerCase();
+  const ss26Boosts = [];
+  for (const [key, tags] of Object.entries(SS26_TAGS)) {
+    if (haystack.includes(key)) tags.forEach(t => ss26Boosts.push(t));
+  }
+
+  // Build ordered aesthetic tag list: material-driven first, SS26 second, FBP core fill
+  const allAesthetic = [...new Set([
+    ...aestheticBoosts,
+    ...garmentAes,
+    ...ss26Boosts,
+  ])];
+  // Fill to at least 5 with rotating FBP core (seeded by brand name for variety)
+  const seed = (brand + garmentLabel).split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  let fi = seed % FBP_CORE.length;
+  while (allAesthetic.length < 5) {
+    const tag = FBP_CORE[fi % FBP_CORE.length];
+    if (!allAesthetic.includes(tag)) allAesthetic.push(tag);
+    fi++;
+  }
+
+  // Clean descriptor: color + primary material + garment (deduplicated)
+  const descriptor = [color, materials[0] || '', garmentLabel]
+    .filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).join(' ');
+
+  return { brand, color, material: materials[0] || '', materials, garmentLabel, size, descriptor, aesthetic: allAesthetic, cleaned };
 }
 
-// Per-platform copy-ready titles, SS26-aware
+// ── Per-platform copy-ready titles, SS26-aware ───────────────────────────────
 function platformTitles(item) {
-  const cond  = condPrefix(item);
-  const brand = item.brand || 'Unbranded';
-  const color = (item.color && item.color.length < 20) ? item.color : '';
-  const cat   = item.category || 'Item';
-  const size  = item.size ? 'Size ' + item.size : '';
-  const tags  = aestheticTags(item, 5);
-  const tagStr = tags.map(titleCase).join(' ');
+  const cond = condPrefix(item);
+  const T = parseTitleIntelligence(item);
+  const { brand, color, material, garmentLabel, size, descriptor, aesthetic } = T;
 
-  // POSHMARK — brand-forward, ≤80 chars, shoppers search brand + descriptor
-  let posh = [cond, brand, color, cat, tags.slice(0,2).map(titleCase).join(' '), item.size?'Sz '+item.size:'']
-    .filter(Boolean).join(' ').replace(/\s+/g,' ').trim().slice(0,80);
+  const sizeTag  = size ? 'Sz ' + size : '';
+  const sizeWord = size ? 'Size ' + size : '';
+  const aes      = aesthetic; // already capped/filled
 
-  // ETSY — long-tail keyword stack, ≤140 chars, comma-segmented for search
-  let etsy = [
-    [cond, color, brand, cat].filter(Boolean).map(titleCase).join(' '),
-    tags.slice(0,3).map(titleCase).join(' '),
-    tags.slice(3).map(titleCase).join(' '),
-    size
-  ].filter(Boolean).join(', ').replace(/\s+/g,' ').trim().slice(0,140);
+  // POSHMARK — brand-forward ≤80 chars, shoppers search brand + keyword combos
+  // Format: [NWT] Brand Color Material Garment AesTag1 AesTag2 Sz X
+  const poshParts = [cond, brand, descriptor, aes[0], aes[1], sizeTag].filter(Boolean);
+  let posh = poshParts.join(' ').replace(/\s+/g,' ').trim();
+  if (posh.length > 80) {
+    // Trim: drop second aes tag first, then size, then first aes
+    const poshShort = [cond, brand, descriptor, aes[0], sizeTag].filter(Boolean).join(' ').trim();
+    posh = poshShort.length <= 80 ? poshShort : [cond, brand, descriptor, sizeTag].filter(Boolean).join(' ').trim().slice(0,80);
+  }
 
-  // DEPOP — casual, lowercase, hashtag-driven, gen-z trend voice
-  const hashes = tags.slice(0,5).map(t => '#'+t.replace(/[^a-z0-9]/gi,'')).join(' ');
-  let depop = `${color} ${cat} ${tags[0]||''} 🖤 ${item.size?'size '+item.size.toLowerCase():''} ${hashes}`
-    .toLowerCase().replace(/\s+/g,' ').trim().slice(0,160);
+  // ETSY — long-tail comma-stacked, ≤140 chars, algorithm loves comma segments
+  // Format: Brand Color Material Garment, AesTag AesTag AesTag, SS26 Tag, Size X
+  const etsyBase = [cond, brand, descriptor].filter(Boolean).map(titleCase).join(' ');
+  const etsyAes  = aes.slice(0,3).join(', ');
+  const etsyTrail = [aes[3], aes[4]].filter(Boolean).join(', ');
+  let etsy = [etsyBase, etsyAes, etsyTrail, sizeWord].filter(Boolean).join(', ')
+    .replace(/\s+/g,' ').trim().slice(0,140);
 
-  // SHOPIFY — clean SEO product title, pipe-segmented
-  let shopify = `${[color, cat].filter(Boolean).map(titleCase).join(' ')} — ${tagStr}${size?' | '+size:''}${brand!=='Unbranded'?' | '+brand:''}`
+  // DEPOP — lowercase, emoji accent, hashtags at end, gen-z search voice ≤160
+  const depopDesc = [color, material, garmentLabel].filter(Boolean).join(' ').toLowerCase();
+  const depopAes  = aes[0] ? aes[0].toLowerCase() : '';
+  const hashes = [...new Set([
+    color.toLowerCase().replace(/\s+/g,''),
+    material.toLowerCase().replace(/\s+/g,''),
+    garmentLabel.toLowerCase().replace(/\s+/g,''),
+    ...aes.slice(0,4).map(t => t.toLowerCase().replace(/[^a-z0-9]/g,''))
+  ])].filter(Boolean).map(h => '#'+h).join(' ');
+  const depopEmoji = material.toLowerCase().includes('sequin') || material.toLowerCase().includes('sparkl') ? '✨' :
+                     material.toLowerCase().includes('velvet') ? '🖤' :
+                     material.toLowerCase().includes('lace')   ? '🌹' :
+                     material.toLowerCase().includes('mesh')   ? '🕸️' : '🖤';
+  let depop = `${brand ? brand.toLowerCase()+' ' : ''}${depopDesc} ${depopEmoji} ${depopAes}${size ? ' sz '+size.toLowerCase() : ''} ${hashes}`
+    .replace(/\s+/g,' ').trim().slice(0,160);
+
+  // SHOPIFY — clean SEO title, pipe-segmented for collection browsing ≤110
+  // Format: Color Material Garment — AesTag1 AesTag2 | Brand | Size X
+  const shopifyDesc = descriptor || garmentLabel;
+  const shopifyAes  = aes.slice(0,2).join(' ');
+  let shopify = `${titleCase(shopifyDesc)} — ${shopifyAes}${brand ? ' | '+brand : ''}${sizeWord ? ' | '+sizeWord : ''}`
     .replace(/\s+/g,' ').trim().slice(0,110);
 
-  // THRIFTED (ThredUp / Vinted / aesthetic resale) — aesthetic-tag forward
-  let thrifted = `${[color, cat].filter(Boolean).map(titleCase).join(' ')} | ${tagStr} | ${item.size||'OS'}`
+  // THRIFTED (Vinted / ThredUp / aesthetic resale) — aesthetic-tag pipeline ≤120
+  // Format: Color Material Garment | AesTag AesTag AesTag | Size | Brand
+  const thriftedAes = aes.slice(0,3).join(' ');
+  let thrifted = `${titleCase(descriptor)} | ${thriftedAes} | ${size || 'OS'}${brand ? ' | '+brand : ''}`
     .replace(/\s+/g,' ').trim().slice(0,120);
 
   return { poshmark: posh, etsy, depop, shopify, thrifted };
