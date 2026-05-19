@@ -239,10 +239,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div class="hs"><div class="hs-v c-sold" id="h-sold">—</div><div class="hs-l">Sold</div></div>
     </div>
     <div class="hdr-right">
-      <label class="toggle-wrap">
-        <input type="checkbox" id="show-all-chk" onchange="toggleShowAll()">
-        <span>All statuses</span>
-      </label>
+      <span style="font-size:10px;color:var(--ash);letter-spacing:.05em">SOLD ON ANY PLATFORM?</span>
+      <button class="reload-btn" style="border-color:rgba(90,58,122,.6);color:#b898d4" onclick="setView('sold')">💸 Sold History</button>
       <button class="reload-btn" onclick="resetApp()">↺ New CSV</button>
     </div>
   </header>
@@ -368,13 +366,17 @@ function parseDate(s) {
   return null;
 }
 
-const INACTIVE_WORDS = ['sold','inactive','draft','not listed','removed','deleted','unlisted','ended','expired','closed'];
+// Vendoo exports sold items with various status strings — cast a wide net
+const SOLD_WORDS     = ['sold','completed','shipped','fulfilled','purchased','bought','archived','not for sale','no longer available','sale complete'];
+const INACTIVE_WORDS = ['inactive','draft','not listed','removed','deleted','unlisted','ended','expired','closed','paused','hidden','disabled'];
 const ACTIVE_WORDS   = ['active','listed','live','for sale','available','published'];
 
 function rawStatus(statusStr) {
   const s = (statusStr || '').toLowerCase().trim();
-  if (INACTIVE_WORDS.some(w => s.includes(w))) return s.includes('sold') ? 'sold' : 'inactive';
+  if (SOLD_WORDS.some(w => s.includes(w))) return 'sold';
+  if (INACTIVE_WORDS.some(w => s.includes(w))) return 'inactive';
   if (ACTIVE_WORDS.some(w => s.includes(w))) return 'active';
+  // Unknown status: default inactive so it doesn't pollute inventory
   return s ? 'inactive' : 'active';
 }
 
@@ -740,10 +742,10 @@ function resetApp() {
 
 // ══ COMPUTED ══
 function getWorking() {
+  // Sold items NEVER appear in inventory views — historical tab only
   return S.items.filter(i => {
     const st = effectiveStatus(i);
-    if (st === 'sold') return S.view === 'sold';
-    if (S.showAll) return S.view !== 'sold';
+    if (st === 'sold') return false;
     return st === 'active' || st === 'relisted';
   });
 }
@@ -765,11 +767,6 @@ function updateHeader() {
   document.getElementById('h-hero').textContent   = heroes.length;
   document.getElementById('h-sold').textContent   = sold.length;
   document.getElementById('hdr-sub').textContent  = `${all.length} total · ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
-}
-
-function toggleShowAll() {
-  S.showAll = document.getElementById('show-all-chk').checked;
-  updateHeader(); setView(S.view);
 }
 
 // ══ NAV ══
@@ -1186,14 +1183,18 @@ function soldView() {
   const totalValue = items.reduce((s,i) => s+i.price, 0);
 
   document.getElementById('view').innerHTML = `
-  <div class="stitle">💸 Sold Items — ${items.length} listings</div>
-  <div class="bulk-bar">
-    <span>Total listed value sold: <strong style="color:var(--bloom)">${fmt(totalValue)}</strong></span>
-    <button class="btn btn-copy btn-sm" onclick="exportSold()">Export Sold List</button>
-    <button class="btn btn-copy btn-sm" onclick="if(confirm('Clear all sold marks?')){for(const k of Object.keys(S.statusOverride)){if(S.statusOverride[k]==='sold')delete S.statusOverride[k];}saveState();setView('sold')}">Clear All Sold</button>
+  <div class="stitle">💸 Sold — Historical Record Only</div>
+  <div class="scard" style="margin-bottom:.9rem;border-color:rgba(90,58,122,.4);background:rgba(90,58,122,.08)">
+    <h3 style="color:#b898d4;font-size:13px">📋 Cross-Listing Sold Workflow</h3>
+    <p style="margin-bottom:.4rem">When an item sells on <strong>any platform</strong> (Poshmark, Depop, Mercari, Etsy, etc.) — even if it's still listed on others — hit <strong>Mark Sold</strong> on that item immediately. It disappears from all inventory views and lands here as a permanent historical record.</p>
+    <p>This is the fix for cross-listing gaps: one tap removes it from your entire relist queue across all platforms.</p>
   </div>
-  <p style="font-size:11px;color:var(--ash);margin-bottom:.75rem">Items with "Sold" status from Vendoo CSV or manually marked here. Mark active to restore to inventory.</p>
-  <div class="grid">${items.map(i => cardEl(i)).join('') || '<div class="empty">No sold items detected. Items marked Sold here or in your CSV will appear.</div>'}</div>`;
+  <div class="bulk-bar">
+    <span>Total value: <strong style="color:var(--bloom)">${fmt(totalValue)}</strong> · ${items.length} items sold</span>
+    <button class="btn btn-copy btn-sm" onclick="exportSold()">Export Sold CSV</button>
+    <button class="btn btn-copy btn-sm" onclick="if(confirm('Clear all manually-marked sold items? CSV-detected sold items will re-appear on next upload.')){for(const k of Object.keys(S.statusOverride)){if(S.statusOverride[k]==='sold')delete S.statusOverride[k];}saveState();updateHeader();setView('sold')}">Clear Manual Marks</button>
+  </div>
+  <div class="grid">${items.map(i => cardEl(i)).join('') || '<div class="empty">No sold items yet. Use "Mark Sold" on any item when it sells on any platform — it will be removed from inventory and recorded here.</div>'}</div>`;
 }
 
 function exportSold() {
