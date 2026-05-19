@@ -406,18 +406,116 @@ function calcHero(item, sortedPrices) {
   return Math.min(5, Math.max(1, sc + 1));
 }
 
+// ══ FBP AESTHETIC + SS26 KEYWORD LIBRARY ══
+// Curated for Funky Black Poppy's dark-romantic / goth resale identity,
+// refreshed with Spring/Summer 2026 trend vocabulary.
+const FBP_LIB = {
+  // Universal FBP aesthetic descriptors (rotated, not all used at once)
+  core: ['gothic','whimsigoth','dark romantic','y2k','grunge','dark academia',
+         'witchy','coquette','mall goth','boho goth','vintage','fairy grunge',
+         'romantic goth','occult','ethereal','moody'],
+  // SS26 runway/resale trend words
+  ss26: ['sheer layering','lace','mesh','corsetry','slip','butter yellow',
+         'cherry red','romantic grunge','balletcore','dropped waist',
+         'bias cut','ribbon detail','lingerie dressing','sheer'],
+  // Collection → aesthetic flavor
+  collection: {
+    'black poppy archive': ['y2k','dark romantic','archival','2000s'],
+    'velvet funeral':      ['velvet','lace','sheer','dark editorial','vampire'],
+    'rain witch':          ['boho goth','earth tone','layered','witchy','folk'],
+    'mall goth resurrection': ['mall goth','90s','pvc','chains','nu metal'],
+    'haunted librarian':   ['dark academia','blazer','scholarly','autumnal'],
+    'glam crypt':          ['glam rock','sequin','disco','statement'],
+  },
+  // Garment-specific aesthetic boosters keyed off category text
+  garment: [
+    [/dress|gown|frock/i,        ['slip dress','babydoll','maxi','romantic']],
+    [/top|tee|blouse|shirt|cami/i,['corset top','mesh top','baby tee','crop']],
+    [/skirt/i,                   ['mini skirt','pleated','lace trim']],
+    [/pant|trouser|jean|denim/i, ['low rise','baggy','flared','distressed']],
+    [/jacket|coat|blazer/i,      ['cropped','tailored','vintage outerwear']],
+    [/boot|shoe|heel|platform/i, ['platform','chunky','grunge footwear']],
+    [/bag|purse|accessor/i,      ['statement','vintage accessory']],
+    [/lingerie|slip|corset/i,    ['lingerie dressing','sheer','romantic']],
+  ],
+};
+
+function aestheticTags(item, max = 4) {
+  const hay = `${item.title} ${item.description} ${item.category} ${item.subcategory} ${item.collection}`.toLowerCase();
+  const tags = new Set();
+  // Collection-driven flavor first
+  for (const [col, words] of Object.entries(FBP_LIB.collection)) {
+    if (hay.includes(col)) words.forEach(w => tags.add(w));
+  }
+  // Garment-driven
+  for (const [re, words] of FBP_LIB.garment) {
+    if (re.test(hay)) { words.forEach(w => tags.add(w)); break; }
+  }
+  // Pull any core/ss26 words already present in the listing text
+  [...FBP_LIB.core, ...FBP_LIB.ss26].forEach(w => { if (hay.includes(w)) tags.add(w); });
+  // Backfill with rotating core aesthetic so every item gets styled
+  let ci = (item.sku || '').length;
+  while (tags.size < max) {
+    tags.add(FBP_LIB.core[ci % FBP_LIB.core.length]);
+    ci++;
+    if (ci > 50) break;
+  }
+  return [...tags].slice(0, max);
+}
+
+function condPrefix(item) {
+  const c = (item.condition || '').toLowerCase();
+  if (c === 'nwt' || c === 'new with tags') return 'NWT';
+  if (c === 'nwot' || c === 'new without tags') return 'NWOT';
+  return '';
+}
+
+function titleCase(s) {
+  return (s||'').replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1));
+}
+
+// Per-platform copy-ready titles, SS26-aware
+function platformTitles(item) {
+  const cond  = condPrefix(item);
+  const brand = item.brand || 'Unbranded';
+  const color = (item.color && item.color.length < 20) ? item.color : '';
+  const cat   = item.category || 'Item';
+  const size  = item.size ? 'Size ' + item.size : '';
+  const tags  = aestheticTags(item, 5);
+  const tagStr = tags.map(titleCase).join(' ');
+
+  // POSHMARK — brand-forward, ≤80 chars, shoppers search brand + descriptor
+  let posh = [cond, brand, color, cat, tags.slice(0,2).map(titleCase).join(' '), item.size?'Sz '+item.size:'']
+    .filter(Boolean).join(' ').replace(/\s+/g,' ').trim().slice(0,80);
+
+  // ETSY — long-tail keyword stack, ≤140 chars, comma-segmented for search
+  let etsy = [
+    [cond, color, brand, cat].filter(Boolean).map(titleCase).join(' '),
+    tags.slice(0,3).map(titleCase).join(' '),
+    tags.slice(3).map(titleCase).join(' '),
+    size
+  ].filter(Boolean).join(', ').replace(/\s+/g,' ').trim().slice(0,140);
+
+  // DEPOP — casual, lowercase, hashtag-driven, gen-z trend voice
+  const hashes = tags.slice(0,5).map(t => '#'+t.replace(/[^a-z0-9]/gi,'')).join(' ');
+  let depop = `${color} ${cat} ${tags[0]||''} 🖤 ${item.size?'size '+item.size.toLowerCase():''} ${hashes}`
+    .toLowerCase().replace(/\s+/g,' ').trim().slice(0,160);
+
+  // SHOPIFY — clean SEO product title, pipe-segmented
+  let shopify = `${[color, cat].filter(Boolean).map(titleCase).join(' ')} — ${tagStr}${size?' | '+size:''}${brand!=='Unbranded'?' | '+brand:''}`
+    .replace(/\s+/g,' ').trim().slice(0,110);
+
+  // THRIFTED (ThredUp / Vinted / aesthetic resale) — aesthetic-tag forward
+  let thrifted = `${[color, cat].filter(Boolean).map(titleCase).join(' ')} | ${tagStr} | ${item.size||'OS'}`
+    .replace(/\s+/g,' ').trim().slice(0,120);
+
+  return { poshmark: posh, etsy, depop, shopify, thrifted };
+}
+
 function seoTitle(item) {
-  const parts = [];
-  const cond = (item.condition || '').toLowerCase();
-  if (cond === 'nwt' || cond === 'new with tags') parts.push('NWT');
-  else if (cond === 'nwot') parts.push('NWOT');
-  if (item.brand) parts.push(item.brand);
-  if (item.color && item.color.length < 20) parts.push(item.color);
-  if (item.category && item.category.length < 30) parts.push(item.category);
-  if (item.subcategory && item.subcategory !== item.category && item.subcategory.length < 25) parts.push(item.subcategory);
-  if (item.size) parts.push('Sz ' + item.size);
-  const t = parts.join(' ').substring(0, 80).trim();
-  return t.length > 10 ? t : (item.title || '').substring(0, 80);
+  // Primary title used on cards = Poshmark variant (brand-forward, concise)
+  const pt = platformTitles(item);
+  return pt.poshmark.length > 10 ? pt.poshmark : (item.title || '').substring(0, 80);
 }
 
 function pricingAction(item) {
@@ -476,7 +574,8 @@ function normalizeItems(rows) {
   const sortedPrices = [...prices].sort((a, b) => a - b);
   for (const item of items) {
     item.heroScore    = calcHero(item, sortedPrices);
-    item.seoTitle     = seoTitle(item);
+    item.platTitles   = platformTitles(item);
+    item.seoTitle     = item.platTitles.poshmark.length > 10 ? item.platTitles.poshmark : item.title.substring(0,80);
     item.ageInfo      = ageClass(item.age);
     item.pricingRec   = pricingAction(item);
   }
@@ -841,30 +940,60 @@ function titles() {
   let items = catFilter !== 'all' ? all.filter(i => i.category === catFilter) : all;
   items = [...items].sort((a,b) => b.heroScore - a.heroScore || b.age - a.age);
 
+  const PLATS = [
+    ['poshmark','Poshmark','#c4547a'],
+    ['etsy','Etsy','#d4783a'],
+    ['depop','Depop','#c84848'],
+    ['shopify','Shopify','#4a9e72'],
+    ['thrifted','Thrifted / ThredUp / Vinted','#9b6fc4'],
+  ];
+
   document.getElementById('view').innerHTML = `
-  <div class="stitle">✍️ SEO Titles — ${items.length} listings</div>
-  <p style="font-size:11px;color:var(--ash);margin-bottom:.75rem">Generated from brand + color + category + size. Copy to use when relisting.</p>
+  <div class="stitle">✍️ SS26 Titles — ${items.length} listings</div>
+  <p style="font-size:11px;color:var(--ash);margin-bottom:.4rem">FBP dark-romantic aesthetic + Spring/Summer 2026 trend vocabulary. Each platform has its own copy-ready format — click any title or its button to copy.</p>
+  <p style="font-size:10px;color:var(--ash);margin-bottom:.75rem">Poshmark: brand-forward ≤80c · Etsy: long-tail keyword stack · Depop: lowercase + hashtags · Shopify: clean SEO · Thrifted: aesthetic tags</p>
   ${buildCatChips(all, catFilter, 'filterTitlesCat')}
-  <div style="overflow-x:auto"><table class="tbl">
-    <thead><tr><th>★</th><th>Age</th><th>Current Title</th><th>Optimized SEO Title</th><th>Price</th><th>Status</th><th></th></tr></thead>
-    <tbody>${items.map(i => {
-      const st = effectiveStatus(i);
-      const rd = S.relistData[i.sku];
-      return `<tr class="${st==='sold'?'row-sold':''}">
-        <td>${stars(i.heroScore)}</td>
-        <td><span class="bdg ${i.ageInfo.cls}">${i.age}d</span></td>
-        <td class="tbl-title" title="${i.title}">${i.title}</td>
-        <td class="tbl-seo" title="${i.seoTitle}">${i.seoTitle !== i.title ? '✦ '+i.seoTitle : '<span style="color:var(--ash)">Same</span>'}</td>
-        <td>${fmt(i.price)}</td>
-        <td><span class="bdg ${st==='sold'?'ba-sold':st==='relisted'?'ba-relisted':'ba-ok'}">${rd?'Relisted '+rd.date:st}</span></td>
-        <td style="white-space:nowrap">
-          <button class="btn btn-copy btn-sm" onclick="copyText('${esc(i.seoTitle)}')">Copy</button>
-          ${st!=='sold'?`<button class="btn btn-sold btn-sm" onclick="markStatus('${i.sku}','sold')">Sold</button>`:''}
-        </td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table></div>`;
+  <div class="bulk-bar"><span>Bulk:</span>
+    <button class="btn btn-copy btn-sm" onclick="exportTitles()">Export All Titles CSV</button>
+  </div>
+  ${items.map(i => {
+    const st = effectiveStatus(i);
+    const rd = S.relistData[i.sku];
+    const pt = i.platTitles || platformTitles(i);
+    return `
+    <div class="scard" style="padding:.85rem 1rem;margin-bottom:.7rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:.5rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;color:var(--ghost)">${i.title}</div>
+          <div style="font-size:10px;color:var(--ash);margin-top:2px">
+            ${stars(i.heroScore)} · <span class="bdg ${i.ageInfo.cls}">${i.age}d</span> · ${fmt(i.price)} ·
+            <span class="bdg ${st==='sold'?'ba-sold':st==='relisted'?'ba-relisted':'ba-ok'}">${rd?'Relisted '+rd.date:st}</span>
+          </div>
+        </div>
+        ${st!=='sold'?`<button class="btn btn-sold btn-sm" onclick="markStatus('${i.sku}','sold')">Mark Sold</button>`:`<button class="btn btn-unsold btn-sm" onclick="markStatus('${i.sku}','active')">↩ Active</button>`}
+      </div>
+      ${PLATS.map(([key,label,clr]) => `
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid rgba(196,84,122,0.08)">
+          <span style="font-size:9px;color:${clr};min-width:128px;text-transform:uppercase;letter-spacing:.05em;font-weight:700">${label}</span>
+          <span onclick="copyText('${esc(pt[key])}')" title="Click to copy" style="flex:1;font-size:11px;color:var(--silver);cursor:pointer;line-height:1.4">${pt[key]}</span>
+          <button class="btn btn-copy btn-sm" onclick="copyText('${esc(pt[key])}')">Copy</button>
+        </div>`).join('')}
+    </div>`;
+  }).join('') || '<div class="empty">No listings.</div>'}`;
 }
+window.exportTitles = function() {
+  const items = getWorking();
+  const rows = [['SKU','Original Title','Poshmark','Etsy','Depop','Shopify','Thrifted']];
+  for (const i of items) {
+    const pt = i.platTitles || platformTitles(i);
+    rows.push([i.sku, i.title, pt.poshmark, pt.etsy, pt.depop, pt.shopify, pt.thrifted]);
+  }
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `ss26-titles-${todayStr().replace(/\s/g,'-')}.csv`;
+  a.click(); toast('Exported!');
+};
 window.filterTitlesCat = cat => { S.filters.cat = cat; setView('titles'); };
 
 // ══ VIEW: PRICING ══
