@@ -379,103 +379,211 @@ function pricingAction(item) {
 }
 
 // ══ TITLE ENGINE ══
+// Platform SEO formulas based on actual buyer search behavior + 2025-2026 algorithm research
+// Poshmark: brand-first keyword match | Etsy: full-phrase matching | Depop: hashtag discovery
+// Google Shopping: gender + product type classification | Thrifted: aesthetic stacking
+
 const MATERIAL_MAP = [
-  // Fabrics → FBP aesthetic tags (used in title generation + collection sorting)
-  [/sequin|sequined|sparkl|glitter|rhinestone/i,  ['Y2K','Disco Era','Retro Glam','Vamp Glam']],
-  [/velvet/i,          ['Dark Romantic','Vampire Aesthetic','Velvet Goth','Mob Wife']],
-  [/lace|lacey/i,      ['Coquette','Fairy Grunge','Romantic Goth','Fairycore']],
+  // Fabric/texture → SS26 aesthetic tags (material triggers most accurate aesthetic assignment)
+  [/sequin|sequined|sparkl|glitter|rhinestone/i, ['Y2K','Disco Era','Retro Glam','Vamp Glam']],
+  [/velvet/i,            ['Dark Romantic','Mob Wife','Vampire Aesthetic','Velvet Goth']],
+  [/lace|lacey/i,        ['Coquette','Romantic Goth','Fairycore','Fairy Grunge']],
   [/mesh|sheer|see.?through/i, ['Y2K','Coquette','Dark Editorial','Bimbocore']],
-  [/satin|silk|silky/i, ['Old Money','Dark Romantic','Coquette','Quiet Luxury']],
-  [/leather|faux.?leather|pvc|patent/i, ['Moto Goth','Alt','Mall Goth','Streetwear']],
-  [/denim|jean/i,      ['Y2K','Grunge','Vintage','Indie']],
-  [/crochet|knit|sweater/i, ['Cottagecore','Whimsigoth','Boho Goth','Fairycore']],
-  [/chiffon|organza|tulle/i, ['Ethereal','Fairycore','Dark Romantic','Coquette']],
-  [/floral|fleur|rose|petal/i, ['Cottagecore','Coquette','Whimsigoth','Regencycore']],
-  [/plaid|tartan|check/i, ['Dark Academia','Grunge','Mall Goth','Preppy']],
-  [/corset|bustier|boned/i, ['Dark Romantic','Coquette','Regencycore','Mob Wife']],
-  [/graphic|print|band|logo/i, ['Mall Goth','Y2K','Grunge','Streetwear']],
+  [/satin|silk|silky/i,  ['Coquette','Old Money','Dark Romantic','Quiet Luxury']],
+  [/leather|faux.?leather|pvc|patent/i, ['Alt','Moto Goth','Mall Goth','Streetwear']],
+  [/denim|jean/i,        ['Y2K','Vintage','Grunge','Indie']],
+  [/crochet|knit|sweater/i, ['Cottagecore','Whimsigoth','Fairycore','Boho Goth']],
+  [/chiffon|organza|tulle/i, ['Fairycore','Ethereal','Coquette','Dark Romantic']],
+  [/floral|fleur|rose\s+print|petal/i, ['Cottagecore','Coquette','Whimsigoth','Regencycore']],
+  [/plaid|tartan|check/i,['Dark Academia','Preppy','Mall Goth','Grunge']],
+  [/corset|bustier|boned/i, ['Coquette','Dark Romantic','Regencycore','Mob Wife']],
+  [/graphic|band\s+tee|logo\s+print/i, ['Mall Goth','Y2K','Grunge','Streetwear']],
   [/ribbed|jersey|bodycon/i, ['Y2K','Coquette','Bimbocore','Minimalist']],
-  [/cashmere|wool|tweed/i,   ['Quiet Luxury','Old Money','Dark Academia','Preppy']],
-  [/fur|faux.?fur|fluffy/i,  ['Mob Wife','Y2K','Maximalist','Vamp Glam']],
-  [/cotton|linen|gauze/i,    ['Cottagecore','Minimalist','Indie','Bohemian']],
-  [/metallic|foil|chrome/i,  ['Y2K','Disco Era','Retro Glam','Dopamine Dressing']],
-  [/burnout|devore/i,        ['Dark Romantic','Velvet Goth','Ethereal','Gothic']],
-  [/brocade|jacquard/i,      ['Old Money','Dark Romantic','Regencycore','Maximalist']],
+  [/cashmere|wool|tweed/i,  ['Quiet Luxury','Old Money','Dark Academia','Preppy']],
+  [/fur|faux.?fur|fluffy|shaggy/i, ['Mob Wife','Y2K','Maximalist','Vamp Glam']],
+  [/cotton|linen|gauze/i,   ['Cottagecore','Minimalist','Indie','Bohemian']],
+  [/metallic|foil|chrome/i, ['Y2K','Disco Era','Dopamine Dressing','Retro Glam']],
+  [/burnout|devore/i,       ['Dark Romantic','Velvet Goth','Ethereal','Gothic']],
+  [/brocade|jacquard/i,     ['Old Money','Regencycore','Dark Romantic','Maximalist']],
 ];
+
 const GARMENT_MAP = [
   [/mini\s+skirt|miniskirt/i, 'Mini Skirt'],
-  [/maxi\s+skirt|maxi\s+dress/i, 'Maxi'],
-  [/midi\s+skirt|midi\s+dress/i, 'Midi'],
-  [/skirt/i, 'Skirt'],
-  [/slip\s+dress/i, 'Slip Dress'],
-  [/mini\s+dress/i, 'Mini Dress'],
-  [/dress|gown/i, 'Dress'],
+  [/maxi\s+skirt/i,      'Maxi Skirt'],
+  [/midi\s+skirt/i,      'Midi Skirt'],
+  [/maxi\s+dress/i,      'Maxi Dress'],
+  [/midi\s+dress/i,      'Midi Dress'],
+  [/babydoll\s+dress/i,  'Babydoll Dress'],
+  [/wrap\s+dress/i,      'Wrap Dress'],
+  [/slip\s+dress/i,      'Slip Dress'],
+  [/mini\s+dress/i,      'Mini Dress'],
+  [/skirt/i,             'Skirt'],
+  [/dress|gown/i,        'Dress'],
   [/corset\s+top|bustier/i, 'Corset Top'],
-  [/crop\s+top|cropped/i, 'Crop Top'],
-  [/cami|camisole/i, 'Cami'],
-  [/blouse/i, 'Blouse'],
-  [/top|tee|tshirt|t-shirt/i, 'Top'],
-  [/blazer/i, 'Blazer'],
-  [/jacket|coat/i, 'Jacket'],
+  [/crop\s+top|cropped\s+top/i, 'Crop Top'],
+  [/tank\s+top|tank/i,   'Tank Top'],
+  [/cami|camisole/i,     'Cami'],
+  [/bodysuit/i,          'Bodysuit'],
+  [/blouse/i,            'Blouse'],
+  [/blazer/i,            'Blazer'],
+  [/cardigan/i,          'Cardigan'],
+  [/hoodie/i,            'Hoodie'],
+  [/sweater|jumper/i,    'Sweater'],
+  [/jacket/i,            'Jacket'],
+  [/coat/i,              'Coat'],
   [/jean|denim\s+pant/i, 'Jeans'],
-  [/pant|trouser/i, 'Pants'],
-  [/short/i, 'Shorts'],
+  [/legging/i,           'Leggings'],
+  [/short/i,             'Shorts'],
+  [/pant|trouser/i,      'Pants'],
+  [/top|tee|tshirt|t-shirt/i, 'Top'],
 ];
+
+// Silhouette/cut — buyers search "low rise jeans", "off shoulder top", "babydoll dress"
+const SILHOUETTE_MAP = [
+  [/low[\s-]?rise/i,           'Low Rise'],
+  [/high[\s-]?waist/i,         'High Waist'],
+  [/off[\s-]?shoulder/i,       'Off Shoulder'],
+  [/one[\s-]?shoulder/i,       'One Shoulder'],
+  [/babydoll/i,                'Babydoll'],
+  [/wrap/i,                    'Wrap'],
+  [/fit[\s&]+flare|fit-and-flare/i, 'Fit Flare'],
+  [/a[\s-]?line/i,             'A-Line'],
+  [/pleated/i,                 'Pleated'],
+  [/ruffle|ruffled/i,          'Ruffle'],
+  [/asymmetric/i,              'Asymmetric'],
+  [/backless/i,                'Backless'],
+  [/strapless/i,               'Strapless'],
+  [/halter/i,                  'Halter'],
+  [/bodycon/i,                 'Bodycon'],
+  [/flare|flared/i,            'Flare'],
+];
+
+// Decade detection — "vintage 90s" "Y2K 2000s" are top buyer search phrases on all platforms
+const DECADE_MAP = [
+  [/\b(1960s?|'?60s|sixties)\b/i,               '60s Vintage'],
+  [/\b(1970s?|'?70s|seventies|disco\s+era)\b/i, '70s Vintage'],
+  [/\b(1980s?|'?80s|eighties)\b/i,              '80s Vintage'],
+  [/\b(1990s?|'?90s|nineties)\b/i,              '90s Vintage'],
+  [/\b(y2k|2000s?|'?00s|noughties)\b/i,         'Y2K'],
+];
+
 const COLOR_WORDS = [
-  'cherry red','hot pink','dusty pink','butter yellow','royal blue','sky blue','baby blue',
+  // Multi-word colors first (prevents "red" matching before "cherry red")
+  'cherry red','hot pink','dusty pink','dusty rose','dusty blue','dusty purple',
+  'butter yellow','lemon yellow','royal blue','sky blue','baby blue','powder blue','ice blue',
+  'forest green','hunter green','olive green','sage green','mint green',
+  'burnt orange','rust orange','burnt sienna',
+  'off white','warm white','cool white',
+  // Single-word
   'black','white','ivory','cream','beige','brown','tan','camel','nude','blush',
   'pink','rose','mauve','burgundy','wine','maroon','red','orange','peach','coral',
   'yellow','gold','golden','olive','sage','green','emerald','mint','teal','turquoise',
-  'blue','navy','cobalt','purple','plum','lavender','lilac','violet','grey','gray',
-  'charcoal','silver','multicolor','multi','tie dye','ombre','leopard','plaid','striped',
+  'blue','navy','cobalt','purple','plum','lavender','lilac','violet',
+  'grey','gray','charcoal','silver',
+  // Patterns (also act as colors)
+  'multicolor','multi','tie dye','ombre','gradient',
+  'leopard','animal print','zebra','snake print',
+  'plaid','striped','checkered','floral','paisley','polka dot',
 ];
+
+// SS26 aesthetics sorted by 2025-2026 reselling search volume (highest first)
 const FBP_CORE = [
-  // SS26 Trending — high search volume 2025-2026
-  'Y2K','Coquette','Dark Romantic','Dark Academia','Cottagecore',
-  'Quiet Luxury','Mob Wife','Old Money','Balletcore','Bimbocore',
-  'Regencycore','Fairycore','Goblincore','Witchcore','Angelcore',
-  // FBP House Aesthetics
-  'Whimsigoth','Gothic','Mall Goth','Fairy Grunge','Romantic Goth',
-  'Boho Goth','Vampire Aesthetic','Ethereal','Dark Editorial','Moto Goth',
-  // Evergreen High-Search
-  'Vintage','Grunge','Alt','Preppy','Indie','Bohemian',
-  'Streetwear','Minimalist','Maximalist','Dopamine Dressing',
-  // Niche FBP
-  'Witchy','Haunted Academia','Goth Aesthetic','Dark Whimsy','Soft Goth',
-  'CKB Minimalist','Vamp Glam','Disco Era','Retro Glam','Festival Fashion'
+  // Tier 1 — Highest search volume on reselling platforms
+  'Y2K','Coquette','Vintage','Dark Romantic','Dark Academia','Cottagecore',
+  'Grunge','Gothic','Preppy','Vintage',
+  // Tier 2 — SS26 trending (Poshmark/Depop/Etsy 2025-2026 data)
+  'Quiet Luxury','Old Money','Mob Wife','Balletcore','Indie Sleaze',
+  'Regencycore','Fairycore','Goblincore','Witchcore','Angelcore','Bimbocore',
+  'Clean Girl','Soft Girl','E-Girl','Tomboy','Skater Girl',
+  // Tier 3 — FBP house aesthetics + niche
+  'Whimsigoth','Mall Goth','Fairy Grunge','Romantic Goth','Boho Goth',
+  'Vampire Aesthetic','Ethereal','Dark Editorial','Moto Goth','Haunted Academia',
+  // Tier 4 — Evergreen descriptors
+  'Alt','Indie','Bohemian','Streetwear','Minimalist','Maximalist',
+  'Dopamine Dressing','Festival Fashion','Soft Goth','Vamp Glam',
+  'Disco Era','Retro Glam','Indie Pop',
 ];
+
+// Platform-researched Depop hashtags by aesthetic (2025 trending)
+const DEPOP_HASH = {
+  'Y2K':           ['#y2k','#y2kaesthetic','#2000sfashion','#y2kfashion','#y2koutfit'],
+  'Coquette':      ['#coquette','#coquetteaesthetic','#coquettefashion','#softgirl','#bowsandroses'],
+  'Dark Romantic': ['#darkromantic','#darkfeminine','#gothromantic','#darkstyle','#darkaesthetic'],
+  'Dark Academia': ['#darkacademia','#academiacore','#darkacademiaoutfit','#scholarlyaesthetic'],
+  'Cottagecore':   ['#cottagecore','#cottagecoreaesthetic','#fairycore','#naturegirl','#cottagecoredress'],
+  'Quiet Luxury':  ['#quietluxury','#quietluxuryaesthetic','#cleangirl','#oldmoneyfashion'],
+  'Old Money':     ['#oldmoney','#oldmoneyaesthetic','#quietluxury','#preppystyle','#oldmoneystyle'],
+  'Mob Wife':      ['#mobwife','#mobwifeaesthetic','#mobwifestyle','#maximalistfashion','#boldstyle'],
+  'Balletcore':    ['#balletcore','#ballerinacore','#balletaesthetic','#softgirl','#pinkoutfit'],
+  'Indie Sleaze':  ['#indiesleaze','#indiesleazeaesthetic','#2010sfashion','#aughts'],
+  'Vintage':       ['#vintage','#vintagefashion','#vintagestyle','#vintageclothing','#retrostyle'],
+  'Grunge':        ['#grunge','#grungestyle','#90sgrunge','#alternativefashion','#grungeoutfit'],
+  'Gothic':        ['#goth','#gothfashion','#gothgirl','#altfashion','#darkfashion'],
+  'Mall Goth':     ['#mallgoth','#gothfashion','#altgoth','#2000sgoth','#hottopicore'],
+  'Preppy':        ['#preppy','#preppystyle','#prepcore','#oldmoneypreppy','#preppyaesthetic'],
+  'Alt':           ['#altfashion','#alternative','#altgirl','#altaesthetic','#alternativestyle'],
+  'Disco Era':     ['#disco','#70sfashion','#discoera','#retro','#groovy'],
+  'Fairycore':     ['#fairycore','#fairyaesthetic','#cottagecore','#ethereal','#fantasycore'],
+  'Indie':         ['#indie','#indiefashion','#indieaesthetic','#indiekid','#alternativevibes'],
+};
 
 function tc(s){ return (s||'').replace(/\w\S*/g, t=>t.charAt(0).toUpperCase()+t.slice(1)); }
 
 function parseTitleIntel(item) {
   const raw = (item.title||'').replace(/\s*[-–—|✦✧•·]\s*/g,' ');
   const tl  = raw.toLowerCase();
+
+  // Color — longest first prevents partial matches
   let color = '';
   for (const c of COLOR_WORDS) { if (tl.includes(c)) { color = tc(c); break; } }
   if (!color && item.color) {
     const cc = item.color.toLowerCase().trim();
     if (COLOR_WORDS.some(c => cc === c || cc.startsWith(c))) color = tc(item.color);
   }
+
+  // Materials → aesthetic boosts
   const materials = []; const aesBoosts = [];
   for (const [re, aes] of MATERIAL_MAP) {
-    if (re.test(raw)) { const m = raw.match(re)?.[0]; if (m) materials.push(tc(m)); aes.forEach(a=>aesBoosts.push(a)); }
+    if (re.test(raw)) {
+      const m = raw.match(re)?.[0]; if (m) materials.push(tc(m));
+      aes.forEach(a => aesBoosts.push(a));
+    }
   }
+
+  // Garment type
   let garment = '';
   for (const [re, label] of GARMENT_MAP) { if (re.test(raw)) { garment = label; break; } }
   if (!garment && item.category) garment = item.category;
+
+  // Silhouette / cut detail — high-value search term
+  let silhouette = '';
+  for (const [re, label] of SILHOUETTE_MAP) { if (re.test(raw)) { silhouette = label; break; } }
+
+  // Decade — massive SEO lift when present
+  let decade = '';
+  for (const [re, label] of DECADE_MAP) { if (re.test(raw) || re.test(item.title||'')) { decade = label; break; } }
+  if (decade && !aesBoosts.includes(decade)) aesBoosts.unshift(decade);
+
   const brand = (item.brand && item.brand.toLowerCase()!=='unbranded' && item.brand.length<40) ? item.brand : '';
   const size  = item.size || '';
-  const allAes = [...new Set([...aesBoosts])];
-  const seed = (brand+garment).split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+
+  // Aesthetic list: material-triggered first (most accurate), FBP_CORE backfill to 4
+  const allAes = [...new Set(aesBoosts)];
+  const seed = (brand+garment+color).split('').reduce((a,c)=>a+c.charCodeAt(0),0);
   let fi = seed % FBP_CORE.length;
-  while (allAes.length < 4) { const t=FBP_CORE[fi%FBP_CORE.length]; if(!allAes.includes(t)) allAes.push(t); fi++; }
+  while (allAes.length < 4) {
+    const t = FBP_CORE[fi % FBP_CORE.length];
+    if (!allAes.includes(t)) allAes.push(t);
+    fi++;
+  }
+
   const descriptor = [color, materials[0]||'', garment].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' ');
-  return { brand, color, material: materials[0]||'', garment, size, descriptor, aes: allAes };
+  return { brand, color, material: materials[0]||'', garment, silhouette, decade, size, descriptor, aes: allAes };
 }
 
 function platformTitles(item) {
   const T = parseTitleIntel(item);
-  const { brand, color, material, garment, size, aes } = T;
+  const { brand, color, material, garment, silhouette, decade, size, aes } = T;
 
   const condRaw = (item.condition||'').toLowerCase();
   const cond = condRaw.includes('nwt') || condRaw === 'new with tags' ? 'NWT' :
@@ -484,64 +592,75 @@ function platformTitles(item) {
   const col = color || '';
   const mat = material || '';
   const gmt = garment || '';
-  const br  = brand || '';
-  const sz  = size  || '';
+  const br  = brand  || '';
+  const sz  = size   || '';
   const sizeStr = sz ? 'Size ' + sz : '';
   const szShort = sz ? 'Sz '   + sz : '';
+  const sil = silhouette || '';
+  const dec = decade || '';
 
   const a0 = aes[0] || '';
   const a1 = aes[1] || '';
   const a2 = aes[2] || '';
 
-  // Occasion context mapped from aesthetic for natural phrase building
-  const OCCASION = {'Y2K':'Party','Y2K Glam':'Party','Disco Sparkle':'Going Out','Dark Romantic':'Date Night',
-    'Coquette':'Romantic','Fairy Grunge':'Festival','Velvet Goth':'Evening','Vampire':'Evening',
-    'Mall Goth':'Casual Alt','Cottagecore':'Casual','Dark Academia':'Scholarly','Moto Goth':'Edgy',
-    'Slip Dress Era':'Evening','Sheer Layering':'Layering'};
-  const occasion = OCCASION[a0] || OCCASION[a1] || '';
+  // Occasion — what buyers naturally pair with aesthetic in searches
+  const OCC = {
+    'Y2K':'Party','Coquette':'Romantic','Dark Romantic':'Date Night','Mob Wife':'Going Out',
+    'Disco Era':'Party','Retro Glam':'Going Out','Vamp Glam':'Evening',
+    'Fairycore':'Festival','Cottagecore':'Casual','Balletcore':'Recital',
+    'Dark Academia':'Scholarly','Quiet Luxury':'Evening','Old Money':'Formal',
+    'Grunge':'Casual Alt','Mall Goth':'Casual Alt','Alt':'Casual Alt',
+    'Vampire Aesthetic':'Evening','Regencycore':'Formal','Indie Sleaze':'Night Out',
+  };
+  const occasion = OCC[a0] || OCC[a1] || '';
 
   // ── POSHMARK ── 80 chars
-  // What buyers type: Brand + Color + Material + Garment + Style + Size
-  const poshCore = [col, mat, gmt].filter(Boolean).join(' ');
-  let posh = [cond, br, poshCore, a0, sizeStr].filter(Boolean).join(' ').trim();
+  // Poshmark buyers search brand first, then color+item, then style
+  // Hit close to 80 chars — empty chars = lost search weight
+  let posh = [cond, br, col, mat, sil, gmt, a0, szShort].filter(Boolean).join(' ').trim();
+  if (posh.length > 80) posh = [cond, br, col, mat, gmt, a0, szShort].filter(Boolean).join(' ').trim();
+  if (posh.length > 80) posh = [cond, br, col, gmt, a0, szShort].filter(Boolean).join(' ').trim().slice(0,80);
   if (posh.length < 65 && a1) {
-    const ext = [cond, br, poshCore, a0, a1, szShort].filter(Boolean).join(' ').trim();
+    const ext = [cond, br, col, mat, gmt, a0, a1, szShort].filter(Boolean).join(' ').trim();
     if (ext.length <= 80) posh = ext;
   }
   if (posh.length > 80) posh = posh.slice(0,80).replace(/\s\S+$/,'').trim();
 
   // ── ETSY ── 140 chars
-  // Etsy ranks on FULL SEARCH PHRASES — buyers type "black sequin y2k skirt women"
-  // First phrase = highest weight, then secondary phrases + brand + size
-  const ep1 = [cond, col, mat, gmt, 'Women'].filter(Boolean).join(' ');         // "Black Sequin Mini Skirt Women"
-  const ep2 = a0 ? `${a0} Aesthetic` : '';                                        // "Y2K Aesthetic"
-  const ep3 = occasion ? `${occasion} ${gmt||'Outfit'}`.trim() : `Vintage ${gmt||'Style'}`.trim(); // "Party Mini Skirt"
-  const ep4 = a1 ? `${a1} Style` : '';
-  let etsy = [ep1, ep2, ep3, ep4, br, sizeStr].filter(Boolean).join(', ').slice(0,140);
+  // Etsy algorithm: full-phrase matching — each comma-phrase is a discrete search query
+  // Buyers type: "black sequin y2k mini skirt women" as ONE search phrase
+  // First phrase (before first comma) gets heaviest ranking weight
+  const etsyP1 = [col, mat, sil||'', gmt, 'Women'].filter(Boolean).join(' ').replace(/\s+/g,' ');
+  const etsyP2 = a0 ? `${a0} Clothing` : '';
+  const etsyP3 = occasion ? `${occasion} ${gmt||'Outfit'}`.trim() : (dec ? `${dec} ${gmt||'Fashion'}`.trim() : '');
+  const etsyP4 = dec && !etsyP3.includes(dec) ? `${dec} Style` : (a1 ? `${a1} Style` : '');
+  let etsy = [etsyP1, etsyP2, etsyP3, etsyP4, br, sizeStr].filter(Boolean).join(', ').slice(0,140);
 
   // ── DEPOP ── 200 chars
-  // Casual lowercase + item hashtags + TRENDING platform tags for reach
-  const depopDesc = [br?.toLowerCase(), col?.toLowerCase(), mat?.toLowerCase(), gmt?.toLowerCase()].filter(Boolean).join(' ');
-  const emo = /sequin|sparkl/i.test(mat)?'✨':/velvet/i.test(mat)?'🖤':/lace/i.test(mat)?'🌹':/satin|silk/i.test(mat)?'🕊️':'🖤';
-  const hashItem  = [col, mat, gmt, a0, a1].filter(Boolean).map(t=>'#'+t.toLowerCase().replace(/[^a-z0-9]/g,''));
-  const hashTrend = ['#thrifted','#vintagefashion','#y2kaesthetic','#depopfashion','#secondhand','#slowfashion'];
-  const hashes = [...new Set([...hashItem, ...hashTrend])].join(' ');
-  let depop = `${depopDesc} ${emo} ${a0.toLowerCase()}${sz?' sz '+sz.toLowerCase():''} ${hashes}`.replace(/\s+/g,' ').trim().slice(0,200);
+  // Discovery platform: aesthetic hashtags drive impressions, item tags drive conversion
+  // Order: aesthetic-specific trending tags FIRST (highest traffic), then item tags, then platform evergreens
+  const depopDesc = [br?.toLowerCase(), sil?.toLowerCase(), col?.toLowerCase(), mat?.toLowerCase(), gmt?.toLowerCase()].filter(Boolean).join(' ');
+  const emo = /sequin|sparkl|glitter/i.test(mat)?'✨':/velvet/i.test(mat)?'🖤':/lace/i.test(mat)?'🌹':/satin|silk/i.test(mat)?'🕊️':/fur|fluffy/i.test(mat)?'🐆':/floral/i.test(mat)?'🌸':'🖤';
+  const hashAes  = (DEPOP_HASH[a0] || DEPOP_HASH[a1] || ['#vintage','#aesthetic']).slice(0,4);
+  const hashItem = [col, mat, gmt].filter(Boolean).map(t=>'#'+t.toLowerCase().replace(/[^a-z0-9]/g,''));
+  const hashBase = ['#thrifted','#secondhand','#vintagefashion','#depopfashion'];
+  const hashes   = [...new Set([...hashAes, ...hashItem, ...hashBase])].slice(0,11).join(' ');
+  let depop = `${depopDesc} ${emo} ${a0.toLowerCase()}${dec?' '+dec.toLowerCase():''}${sz?' sz '+sz.toLowerCase():''} ${hashes}`.replace(/\s+/g,' ').trim().slice(0,200);
 
   // ── SHOPIFY / GOOGLE SHOPPING ── 110 chars
-  // Google Shopping format: Brand Women's + Color Material Garment — Aesthetic — Size
-  // "Women's" + product type = critical for Google Shopping categories
-  const shopBase = [col, mat, gmt].filter(Boolean).join(' ');
-  let shopify = [
-    br ? `${br} Women's ${shopBase}`.trim() : `Women's ${shopBase}`.trim(),
-    a0 ? `${a0} Aesthetic` : '',
-    sizeStr
-  ].filter(Boolean).join(' — ').slice(0,110);
+  // Google Shopping title spec: Brand + "Women's" + Color + Material + Product Type
+  // "Women's" critical: Google Shopping uses it for gender filter + product category match
+  // Aesthetic tag adds long-tail search discovery (people Google "Y2K aesthetic mini skirt")
+  const shopCore = [col, mat, sil||'', gmt].filter(Boolean).join(' ').replace(/\s+/g,' ');
+  let shopify = br
+    ? `${br} Women's ${shopCore} — ${a0}${sizeStr?' | '+sizeStr:''}`.trim()
+    : `Women's ${shopCore} — ${a0} Aesthetic${sizeStr?' | '+sizeStr:''}`.trim();
+  if (shopify.length > 110) shopify = shopify.slice(0,110).replace(/[\s|—]\S+$/,'').trim();
 
   // ── THRIFTED ── 120 chars
-  // Platform-native: descriptor | stacked aesthetics with dots | size | brand
+  // Aesthetic stacking with clear visual separators | dots for sub-aesthetics
   let thrifted = [
-    [col, mat, gmt].filter(Boolean).join(' '),
+    [col, mat, sil||'', gmt].filter(Boolean).join(' ').replace(/\s+/g,' '),
     [a0, a1, a2].filter(Boolean).join(' · '),
     sizeStr || 'One Size',
     br
