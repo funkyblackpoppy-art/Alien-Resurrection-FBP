@@ -285,21 +285,29 @@ function parseCSV(text) {
 
 // ══ FIELD MAP ══
 const ALIASES = {
-  title:      ['listing title','title','item title','name'],
-  status:     ['status','listing status','item status'],
-  price:      ['price','listing price','sell price','current price','asking price','sale price'],
-  brand:      ['brand','designer','maker','label'],
-  category:   ['category','item type','type','clothing type'],
-  size:       ['size','item size','clothing size'],
-  color:      ['color','colour','primary color'],
-  condition:  ['condition','item condition'],
-  sku:        ['sku','item id','listing id','id','item number'],
-  dateListed: ['date listed','listed date','created date','date created','list date','created at','listed at','original list date','date added'],
-  platforms:  ['platforms','listed on','marketplace','listed platforms'],
-  image:      ['image','image url','image 1','photo','main image','primary image','thumbnail','picture url'],
-  description:['description','listing description'],
-  collection: ['collection','closet section','poshmark closet section','section'],
-  likes:      ['likes','hearts','favorites','saves','watchers'],
+  title:      ['listing title','title','item title','name','product title'],
+  status:     ['status','listing status','item status','vendoo status','active status',
+               'sale status','listing_status','current status','item_status','availability'],
+  soldDate:   ['sold date','date sold','sale date','sold at','sold on','completion date',
+               'sold_date','date of sale','purchase date','transaction date'],
+  endDate:    ['end date','date ended','ended at','expiry date','expiration date','end_date'],
+  price:      ['price','listing price','sell price','current price','asking price','sale price',
+               'list price','listed price','asking','amount'],
+  brand:      ['brand','designer','maker','label','brand name'],
+  category:   ['category','item type','type','clothing type','product type','department'],
+  size:       ['size','item size','clothing size','size variant','variation size'],
+  color:      ['color','colour','primary color','item color','color_name'],
+  condition:  ['condition','item condition','product condition'],
+  sku:        ['sku','item id','listing id','id','item number','vendoo id','product id','ref'],
+  dateListed: ['date listed','listed date','created date','date created','list date',
+               'created at','listed at','original list date','date added','listing date','post date'],
+  platforms:  ['platforms','listed on','marketplace','listed platforms','crosslisted on',
+               'active on','sites','channels'],
+  image:      ['image','image url','image 1','photo','main image','primary image',
+               'thumbnail','picture url','cover image','photo url','img'],
+  description:['description','listing description','item description','details'],
+  collection: ['collection','closet section','poshmark closet section','section','category'],
+  likes:      ['likes','hearts','favorites','saves','watchers','offers'],
 };
 function findCol(headers, key) {
   const al = ALIASES[key] || [];
@@ -327,15 +335,37 @@ function parseDate(s) {
 }
 
 // ══ STATUS ══
-const SOLD_WORDS     = ['sold','completed','shipped','fulfilled','purchased','bought','archived','not for sale','no longer available','sale complete'];
-const INACTIVE_WORDS = ['inactive','draft','not listed','removed','deleted','unlisted','ended','expired','closed','paused','hidden','disabled'];
-const ACTIVE_WORDS   = ['active','listed','live','for sale','available','published'];
-function rawStatus(s) {
-  s = (s||'').toLowerCase().trim();
-  if (SOLD_WORDS.some(w => s.includes(w))) return 'sold';
+// SOLD_WORDS: all known Vendoo + reselling platform status values that mean "no longer available"
+const SOLD_WORDS = [
+  'sold','completed','shipped','fulfilled','purchased','bought',
+  'archived','not for sale','no longer available','sale complete',
+  'transferred','transaction complete','order complete','order completed',
+  'delivered','closed','removed','deactivated','sold out',
+  'sold on','sale closed','listing complete','poshmark sold','depop sold',
+  'ebay sold','mercari sold','etsy sold','facebook sold',
+];
+const INACTIVE_WORDS = [
+  'inactive','draft','not listed','unlisted','ended','expired',
+  'paused','hidden','disabled','delisted','suspended','flagged',
+  'pending','scheduled','needs review','out of stock',
+];
+const ACTIVE_WORDS = [
+  'active','listed','live','for sale','available','published','approved',
+  'enabled','in stock','visible','on sale',
+];
+
+function rawStatus(statusVal, soldDateVal, endDateVal) {
+  const s = (statusVal||'').toLowerCase().trim();
+  // Sold date present = definitively sold, no matter what status column says
+  if (soldDateVal && soldDateVal.trim() && soldDateVal.trim() !== '—' && soldDateVal.trim() !== 'N/A') return 'sold';
+  // End date present = inactive/ended
+  if (endDateVal && endDateVal.trim() && endDateVal.trim() !== '—' && endDateVal.trim() !== 'N/A') return 'inactive';
+  if (!s) return 'active'; // no status column → assume active
+  if (SOLD_WORDS.some(w => s.includes(w)))     return 'sold';
   if (INACTIVE_WORDS.some(w => s.includes(w))) return 'inactive';
-  if (ACTIVE_WORDS.some(w => s.includes(w))) return 'active';
-  return s ? 'inactive' : 'active';
+  if (ACTIVE_WORDS.some(w => s.includes(w)))   return 'active';
+  // Unknown status value → treat as inactive (safer than polluting active inventory)
+  return 'inactive';
 }
 function effectiveStatus(item) {
   const ov = S.statusOverride[item.sku]; if (ov) return ov;
@@ -675,15 +705,25 @@ function normalizeItems(rows) {
   const C = {};
   for (const k of Object.keys(ALIASES)) C[k] = findCol(headers,k);
   const g = (row,k) => (row[C[k]]!==undefined?row[C[k]]:'').trim();
+
+  // Debug: log detected columns so user can verify CSV mapping
+  const detectedCols = Object.entries(C).filter(([,v])=>v>=0).map(([k,v])=>`${k}→col${v}(${headers[v]})`);
+  console.log('[FBP] CSV columns detected:', detectedCols.join(', '));
+  console.log('[FBP] Status col:', C.status>=0 ? `"${headers[C.status]}"` : 'NOT FOUND — all items default active');
+  console.log('[FBP] Sold date col:', C.soldDate>=0 ? `"${headers[C.soldDate]}"` : 'NOT FOUND');
+
   const prices = [];
   const items = rows.slice(1).map((row,ri) => {
     const price = parseFloat(g(row,'price').replace(/[$,]/g,''))||0;
     const dateListed = parseDate(g(row,'dateListed'));
     const age = dateListed ? Math.round((Date.now()-dateListed.getTime())/86400000) : 0;
     prices.push(price);
+    // Status: sold date presence = definitively sold; end date = inactive; status column = fallback
+    const _rawStatus = rawStatus(g(row,'status'), g(row,'soldDate'), g(row,'endDate'));
     return {
       title:       g(row,'title')||`Item ${ri+1}`,
-      _rawStatus:  rawStatus(g(row,'status')),
+      _rawStatus,
+      _statusRaw:  g(row,'status'), // keep original for diagnostics
       price, age,
       brand:       g(row,'brand'),
       category:    g(row,'category'),
@@ -692,6 +732,7 @@ function normalizeItems(rows) {
       condition:   g(row,'condition'),
       sku:         g(row,'sku')||`row-${ri}`,
       dateListed,
+      soldDate:    g(row,'soldDate'),
       platforms:   getPlatforms(row,headers,C.platforms),
       image:       g(row,'image'),
       description: g(row,'description'),
@@ -699,7 +740,14 @@ function normalizeItems(rows) {
       likes:       parseInt(g(row,'likes'))||0,
       heroScore:   0,
     };
-  }).filter(i=>i.title&&i.price>0||i.title&&i.title!==`Item 1`);
+  }).filter(i => i.title && i.title !== 'Item 1');
+
+  // Log status breakdown so user can diagnose mismatches
+  const breakdown = items.reduce((acc,i)=>{ acc[i._rawStatus]=(acc[i._rawStatus]||0)+1; return acc; },{});
+  console.log('[FBP] Status breakdown:', JSON.stringify(breakdown));
+  const unknownSamples = items.filter(i=>i._rawStatus==='inactive'&&!i._statusRaw).slice(0,3).map(i=>i.title);
+  if(unknownSamples.length) console.log('[FBP] Items with missing status (defaulted active → watch):', unknownSamples);
+
   const sorted = [...prices].sort((a,b)=>a-b);
   for (const item of items) {
     item.heroScore  = calcHero(item,sorted);
@@ -1187,6 +1235,11 @@ function loadFile(file){
       document.getElementById('upload-screen').style.display='none';
       document.getElementById('app-shell').style.display='block';
       updateHeader(); render();
+      // Show status breakdown so user can verify sold detection worked
+      const active=S.items.filter(i=>i._rawStatus==='active').length;
+      const sold=S.items.filter(i=>i._rawStatus==='sold').length;
+      const inactive=S.items.filter(i=>i._rawStatus==='inactive').length;
+      setTimeout(()=>toast(`Loaded ${S.items.length} items — ${active} active · ${sold} sold · ${inactive} inactive`),400);
     } catch(err){
       const el=document.getElementById('upload-error');
       el.textContent='⚠ '+err.message; el.style.display='block';
