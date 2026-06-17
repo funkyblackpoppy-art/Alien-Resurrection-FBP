@@ -770,7 +770,7 @@ function trendHits(row){
   return hits;
 }
 let fTrend = 'all';
-function drillTrend(n){fTrend=n;fSW='all';fCA='all';fCat='all';fSeason='ss_now';curView='all';vis=60;document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.querySelector('[data-v="all"]').classList.add('on');render();}
+function drillTrend(n){fTrend=n;fSW='all';fCA='all';fCat='all';fSeason=SEASON_MODE==='FW'?'fw':'ss_now';curView='all';vis=60;document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.querySelector('[data-v="all"]').classList.add('on');render();}
 
 // ── SEASON ENGINE ── SS26 reselling relevance
 // Hard FW = hold/storage until Aug; Shoulder = list but deprioritize; SS = push now
@@ -1233,7 +1233,7 @@ function reboot() {
   document.getElementById('hg').textContent = GHOST_CNT || '—';
   document.getElementById('hc').textContent = CRIT_CNT  || '—';
   document.getElementById('hh').textContent = HERO_CNT  || '—';
-  curView = 'cmd'; vis = 60; fSW='all'; fCA='all'; fCat='all'; fQ=''; fH=0; fA='all'; fPl='all'; fSt='all'; hideRel=true; fSeason='ss_now'; fTrend='all';
+  curView = 'cmd'; vis = 60; fSW='all'; fCA='all'; fCat='all'; fQ=''; fH=0; fA='all'; fPl='all'; fSt='all'; hideRel=true; fSeason= SEASON_MODE==='FW' ? 'fw' : 'ss_now'; fTrend='all';
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.querySelector('[data-v="cmd"]').classList.add('on');
   render();
@@ -1757,7 +1757,7 @@ function vStrategy(){
 
 function vAll(){
   if(!D.length) return vEmpty();
-  const items=getFiltered();
+  const filtered=getFiltered();
   const catOpts="<option value=\"all\">All Categories ("+(fCat==="all"?D.length:D.filter(i=>sv(i.cat)===fCat).length)+")</option>"
     +[...new Set(D.map(i=>sv(i.cat)).filter(Boolean))].sort().map(c=>"<option value=\""+esc(c)+"\" "+(fCat===c?"selected":"")+">"+esc(c)+" ("+D.filter(i=>sv(i.cat)===c).length+")</option>").join("");
   const swChips=[["all","All ("+D.length+")"],...ALL_SWS_L.map(v=>[v,(v.length>20?v.substring(0,18)+"…":v)+" ("+D.filter(i=>sv(i.sw)===v).length+")"])];
@@ -1765,7 +1765,6 @@ function vAll(){
   const gridHtml=filtered.slice(0,vis).map(i=>mkCard(i,i._i)).join("")
     ||"<div style=\"padding:2rem;color:var(--muted);text-align:center;grid-column:1/-1\">No listings match.</div>";
   const moreHtml=filtered.length>vis?"<button class=\"load-more\" onclick=\"vis+=60;reGrid()\">Load more ("+(filtered.length-vis)+" remaining)</button>":"";
-  const filtered = getFiltered();
   return "<div class=\"stitle\">📦 All Listings"+(fTrend!=='all'?" — 🔥 "+esc(fTrend)+" <span style=\"font-size:11px;cursor:pointer;color:var(--bloom)\" onclick=\"fTrend='all';vis=60;render()\">✕ clear</span>":"")+"</div>"
     +"<div class=\"batch-bar" + (selectedItems.size>0?" show":"") + "\" id=\"batchBar\">"
     +"<span class=\"batch-cnt\" id=\"batchCnt\">"+selectedItems.size+" selected</span>"
@@ -1789,10 +1788,16 @@ function vAll(){
       +["Active","Draft","Sold"].map(st=>"<option value=\""+st+"\" "+(fSt===st?"selected":"")+">"+st+" ("+D.filter(i=>i.st===st).length+")</option>").join("")
     +"</select>":"")
     +"<select class=\"fs\" onchange=\"fSeason=this.value;vis=60;reGrid()\">"
-      +"<option value=\"ss_now\" "+(fSeason==='ss_now'?"selected":"")+">☀ SS26 season (hide winter)</option>"
-      +"<option value=\"ss_only\" "+(fSeason==='ss_only'?"selected":"")+">☀ Pure summer only</option>"
-      +"<option value=\"fw\" "+(fSeason==='fw'?"selected":"")+">❄ Winter holds ("+workSet().filter(i=>i.season==='FW').length+")</option>"
-      +"<option value=\"all_season\" "+(fSeason==='all_season'?"selected":"")+">All seasons</option>"
+      +(SEASON_MODE==='FW'
+      ?"<option value=\"fw\" "+(fSeason==='fw'?"selected":"")+">❄ FW26 season (hide summer)</option>"
+       +"<option value=\"all_season\" "+(fSeason==='all_season'?"selected":"")+">All seasons</option>"
+       +"<option value=\"ss_now\" "+(fSeason==='ss_now'?"selected":"")+">☀ SS holds ("+workSet().filter(i=>i.season==='SS').length+")</option>"
+       +"<option value=\"ss_only\" "+(fSeason==='ss_only'?"selected":"")+">☀ Pure summer only</option>"
+      :"<option value=\"ss_now\" "+(fSeason==='ss_now'?"selected":"")+">☀ SS26 season (hide winter)</option>"
+       +"<option value=\"ss_only\" "+(fSeason==='ss_only'?"selected":"")+">☀ Pure summer only</option>"
+       +"<option value=\"fw\" "+(fSeason==='fw'?"selected":"")+">❄ Winter holds ("+workSet().filter(i=>i.season==='FW').length+")</option>"
+       +"<option value=\"all_season\" "+(fSeason==='all_season'?"selected":"")+">All seasons</option>"
+    )
     +"</select>"
     +"<label style=\"font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap\"><input type=\"checkbox\" "+(hideRel?"checked":"")+" onchange=\"hideRel=this.checked;vis=60;reGrid()\"> Hide relisted ("+D.filter(isRel).length+")</label>"
     +"<span class=\"fcnt\" id=\"fcnt\">"+filtered.length+" results</span></div>"
