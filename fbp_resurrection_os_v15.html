@@ -1084,42 +1084,19 @@ function showImportModal(headers, rows, filename) {
   const hasTile = mapped.includes('t');
   const hasAge  = mapped.includes('a') || mapped.includes('listed');
   const hasImg  = mapped.includes('img');
+  const hasStatus = mapped.includes('st');
 
   document.getElementById('modalSub').textContent =
     `${filename} · ${rows.length.toLocaleString()} rows · ${headers.length} columns`;
 
-  // Parse ALL rows once for accurate status breakdown
-  pendingItems = rows.map(r => rowToItem(r, headers)).filter(r => r.t || r.img);
-  const nAct = pendingItems.filter(i=>i.st==='Active').length;
-  const nSold = pendingItems.filter(i=>i.st==='Sold').length;
-  const nDraft = pendingItems.filter(i=>i.st==='Draft').length;
-  const act = pendingItems.filter(i=>i.st==='Active');
-  const ghosts = act.filter(i=>i.a>=500).length;
-  const heros  = act.filter(i=>i.h>=4).length;
-
-  document.getElementById('cntActive').textContent = nAct;
-  document.getElementById('cntSold').textContent = nSold;
-  document.getElementById('cntDraft').textContent = nDraft;
-  document.getElementById('impActive').checked = true;
-  document.getElementById('impSold').checked = true;   // v6: safe — sold routes to analytics only
-  document.getElementById('impDraft').checked = true;  // v6: safe — drafts route to triage only
-
-  document.getElementById('modalStats').innerHTML =
-    `<div class="mstat"><div class="mstat-v">${pendingItems.length}</div><div class="mstat-l">Rows</div></div>`+
-    `<div class="mstat"><div class="mstat-v" style="color:var(--danger)">${ghosts}</div><div class="mstat-l">Ghosts (active)</div></div>`+
-    `<div class="mstat"><div class="mstat-v" style="color:var(--gold)">${heros}</div><div class="mstat-l">Heroes (active)</div></div>`;
-
-  // Warnings
+  // Warnings (shown immediately, before processing)
   let warn = '';
   if (!hasTile) warn += '<p>⚠️ No <strong>Title</strong> column found — item names will be empty.</p>';
   if (!hasAge)  warn += '<p>⚠️ No <strong>Days Listed</strong> or date column — ages set to 0.</p>';
   if (!hasImg)  warn += '<p>⚠️ No <strong>Image</strong> column — cards will show placeholder icons.</p>';
-  const hasStatus = mapped.includes('st');
-  if (!hasStatus) warn += '<p>⚠️ No <strong>Status</strong> column — all rows will be treated as Active (sold items may leak in).</p>';
+  if (!hasStatus) warn += '<p>⚠️ No <strong>Status</strong> column — all rows will be treated as Active.</p>';
   if (D.length > 0) warn += `<p>ℹ️ This will replace your current ${D.length} listings.</p>`;
-
-  document.getElementById('modalWarn').innerHTML =
-    warn ? `<div class="modal-warn">${warn}</div>` : '';
+  document.getElementById('modalWarn').innerHTML = warn ? `<div class="modal-warn">${warn}</div>` : '';
 
   // Column preview
   const colList = headers.map(h => {
@@ -1127,9 +1104,55 @@ function showImportModal(headers, rows, filename) {
     return key ? `<span style="color:var(--ok)">✓ ${h}</span>` : `<span style="color:var(--faint)">· ${h}</span>`;
   }).join('  ');
   document.getElementById('colPreview').innerHTML = colList;
-  document.getElementById('confirmBtn').textContent = `✅ Load ${rows.length} Listings`;
 
+  // Show modal immediately with progress bar; disable confirm until done
+  document.getElementById('confirmBtn').textContent = `⏳ Processing…`;
+  document.getElementById('confirmBtn').disabled = true;
+  document.getElementById('modalStats').innerHTML =
+    `<div class="mstat"><div class="mstat-v" id="impProg">0 / ${rows.length}</div><div class="mstat-l">Parsed</div></div>`+
+    `<div class="mstat"><div class="mstat-v" style="color:var(--danger)" id="impGhosts">—</div><div class="mstat-l">Ghosts</div></div>`+
+    `<div class="mstat"><div class="mstat-v" style="color:var(--gold)" id="impHeros">—</div><div class="mstat-l">Heroes</div></div>`;
+  document.getElementById('cntActive').textContent = '…';
+  document.getElementById('cntSold').textContent = '…';
+  document.getElementById('cntDraft').textContent = '…';
+  document.getElementById('impActive').checked = true;
+  document.getElementById('impSold').checked = true;
+  document.getElementById('impDraft').checked = true;
   modal.classList.add('show');
+
+  // Chunked processing — 80 rows per tick to keep UI responsive
+  const CHUNK = 80;
+  pendingItems = [];
+  let idx = 0;
+
+  function processChunk() {
+    const end = Math.min(idx + CHUNK, rows.length);
+    for (; idx < end; idx++) {
+      const item = rowToItem(rows[idx], headers);
+      if (item.t || item.img) pendingItems.push(item);
+    }
+    document.getElementById('impProg').textContent = `${idx} / ${rows.length}`;
+    if (idx < rows.length) { setTimeout(processChunk, 0); return; }
+
+    // All done — update stats
+    const nAct   = pendingItems.filter(i=>i.st==='Active').length;
+    const nSold  = pendingItems.filter(i=>i.st==='Sold').length;
+    const nDraft = pendingItems.filter(i=>i.st==='Draft').length;
+    const act    = pendingItems.filter(i=>i.st==='Active');
+    const ghosts = act.filter(i=>i.a>=500).length;
+    const heros  = act.filter(i=>i.h>=4).length;
+
+    document.getElementById('cntActive').textContent = nAct;
+    document.getElementById('cntSold').textContent   = nSold;
+    document.getElementById('cntDraft').textContent  = nDraft;
+    document.getElementById('impProg').textContent   = pendingItems.length;
+    document.getElementById('impGhosts').textContent = ghosts;
+    document.getElementById('impHeros').textContent  = heros;
+    document.getElementById('confirmBtn').textContent = `✅ Load ${nAct + nSold + nDraft} Listings`;
+    document.getElementById('confirmBtn').disabled = false;
+  }
+
+  setTimeout(processChunk, 0);
 }
 
 function closeModal() {
