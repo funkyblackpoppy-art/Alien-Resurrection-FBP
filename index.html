@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator HQ — @gatec31</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">✈ Creator HQ</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-target="audit">🎯 Audit</button>
+    <button class="nav-tab" data-target="fable5">🧠 Fable5</button>
+    <button class="nav-tab" data-target="pillars">📹 Pillars</button>
+    <button class="nav-tab" data-target="runway">🛫 Runway</button>
+    <button class="nav-tab" data-target="metrics">📊 Metrics</button>
+    <button class="nav-tab" data-target="revenue">💰 Revenue</button>
+  </div>
+</nav>
+
+<main>
+  <section id="audit">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">🎯</span> Channel Audit</div>
+      <div class="section-subtitle">Honest diagnostic across 8 dimensions — updated manually or via /creator-hq</div>
+    </div>
+    <div class="audit-grid" id="auditGrid"></div>
+  </section>
+
+  <section id="fable5">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">🧠</span> Fable5 Framework</div>
+      <div class="section-subtitle">The five-layer creator intelligence OS — click any card to expand tasks</div>
+    </div>
+    <div class="fable5-stack" id="fable5Stack"></div>
+  </section>
+
+  <section id="pillars">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">📹</span> Content Pillars</div>
+      <div class="section-subtitle">Three pillars, fifteen ideas — connect Notion to sync live pipeline</div>
+    </div>
+    <div id="pillarsNotionCta"></div>
+    <div class="pillars-grid" id="pillarsGrid"></div>
+  </section>
+
+  <section id="runway">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">🛫</span> 90-Day Runway</div>
+      <div class="section-subtitle">Three phases to launch, grow, and monetize — checkboxes auto-save</div>
+    </div>
+    <div class="phase-tabs">
+      <button class="phase-tab active" data-phase="0">Phase 1 · Foundations</button>
+      <button class="phase-tab" data-phase="1">Phase 2 · Consistency</button>
+      <button class="phase-tab" data-phase="2">Phase 3 · Monetize</button>
+    </div>
+    <div id="runwayPanels"></div>
+  </section>
+
+  <section id="metrics">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">📊</span> Key Metrics</div>
+      <div class="section-subtitle">Six KPIs that predict growth — connect Google Sheets for live data</div>
+    </div>
+    <div id="sheetsStatusCta"></div>
+    <div class="metrics-kpi-grid" id="kpiGrid"></div>
+    <div class="charts-grid" id="chartsGrid"></div>
+  </section>
+
+  <section id="revenue">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">💰</span> Monetization Stack</div>
+      <div class="section-subtitle">Six revenue streams sequenced by subscriber milestone</div>
+    </div>
+    <div class="revenue-grid" id="revenueGrid"></div>
+  </section>
+</main>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
