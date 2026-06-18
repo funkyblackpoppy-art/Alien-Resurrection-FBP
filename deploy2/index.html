@@ -1742,19 +1742,26 @@ function saveApp() {
   const editId = document.getElementById('editId').value;
   const id = editId || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+  function fixUrl(val) {
+    const v = val.trim();
+    if (!v) return '';
+    if (/^https?:\/\//i.test(v)) return v;
+    return 'https://' + v;
+  }
+
   const app = {
     id,
     emoji:       document.getElementById('fEmoji').value.trim() || '✦',
     name,
     tagline:     document.getElementById('fTagline').value.trim(),
     description: document.getElementById('fDesc').value.trim(),
-    url:         document.getElementById('fUrl').value.trim(),
+    url:         fixUrl(document.getElementById('fUrl').value),
     category:    document.getElementById('fCategory').value,
     status:      document.getElementById('fStatus').value,
     version:     document.getElementById('fVersion').value.trim() || '1.0.0',
     price:       parseFloat(document.getElementById('fPrice').value) || 0,
     saleProvider: document.getElementById('fSaleProvider').value,
-    saleUrl:     document.getElementById('fSaleUrl').value.trim(),
+    saleUrl:     fixUrl(document.getElementById('fSaleUrl').value),
     featured:    document.getElementById('fFeatured').value === 'true',
     notes:       document.getElementById('fNotes').value.trim(),
     tags: [],
