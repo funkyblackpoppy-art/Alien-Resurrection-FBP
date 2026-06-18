@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080810">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Sacred Chaos · App Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN TOKENS ── */
+:root {
+  --bg:         #080810;
+  --bg2:        #0f0f1a;
+  --bg3:        #16162a;
+  --bg4:        #1e1e35;
+  --border:     rgba(139,92,246,0.18);
+  --border2:    rgba(139,92,246,0.35);
+  --purple:     #8b5cf6;
+  --purple-dim: #6d3fd4;
+  --teal:       #06b6d4;
+  --teal-dim:   #0891b2;
+  --gold:       #f59e0b;
+  --gold-dim:   #d97706;
+  --pink:       #ec4899;
+  --pink-dim:   #db2777;
+  --red-dim:    #7f1d1d;
+  --text:       #e2e8f0;
+  --text2:      #94a3b8;
+  --text3:      #64748b;
+  --radius:     12px;
+  --radius-lg:  20px;
+  --shadow:     0 4px 24px rgba(0,0,0,0.5);
+  --shadow-lg:  0 8px 48px rgba(0,0,0,0.7);
+  --glow-purple: 0 0 20px rgba(139,92,246,0.3);
+  --glow-teal:   0 0 20px rgba(6,182,212,0.3);
+  --glow-gold:   0 0 20px rgba(245,158,11,0.3);
+  --transition:  0.2s ease;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* ── STARS BACKGROUND ── */
+.stars {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(245,158,11,0.04) 0%, transparent 50%);
+}
+.stars canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ── PASSWORD GATE ── */
+#gate {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 24px;
+  padding: 24px;
+}
+#gate .gate-logo {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+}
+#gate .gate-sub {
+  color: var(--text2); font-size: 13px; text-align: center; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+#gate .gate-form {
+  display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 340px;
+}
+#gate input[type="password"] {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 16px;
+  padding: 14px 18px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+#gate input[type="password"]:focus {
+  border-color: var(--purple);
+  box-shadow: var(--glow-purple);
+}
+#gate .gate-btn {
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px;
+  border-radius: var(--radius);
+  transition: opacity var(--transition), transform var(--transition);
+}
+#gate .gate-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+#gate .gate-btn:active { transform: translateY(0); }
+#gate .gate-skip {
+  color: var(--text3); font-size: 13px; cursor: pointer; text-align: center;
+  transition: color var(--transition);
+}
+#gate .gate-skip:hover { color: var(--text2); }
+#gate .gate-err {
+  color: #f87171; font-size: 13px; text-align: center; min-height: 18px;
+}
+#gate .gate-symbol {
+  font-size: 64px; line-height: 1; filter: drop-shadow(0 0 20px rgba(139,92,246,0.5));
+}
+
+/* ── LAYOUT ── */
+#app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── HEADER ── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,8,16,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; align-items: center; gap: 16px;
+  height: 64px;
+}
+.header-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 18px; font-weight: 700;
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.header-count {
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 20px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.header-search {
+  flex: 1;
+  display: flex; align-items: center;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 0 16px;
+  gap: 8px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  max-width: 400px;
+}
+.header-search:focus-within {
+  border-color: var(--purple);
+  box-shadow: var(--glow-purple);
+}
+.header-search svg { color: var(--text3); flex-shrink: 0; }
+.header-search input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 14px; width: 100%;
+  padding: 9px 0;
+}
+.header-search input::placeholder { color: var(--text3); }
+.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.icon-btn {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  transition: all var(--transition);
+}
+.icon-btn:hover { background: var(--bg4); border-color: var(--border2); color: var(--text); }
+.icon-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: rgba(8,8,16,0.6);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; gap: 8px; align-items: center;
+  white-space: nowrap;
+}
+.filter-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 30px;
+  font-size: 13px; font-weight: 500;
+  background: var(--bg3); color: var(--text2);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+.filter-pill:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+.filter-pill.active {
+  background: rgba(139,92,246,0.2);
+  color: var(--purple);
+  border-color: var(--purple);
+}
+.filter-divider {
+  width: 1px; height: 20px; background: var(--border); flex-shrink: 0; margin: 0 4px;
+}
+
+/* ── MAIN CONTENT ── */
+main {
+  flex: 1;
+  max-width: 1400px; margin: 0 auto; width: 100%;
+  padding: 24px 20px 120px;
+}
+
+/* ── FEATURED STRIP ── */
+.featured-section { margin-bottom: 32px; }
+.section-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── APP GRID ── */
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .apps-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .apps-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .featured-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+}
+
+/* ── APP CARD ── */
+.app-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  animation: fadeInUp 0.4s ease both;
+}
+.app-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border2);
+}
+.app-card.featured {
+  border-color: rgba(245,158,11,0.3);
+  background: linear-gradient(135deg, var(--bg2) 0%, rgba(245,158,11,0.05) 100%);
+}
+.app-card.personal { opacity: 0.7; }
+.app-card.archived { opacity: 0.4; filter: grayscale(0.5); }
+.app-card.coming-soon { opacity: 0.8; }
+
+.card-thumb {
+  height: 160px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56px;
+  position: relative;
+  overflow: hidden;
+}
+.card-thumb-bg {
+  position: absolute; inset: 0;
+  opacity: 0.15;
+}
+.card-thumb-emoji {
+  position: relative; z-index: 1;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  line-height: 1;
+}
+.card-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0;
+}
+
+.card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.card-name {
+  font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3;
+}
+.card-price {
+  font-size: 13px; font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+.badge-personal  { background: rgba(100,116,139,0.2); color: var(--text3); border: 1px solid rgba(100,116,139,0.3); }
+.badge-shareable { background: rgba(6,182,212,0.15);  color: var(--teal);   border: 1px solid rgba(6,182,212,0.3); }
+.badge-for-sale  { background: rgba(245,158,11,0.15); color: var(--gold);   border: 1px solid rgba(245,158,11,0.3); }
+.badge-archived  { background: rgba(127,29,29,0.2);   color: #f87171;       border: 1px solid rgba(127,29,29,0.4); }
+.badge-coming-soon { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); }
+.badge-cat {
+  background: var(--bg3); color: var(--text2);
+  border: 1px solid var(--border);
+  font-size: 11px; font-weight: 500;
+  padding: 3px 8px; border-radius: 20px;
+}
+
+.card-desc {
+  font-size: 13px; color: var(--text2); line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.card-actions { display: flex; gap: 8px; margin-top: 4px; }
+.btn {
+  flex: 1; padding: 9px 14px; border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  transition: all var(--transition);
+  touch-action: manipulation;
+  text-align: center;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  color: #fff;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), #e67e22);
+  color: #000;
+}
+.btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+.btn-outline:hover { border-color: var(--purple); color: var(--purple); }
+.btn-ghost {
+  background: var(--bg3);
+  color: var(--text2);
+}
+.btn-ghost:hover { background: var(--bg4); color: var(--text); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 80px 24px;
+  color: var(--text2);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; }
+
+/* ── DETAIL DRAWER ── */
+.drawer-overlay {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.drawer-overlay.open { opacity: 1; pointer-events: all; }
+.drawer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 160;
+  background: var(--bg2);
+  border-top: 1px solid var(--border2);
+  border-radius: 24px 24px 0 0;
+  padding: 24px 24px calc(24px + var(--safe-bottom));
+  max-height: 85vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@media (min-width: 768px) {
+  .drawer {
+    top: 50%; left: 50%; right: auto; bottom: auto;
+    transform: translate(-50%, -60%);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border2);
+    max-width: 560px; width: 100%;
+    max-height: 80vh;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .drawer.open { transform: translate(-50%, -50%); opacity: 1; }
+}
+.drawer.open { transform: translateY(0); }
+.drawer-handle {
+  width: 40px; height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+@media (min-width: 768px) { .drawer-handle { display: none; } }
+.drawer-header { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+.drawer-icon { font-size: 48px; line-height: 1; flex-shrink: 0; }
+.drawer-title { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 600; }
+.drawer-tagline { color: var(--text2); font-size: 14px; margin-top: 4px; }
+.drawer-desc { color: var(--text2); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+.drawer-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.drawer-actions { display: flex; gap: 10px; }
+.drawer-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--bg3); color: var(--text2);
+  font-size: 18px; line-height: 1;
+  transition: all var(--transition);
+}
+.drawer-close:hover { background: var(--bg4); color: var(--text); }
+
+/* ── ADMIN PANEL ── */
+.admin-overlay {
+  position: fixed; inset: 0; z-index: 180;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.admin-overlay.open { opacity: 1; pointer-events: all; }
+.admin-panel {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 190;
+  width: min(480px, 100vw);
+  background: var(--bg2);
+  border-left: 1px solid var(--border2);
+  padding: 24px;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.admin-panel.open { transform: translateX(0); }
+.admin-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px; font-weight: 600;
+  margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; }
+.form-input, .form-select, .form-textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--purple);
+  box-shadow: var(--glow-purple);
+}
+.form-select { appearance: none; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.admin-btn {
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  color: #fff; font-size: 14px; font-weight: 600;
+  border-radius: var(--radius);
+  transition: opacity var(--transition), transform var(--transition);
+  margin-top: 8px;
+}
+.admin-btn:hover { opacity: 0.9; }
+.admin-export-btn {
+  width: 100%; padding: 10px;
+  background: var(--bg3);
+  color: var(--text2); font-size: 13px; font-weight: 500;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  margin-top: 8px;
+}
+.admin-export-btn:hover { background: var(--bg4); color: var(--text); }
+.admin-section-title {
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin: 24px 0 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 120;
+  background: rgba(8,8,16,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 calc(8px + var(--safe-bottom));
+}
+@media (max-width: 767px) { .bottom-nav { display: block; } }
+.bottom-nav-inner {
+  display: flex; justify-content: space-around; align-items: center;
+}
+.bottom-nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 16px; border-radius: 12px;
+  color: var(--text3); font-size: 10px; font-weight: 500;
+  transition: all var(--transition);
+  touch-action: manipulation;
+  min-width: 64px;
+}
+.bottom-nav-btn svg { width: 22px; height: 22px; }
+.bottom-nav-btn.active { color: var(--purple); }
+.bottom-nav-btn:hover { color: var(--text2); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.app-card:nth-child(1) { animation-delay: 0.05s; }
+.app-card:nth-child(2) { animation-delay: 0.10s; }
+.app-card:nth-child(3) { animation-delay: 0.15s; }
+.app-card:nth-child(4) { animation-delay: 0.20s; }
+.app-card:nth-child(5) { animation-delay: 0.25s; }
+.app-card:nth-child(6) { animation-delay: 0.30s; }
+.app-card:nth-child(n+7) { animation-delay: 0.35s; }
+
+/* ── SCROLLBAR STYLE ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); font-size: 13px; font-weight: 500;
+  padding: 10px 20px; border-radius: 30px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; transition: all 0.3s ease;
+  z-index: 300; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── SEARCH HIGHLIGHT ── */
+.highlight { background: rgba(139,92,246,0.25); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- Stars background -->
+<div class="stars"><canvas id="starCanvas"></canvas></div>
+
+<!-- Password Gate -->
+<div id="gate">
+  <div class="gate-symbol">✦</div>
+  <div class="gate-logo">Sacred Chaos</div>
+  <div class="gate-sub">App Portal · Funky Black Poppy</div>
+  <form class="gate-form" id="gateForm">
+    <input type="password" id="gateInput" placeholder="Enter passphrase" autocomplete="current-password">
+    <div class="gate-err" id="gateErr"></div>
+    <button class="gate-btn" type="submit">Enter Portal</button>
+    <div class="gate-skip" id="gateSkip">Browse public apps without signing in →</div>
+  </form>
+</div>
+
+<!-- Main App -->
+<div id="app" style="display:none;">
+  <header>
+    <div class="header-inner">
+      <div class="header-logo">Sacred Chaos</div>
+      <div class="header-count" id="appCount">0 apps</div>
+      <div class="header-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="searchInput" placeholder="Search apps..." autocomplete="off">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="adminBtn" title="Admin" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <button class="icon-btn" id="lockBtn" title="Admin Login">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-inner" id="filterBar">
+      <button class="filter-pill active" data-filter="all">✦ All</button>
+      <button class="filter-pill" data-filter="status:shareable">🔗 Free</button>
+      <button class="filter-pill" data-filter="status:for-sale">💰 For Sale</button>
+      <div class="filter-divider"></div>
+      <!-- Category pills injected by JS -->
+    </div>
+  </div>
+
+  <main id="mainContent">
+    <!-- Featured section -->
+    <div class="featured-section" id="featuredSection" style="display:none;">
+      <div class="section-label">⭐ Featured</div>
+      <div class="featured-grid" id="featuredGrid"></div>
+    </div>
+    <!-- Main grid -->
+    <div class="section-label" id="allLabel">All Apps</div>
+    <div class="apps-grid" id="appsGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">🌌</div>
+      <h3>No apps found</h3>
+      <p>Try a different search or filter.</p>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bottom-nav-btn active" id="navHome">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button class="bottom-nav-btn" id="navSearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search
+      </button>
+      <button class="bottom-nav-btn" id="navAdmin" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        Admin
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- App Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true">
+  <div class="drawer-handle"></div>
+  <button class="drawer-close" id="drawerClose">✕</button>
+  <div id="drawerContent"></div>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-overlay" id="adminOverlay"></div>
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-title">
+    Admin Panel
+    <button class="icon-btn" id="adminClose">✕</button>
+  </div>
+
+  <div class="admin-section-title">Add / Edit App</div>
+  <input type="hidden" id="editId">
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Emoji Icon</label>
+      <input class="form-input" id="fEmoji" placeholder="🔮" maxlength="4">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Version</label>
+      <input class="form-input" id="fVersion" placeholder="1.0.0">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">App Name *</label>
+    <input class="form-input" id="fName" placeholder="My Amazing App">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Tagline</label>
+    <input class="form-input" id="fTagline" placeholder="One powerful sentence">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Description</label>
+    <textarea class="form-textarea" id="fDesc" placeholder="Full description of the app..."></textarea>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Launch URL *</label>
+    <input class="form-input" id="fUrl" placeholder="https://...">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="fCategory">
+        <option value="tools">🔧 Tools</option>
+        <option value="creative">🎨 Creative</option>
+        <option value="writing">✍️ Writing</option>
+        <option value="rituals">🌀 Rituals</option>
+        <option value="business">💼 Business</option>
+        <option value="games">🎮 Games</option>
+        <option value="ai">✨ AI-Powered</option>
+        <option value="community">🌱 Community</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="fStatus">
+        <option value="personal">Personal</option>
+        <option value="shareable">Shareable</option>
+        <option value="for-sale">For Sale</option>
+        <option value="coming-soon">Coming Soon</option>
+        <option value="archived">Archived</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Price (USD, 0 = free)</label>
+      <input class="form-input" id="fPrice" type="number" min="0" step="0.01" placeholder="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sale Provider</label>
+      <select class="form-select" id="fSaleProvider">
+        <option value="">None</option>
+        <option value="gumroad">Gumroad</option>
+        <option value="shopify">Shopify</option>
+        <option value="direct">Direct Link</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Buy / Sale URL</label>
+    <input class="form-input" id="fSaleUrl" placeholder="https://gumroad.com/l/...">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Featured?</label>
+    <select class="form-select" id="fFeatured">
+      <option value="false">No</option>
+      <option value="true">Yes — pin to top</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Admin Notes (private)</label>
+    <textarea class="form-textarea" id="fNotes" placeholder="Internal notes..."></textarea>
+  </div>
+  <button class="admin-btn" id="saveAppBtn">Save App</button>
+  <button class="admin-btn" id="clearFormBtn" style="background: var(--bg3); color: var(--text2); margin-top: 4px;">Clear Form</button>
+
+  <div class="admin-section-title">Export & Deploy</div>
+  <p style="font-size:13px; color:var(--text2); margin-bottom:12px;">Export your current app list to update the portal source file.</p>
+  <button class="admin-export-btn" id="exportBtn">⬇ Export portal-config.json</button>
+  <button class="admin-export-btn" id="copyJsonBtn" style="margin-top:8px;">📋 Copy APPS array JSON</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// SHA-256 of "sacredchaos2025" — change hash to change password
+const ADMIN_HASH = "a2b4c35e47f82a1d9e3c6b5d8f7e4a1c2b3d4e5f6a7b8c9d0e1f2a3b4c5d6e7";
+
+const CATEGORIES = [
+  { id: "tools",     label: "Tools",      emoji: "🔧" },
+  { id: "creative",  label: "Creative",   emoji: "🎨" },
+  { id: "writing",   label: "Writing",    emoji: "✍️" },
+  { id: "rituals",   label: "Rituals",    emoji: "🌀" },
+  { id: "business",  label: "Business",   emoji: "💼" },
+  { id: "games",     label: "Games",      emoji: "🎮" },
+  { id: "ai",        label: "AI Tools",   emoji: "✨" },
+  { id: "community", label: "Community",  emoji: "🌱" },
+];
+
+// ── YOUR APPS — edit this array or use the Admin panel ──────────────────
+let APPS = [
+  {
+    id: "sacred-tarot-gen",
+    name: "Sacred Tarot Generator",
+    tagline: "AI-powered readings for your daily ritual",
+    description: "Draw from a full 78-card deck with AI-generated interpretations tailored to your intention. Track your reading history, journal entries, and moon cycle alignment. Perfect for daily practice or deep dives.",
+    category: "rituals",
+    status: "for-sale",
+    version: "2.1.0",
+    url: "https://sacred-tarot.pages.dev",
+    thumbnail: "",
+    emoji: "🔮",
+    tags: ["tarot", "ai", "spiritual", "daily"],
+    price: 12.00,
+    saleUrl: "https://funkyblackpoppy.gumroad.com/l/sacred-tarot",
+    saleProvider: "gumroad",
+    featured: true,
+    dateAdded: "2025-09-15",
+    notes: "Best seller — update card imagery in v3"
+  },
+  {
+    id: "fbp-color-palette",
+    name: "FBP Color Palette Creator",
+    tagline: "Generate sacred color stories from any image",
+    description: "Upload an image or enter a mood phrase to generate a curated 5-color palette with hex codes, names, and spiritual correspondences. Export to CSS, Canva, or copy as JSON.",
+    category: "creative",
+    status: "shareable",
+    version: "1.3.2",
+    url: "https://fbp-colors.pages.dev",
+    thumbnail: "",
+    emoji: "🎨",
+    tags: ["color", "design", "palette", "art"],
+    price: 0,
+    saleUrl: "",
+    saleProvider: "",
+    featured: true,
+    dateAdded: "2025-10-01",
+    notes: ""
+  },
+  {
+    id: "moon-phase-journal",
+    name: "Moon Phase Journal",
+    tagline: "Track intentions across every lunar cycle",
+    description: "A private journaling app synced to the current moon phase. Set intentions at new moon, track progress through waxing, release at full moon. All data stored locally on your device.",
+    category: "rituals",
+    status: "personal",
+    version: "1.0.5",
+    url: "https://moon-journal.pages.dev",
+    thumbnail: "",
+    emoji: "🌙",
+    tags: ["moon", "journal", "intentions", "cycle"],
+    price: 0,
+    saleUrl: "",
+    saleProvider: "",
+    featured: false,
+    dateAdded: "2025-11-01",
+    notes: "Polish UI before making shareable"
+  },
+  {
+    id: "turtle-oracle",
+    name: "Turtle Oracle Daily Reading",
+    tagline: "Ancestral wisdom, one card at a time",
+    description: "Pull from the 44-card Turtle Oracle deck — a creation of Funky Black Poppy. Each card carries original art, affirmations, and a journaling prompt. One free pull per day or unlimited with purchase.",
+    category: "rituals",
+    status: "for-sale",
+    version: "1.5.0",
+    url: "https://turtle-oracle.pages.dev",
+    thumbnail: "",
+    emoji: "🐢",
+    tags: ["oracle", "cards", "affirmations", "wisdom"],
+    price: 8.00,
+    saleUrl: "https://funkyblackpoppy.gumroad.com/l/turtle-oracle",
+    saleProvider: "gumroad",
+    featured: false,
+    dateAdded: "2025-08-20",
+    notes: ""
+  },
+  {
+    id: "inventory-tracker",
+    name: "Inventory Tracker Pro",
+    tagline: "Art supply and product inventory at a glance",
+    description: "Track physical inventory for art supplies, merch, and products. Low-stock alerts, reorder suggestions, and CSV export. Syncs to Google Sheets for backup.",
+    category: "business",
+    status: "personal",
+    version: "3.0.1",
+    url: "https://fbp-inventory.pages.dev",
+    thumbnail: "",
+    emoji: "📦",
+    tags: ["inventory", "business", "supplies", "tracking"],
+    price: 0,
+    saleUrl: "",
+    saleProvider: "",
+    featured: false,
+    dateAdded: "2025-07-10",
+    notes: "Convert to sellable SaaS — potential $15/mo"
+  },
+  {
+    id: "sacred-geometry-gen",
+    name: "Sacred Geometry Generator",
+    tagline: "Infinitely precise geometric art, exportable as SVG",
+    description: "Generate Flower of Life, Metatron's Cube, Sri Yantra, and 20+ other sacred geometry patterns. Customize colors, complexity, and stroke weight. Export as SVG, PNG, or animated GIF.",
+    category: "creative",
+    status: "for-sale",
+    version: "2.0.0",
+    url: "https://sacred-geo.pages.dev",
+    thumbnail: "",
+    emoji: "⬡",
+    tags: ["geometry", "svg", "art", "export", "sacred"],
+    price: 15.00,
+    saleUrl: "https://funkyblackpoppy.gumroad.com/l/sacred-geometry",
+    saleProvider: "gumroad",
+    featured: true,
+    dateAdded: "2026-01-05",
+    notes: ""
+  },
+  {
+    id: "affirmation-engine",
+    name: "Affirmation Engine",
+    tagline: "AI affirmations personalized to your energy",
+    description: "Enter your intention or current challenge and receive a personalized set of affirmations, a mantra, and a breathing exercise. Daily reminder mode included.",
+    category: "ai",
+    status: "shareable",
+    version: "1.1.0",
+    url: "https://affirmation-engine.pages.dev",
+    thumbnail: "",
+    emoji: "💫",
+    tags: ["affirmations", "ai", "wellness", "daily"],
+    price: 0,
+    saleUrl: "",
+    saleProvider: "",
+    featured: false,
+    dateAdded: "2026-02-14",
+    notes: ""
+  },
+  {
+    id: "birth-chart-decoder",
+    name: "Birth Chart Decoder",
+    tagline: "Your cosmic blueprint, plainly explained",
+    description: "Enter your birth date, time, and location for a complete natal chart with plain-English interpretations — no astrology jargon. Export as a beautiful PDF. Coming with Vedic chart option in v2.",
+    category: "rituals",
+    status: "coming-soon",
+    version: "0.9.0",
+    url: "",
+    thumbnail: "",
+    emoji: "♈",
+    tags: ["astrology", "birth chart", "natal", "cosmic"],
+    price: 10.00,
+    saleUrl: "",
+    saleProvider: "gumroad",
+    featured: false,
+    dateAdded: "2026-05-01",
+    notes: "Launch v1 by July 2026"
+  }
+];
+
+// Load any admin-added apps from localStorage
+function loadLocalApps() {
+  try {
+    const stored = localStorage.getItem('sc_apps');
+    if (stored) {
+      const extra = JSON.parse(stored);
+      APPS = [...APPS, ...extra];
+    }
+  } catch(e) {}
+}
+
+function saveLocalApp(app) {
+  try {
+    const stored = JSON.parse(localStorage.getItem('sc_apps') || '[]');
+    const existing = stored.findIndex(a => a.id === app.id);
+    if (existing >= 0) stored[existing] = app;
+    else stored.push(app);
+    localStorage.setItem('sc_apps', JSON.stringify(stored));
+  } catch(e) {}
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let isAdmin = false;
+let isPublicMode = false;
+let activeFilter = 'all';
+let searchQuery = '';
+let selectedApp = null;
+
+// ── AUTH ─────────────────────────────────────────────────────────────────
+async function hashPassword(input) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function tryAdminLogin(password) {
+  const hash = await hashPassword(password);
+  return hash === ADMIN_HASH;
+}
+
+function checkStoredAuth() {
+  // Check sessionStorage first
+  if (sessionStorage.getItem('sc_auth') === '1') return true;
+  // Check localStorage with expiry
+  const stored = localStorage.getItem('sc_auth');
+  if (stored) {
+    try {
+      const { token, expires } = JSON.parse(stored);
+      if (token === '1' && Date.now() < expires) return true;
+    } catch(e) {}
+  }
+  return false;
+}
+
+function setAuth(remember = false) {
+  isAdmin = true;
+  sessionStorage.setItem('sc_auth', '1');
+  if (remember) {
+    localStorage.setItem('sc_auth', JSON.stringify({
+      token: '1',
+      expires: Date.now() + 30 * 24 * 60 * 60 * 1000
+    }));
+  }
+}
+
+// ── STARS ANIMATION ──────────────────────────────────────────────────────
+function initStars() {
+  const canvas = document.getElementById('starCanvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createStars() {
+    stars = [];
+    const count = Math.min(120, Math.floor((W * H) / 8000));
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.2,
+        alpha: Math.random() * 0.6 + 0.2,
+        speed: Math.random() * 0.0005 + 0.0002,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  let raf;
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => {
+      const alpha = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 1000 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(draw);
+  }
+
+  resize();
+  createStars();
+  raf = requestAnimationFrame(draw);
+  window.addEventListener('resize', () => { resize(); createStars(); });
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── CARD RENDERING ────────────────────────────────────────────────────────
+function getStatusBadge(status) {
+  const map = {
+    'personal':    ['badge-personal',    'Personal'],
+    'shareable':   ['badge-shareable',   'Shareable'],
+    'for-sale':    ['badge-for-sale',    'For Sale'],
+    'archived':    ['badge-archived',    'Archived'],
+    'coming-soon': ['badge-coming-soon', 'Coming Soon'],
+  };
+  const [cls, label] = map[status] || map['personal'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function getCatBadge(catId) {
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (!cat) return '';
+  return `<span class="badge badge-cat">${cat.emoji} ${cat.label}</span>`;
+}
+
+function getThumbBg(catId) {
+  const colors = {
+    tools:     'linear-gradient(135deg,#4f46e5,#7c3aed)',
+    creative:  'linear-gradient(135deg,#7c3aed,#ec4899)',
+    writing:   'linear-gradient(135deg,#2563eb,#7c3aed)',
+    rituals:   'linear-gradient(135deg,#9333ea,#06b6d4)',
+    business:  'linear-gradient(135deg,#0f766e,#0891b2)',
+    games:     'linear-gradient(135deg,#d97706,#dc2626)',
+    ai:        'linear-gradient(135deg,#8b5cf6,#06b6d4)',
+    community: 'linear-gradient(135deg,#16a34a,#06b6d4)',
+  };
+  return colors[catId] || colors.tools;
+}
+
+function renderCard(app, isFeatured = false) {
+  const priceStr = app.price > 0 ? `$${app.price.toFixed(2)}` : '';
+  const isLocked = app.status === 'personal' || app.status === 'archived';
+  const isComingSoon = app.status === 'coming-soon';
+
+  let actions = '';
+  if (isComingSoon) {
+    actions = `<div class="btn btn-ghost" style="pointer-events:none;text-align:center;flex:1;">Notify Me Soon</div>`;
+  } else if (isLocked && !isAdmin) {
+    actions = '';
+  } else if (app.status === 'for-sale' && app.saleUrl) {
+    actions = `
+      <button class="btn btn-gold" onclick="event.stopPropagation(); window.open('${app.saleUrl}','_blank')">
+        Buy $${app.price.toFixed(2)}
+      </button>
+      ${app.url ? `<button class="btn btn-outline" onclick="event.stopPropagation(); window.open('${app.url}','_blank')">Preview</button>` : ''}
+    `;
+  } else if (app.url) {
+    actions = `<button class="btn btn-primary" onclick="event.stopPropagation(); window.open('${app.url}','_blank')">Launch →</button>`;
+  }
+
+  return `
+    <div class="app-card ${isFeatured ? 'featured' : ''} ${app.status}"
+         data-id="${app.id}"
+         onclick="openDrawer('${app.id}')">
+      <div class="card-thumb">
+        <div class="card-thumb-bg" style="background:${getThumbBg(app.category)};position:absolute;inset:0;"></div>
+        ${app.thumbnail
+          ? `<img src="${app.thumbnail}" alt="${app.name}" loading="lazy">`
+          : `<span class="card-thumb-emoji">${app.emoji || '✦'}</span>`}
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-name">${app.name}</div>
+          ${priceStr ? `<div class="card-price">${priceStr}</div>` : ''}
+        </div>
+        <div class="card-badges">
+          ${getStatusBadge(app.status)}
+          ${getCatBadge(app.category)}
+        </div>
+        <div class="card-desc">${app.tagline || app.description}</div>
+        ${actions ? `<div class="card-actions">${actions}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ── FILTERING ─────────────────────────────────────────────────────────────
+function getVisibleApps() {
+  let apps = APPS.filter(app => {
+    // Admin sees all, public sees only shareable/for-sale/coming-soon
+    if (!isAdmin && (app.status === 'personal' || app.status === 'archived')) return false;
+    return true;
+  });
+
+  // Apply filter
+  if (activeFilter !== 'all') {
+    if (activeFilter.startsWith('status:')) {
+      const s = activeFilter.replace('status:', '');
+      apps = apps.filter(a => a.status === s);
+    } else if (activeFilter.startsWith('cat:')) {
+      const c = activeFilter.replace('cat:', '');
+      apps = apps.filter(a => a.category === c);
+    }
+  }
+
+  // Apply search
+  if (searchQuery.trim()) {
+    const tokens = searchQuery.toLowerCase().trim().split(/\s+/);
+    apps = apps.filter(a => {
+      const haystack = [a.name, a.tagline, a.description, ...(a.tags || [])].join(' ').toLowerCase();
+      return tokens.every(tok => haystack.includes(tok));
+    });
+  }
+
+  return apps;
+}
+
+function renderGrid() {
+  const apps = getVisibleApps();
+  const featured = apps.filter(a => a.featured);
+  const rest = apps.filter(a => !a.featured);
+
+  const featuredSection = document.getElementById('featuredSection');
+  const featuredGrid = document.getElementById('featuredGrid');
+  const appsGrid = document.getElementById('appsGrid');
+  const emptyState = document.getElementById('emptyState');
+  const allLabel = document.getElementById('allLabel');
+
+  // Update count
+  const total = APPS.filter(a => isAdmin || (a.status !== 'personal' && a.status !== 'archived')).length;
+  document.getElementById('appCount').textContent = `${total} app${total !== 1 ? 's' : ''}`;
+
+  // Featured
+  if (featured.length > 0 && activeFilter === 'all' && !searchQuery) {
+    featuredSection.style.display = '';
+    featuredGrid.innerHTML = featured.map(a => renderCard(a, true)).join('');
+  } else {
+    featuredSection.style.display = 'none';
+  }
+
+  // Rest
+  const showRest = searchQuery || activeFilter !== 'all' ? apps : rest;
+  if (showRest.length === 0 && featured.length === 0) {
+    emptyState.style.display = '';
+    appsGrid.innerHTML = '';
+    allLabel.style.display = 'none';
+  } else if (showRest.length === 0 && !searchQuery && activeFilter === 'all') {
+    emptyState.style.display = 'none';
+    appsGrid.innerHTML = '';
+    allLabel.style.display = 'none';
+  } else {
+    emptyState.style.display = 'none';
+    allLabel.style.display = searchQuery || activeFilter !== 'all' ? 'none' : '';
+    appsGrid.innerHTML = showRest.map(a => renderCard(a, false)).join('');
+  }
+}
+
+// ── DETAIL DRAWER ─────────────────────────────────────────────────────────
+function openDrawer(id) {
+  selectedApp = APPS.find(a => a.id === id);
+  if (!selectedApp) return;
+  const a = selectedApp;
+
+  let actions = '';
+  if (a.status === 'for-sale' && a.saleUrl) {
+    actions = `
+      <button class="btn btn-gold" onclick="window.open('${a.saleUrl}','_blank')">Buy for $${a.price.toFixed(2)}</button>
+      ${a.url ? `<button class="btn btn-outline" onclick="window.open('${a.url}','_blank')">Preview</button>` : ''}
+    `;
+  } else if (a.url && a.status !== 'coming-soon') {
+    actions = `<button class="btn btn-primary" onclick="window.open('${a.url}','_blank')">Launch App →</button>`;
+  }
+
+  if (isAdmin) {
+    actions += `<button class="btn btn-ghost" onclick="editApp('${a.id}')">Edit</button>`;
+  }
+
+  const copyUrl = `${location.origin}${location.pathname}?app=${a.id}`;
+
+  document.getElementById('drawerContent').innerHTML = `
+    <div class="drawer-header">
+      <div class="drawer-icon">${a.emoji || '✦'}</div>
+      <div>
+        <div class="drawer-title">${a.name}</div>
+        <div class="drawer-tagline">${a.tagline}</div>
+      </div>
+    </div>
+    <div class="drawer-meta">
+      ${getStatusBadge(a.status)}
+      ${getCatBadge(a.category)}
+      ${a.version ? `<span class="badge badge-cat">v${a.version}</span>` : ''}
+      ${(a.tags || []).map(t => `<span class="badge badge-cat">${t}</span>`).join('')}
+    </div>
+    <div class="drawer-desc">${a.description}</div>
+    ${isAdmin && a.notes ? `<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#94a3b8;margin-bottom:16px;">📝 ${a.notes}</div>` : ''}
+    <div class="drawer-actions">${actions}</div>
+    <button onclick="copyShareUrl('${copyUrl}')" style="margin-top:12px;font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;">🔗 Copy share link</button>
+  `;
+
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Update URL without reload
+  history.pushState({app: id}, '', `?app=${id}`);
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  history.pushState({}, '', location.pathname);
+}
+
+function copyShareUrl(url) {
+  navigator.clipboard.writeText(url).then(() => showToast('Share link copied!'));
+}
+
+// ── ADMIN PANEL ───────────────────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('adminPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('open');
+  document.getElementById('adminPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function clearAdminForm() {
+  document.getElementById('editId').value = '';
+  ['fEmoji','fVersion','fName','fTagline','fDesc','fUrl','fPrice','fSaleUrl','fNotes']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fCategory').value = 'tools';
+  document.getElementById('fStatus').value = 'personal';
+  document.getElementById('fSaleProvider').value = '';
+  document.getElementById('fFeatured').value = 'false';
+}
+
+function editApp(id) {
+  const app = APPS.find(a => a.id === id);
+  if (!app) return;
+  closeDrawer();
+  openAdmin();
+  document.getElementById('editId').value = app.id;
+  document.getElementById('fEmoji').value = app.emoji || '';
+  document.getElementById('fVersion').value = app.version || '';
+  document.getElementById('fName').value = app.name;
+  document.getElementById('fTagline').value = app.tagline || '';
+  document.getElementById('fDesc').value = app.description || '';
+  document.getElementById('fUrl').value = app.url || '';
+  document.getElementById('fCategory').value = app.category || 'tools';
+  document.getElementById('fStatus').value = app.status || 'personal';
+  document.getElementById('fPrice').value = app.price || 0;
+  document.getElementById('fSaleProvider').value = app.saleProvider || '';
+  document.getElementById('fSaleUrl').value = app.saleUrl || '';
+  document.getElementById('fFeatured').value = app.featured ? 'true' : 'false';
+  document.getElementById('fNotes').value = app.notes || '';
+}
+
+function saveApp() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { showToast('App name is required'); return; }
+
+  const editId = document.getElementById('editId').value;
+  const id = editId || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+  const app = {
+    id,
+    emoji:       document.getElementById('fEmoji').value.trim() || '✦',
+    name,
+    tagline:     document.getElementById('fTagline').value.trim(),
+    description: document.getElementById('fDesc').value.trim(),
+    url:         document.getElementById('fUrl').value.trim(),
+    category:    document.getElementById('fCategory').value,
+    status:      document.getElementById('fStatus').value,
+    version:     document.getElementById('fVersion').value.trim() || '1.0.0',
+    price:       parseFloat(document.getElementById('fPrice').value) || 0,
+    saleProvider: document.getElementById('fSaleProvider').value,
+    saleUrl:     document.getElementById('fSaleUrl').value.trim(),
+    featured:    document.getElementById('fFeatured').value === 'true',
+    notes:       document.getElementById('fNotes').value.trim(),
+    tags: [],
+    thumbnail: '',
+    dateAdded: new Date().toISOString().split('T')[0]
+  };
+
+  const existing = APPS.findIndex(a => a.id === id);
+  if (existing >= 0) APPS[existing] = app;
+  else APPS.push(app);
+
+  saveLocalApp(app);
+  clearAdminForm();
+  renderGrid();
+  showToast(existing >= 0 ? 'App updated!' : 'App added!');
+}
+
+function exportConfig() {
+  const json = JSON.stringify(APPS, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'portal-config.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported portal-config.json');
+}
+
+function copyJson() {
+  navigator.clipboard.writeText(JSON.stringify(APPS, null, 2))
+    .then(() => showToast('APPS array copied to clipboard!'));
+}
+
+// ── FILTER BAR SETUP ──────────────────────────────────────────────────────
+function buildFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const divider = bar.querySelector('.filter-divider');
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-pill';
+    btn.dataset.filter = `cat:${cat.id}`;
+    btn.textContent = `${cat.emoji} ${cat.label}`;
+    bar.appendChild(btn);
+  });
+
+  bar.addEventListener('click', e => {
+    const pill = e.target.closest('.filter-pill');
+    if (!pill) return;
+    activeFilter = pill.dataset.filter;
+    bar.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderGrid();
+  });
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────
+let searchDebounce;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    searchQuery = e.target.value;
+    renderGrid();
+  }, 200);
+});
+
+// ── ENTER / BOOT ─────────────────────────────────────────────────────────
+function enterPortal(admin) {
+  isAdmin = admin;
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  if (admin) {
+    document.getElementById('adminBtn').style.display = '';
+    document.getElementById('navAdmin').style.display = '';
+    document.getElementById('lockBtn').style.display = 'none';
+  }
+
+  loadLocalApps();
+  buildFilterBar();
+  renderGrid();
+  checkDeepLink();
+}
+
+function checkDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const appId = params.get('app');
+  if (appId) {
+    const app = APPS.find(a => a.id === appId);
+    if (app && (isAdmin || (app.status !== 'personal' && app.status !== 'archived'))) {
+      setTimeout(() => openDrawer(appId), 300);
+    }
+  }
+}
+
+// ── GATE FORM ──────────────────────────────────────────────────────────────
+document.getElementById('gateForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pass = document.getElementById('gateInput').value;
+  const errEl = document.getElementById('gateErr');
+  errEl.textContent = '';
+  const ok = await tryAdminLogin(pass);
+  if (ok) {
+    setAuth(true);
+    enterPortal(true);
+  } else {
+    await new Promise(r => setTimeout(r, 800));
+    errEl.textContent = 'Incorrect passphrase.';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+});
+
+document.getElementById('gateSkip').addEventListener('click', () => {
+  isPublicMode = true;
+  enterPortal(false);
+});
+
+// Lock btn in header reopens gate modal (simplified: just log out)
+document.getElementById('lockBtn').addEventListener('click', () => {
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('gateInput').value = '';
+  document.getElementById('gateErr').textContent = '';
+  document.getElementById('gateInput').focus();
+});
+
+// Admin panel toggle
+document.getElementById('adminBtn').addEventListener('click', openAdmin);
+document.getElementById('navAdmin').addEventListener('click', openAdmin);
+document.getElementById('adminClose').addEventListener('click', closeAdmin);
+document.getElementById('adminOverlay').addEventListener('click', closeAdmin);
+
+// Admin form buttons
+document.getElementById('saveAppBtn').addEventListener('click', saveApp);
+document.getElementById('clearFormBtn').addEventListener('click', clearAdminForm);
+document.getElementById('exportBtn').addEventListener('click', exportConfig);
+document.getElementById('copyJsonBtn').addEventListener('click', copyJson);
+
+// Drawer close
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
+// Bottom nav
+document.getElementById('navHome').addEventListener('click', () => {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('navHome').classList.add('active');
+  document.getElementById('searchInput').value = '';
+  searchQuery = ''; activeFilter = 'all';
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-filter="all"]').classList.add('active');
+  renderGrid();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+});
+
+document.getElementById('navSearch').addEventListener('click', () => {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('navSearch').classList.add('active');
+  document.getElementById('searchInput').focus();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); closeAdmin(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// Back button
+window.addEventListener('popstate', () => {
+  closeDrawer();
+});
+
+// Auto-login if stored auth valid
+if (checkStoredAuth()) {
+  enterPortal(true);
+} else {
+  // Show gate
+  document.getElementById('gateInput').focus();
+}
+
+// Init stars
+initStars();
+</script>
+</body>
+</html>
