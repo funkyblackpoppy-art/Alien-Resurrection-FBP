@@ -3,81 +3,308 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Creator HQ — @gatec31</title>
+  <title>GATEC31 — Fable5 Creator OS</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand">✈ Creator HQ</div>
+  <div class="nav-logo">✈ FABLE5</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" data-target="audit">🎯 Audit</button>
-    <button class="nav-tab" data-target="fable5">🧠 Fable5</button>
-    <button class="nav-tab" data-target="pillars">📹 Pillars</button>
-    <button class="nav-tab" data-target="runway">🛫 Runway</button>
-    <button class="nav-tab" data-target="metrics">📊 Metrics</button>
-    <button class="nav-tab" data-target="revenue">💰 Revenue</button>
+    <button class="nav-tab active" data-target="story">F1 · Story</button>
+    <button class="nav-tab" data-target="retention">F2 · Retention</button>
+    <button class="nav-tab" data-target="shorts">F3 · Shorts</button>
+    <button class="nav-tab" data-target="community">F4 · Community</button>
+    <button class="nav-tab" data-target="revenue">F5 · Revenue</button>
+    <button class="nav-tab" data-target="pipeline">Pipeline</button>
+    <button class="nav-tab" data-target="config">Config</button>
+  </div>
+  <div class="nav-status">
+    <div class="dot-live"></div>
+    <span id="sheetsStatusNav">SHEETS · NOT CONNECTED</span>
   </div>
 </nav>
 
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-eyebrow">@GATEC31 · Fable5 Creator OS · KDEN</div>
+  <h1>FABLE<span>5</span></h1>
+  <p class="hero-sub">Your AI-native creator operating system. Five intelligence layers that run the channel — from story spine to revenue tower.</p>
+  <div class="hero-badge">
+    <div class="dot-live"></div>
+    MSFS 2024 · PMDG 737-800 · VR AVIATION · KDEN
+  </div>
+</div>
+
 <main>
-  <section id="audit">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">🎯</span> Channel Audit</div>
-      <div class="section-subtitle">Honest diagnostic across 8 dimensions — updated manually or via /creator-hq</div>
+
+  <!-- ── F1: STORY ENGINE ──────────────────────────────── -->
+  <section id="story">
+    <div class="section-label">F1 — Story Engine</div>
+    <h2>Build the<br>Flight Plan</h2>
+    <p class="lead">Enter your flight details. F1 generates a four-beat story spine using the Nas methodology — Intro → Problem → Revelation → You — tuned for your channel voice.</p>
+
+    <div class="story-grid">
+      <div class="story-input-panel">
+        <div class="field-group">
+          <label class="field-label">Origin → Destination</label>
+          <input class="field-input" id="s1-route" type="text" placeholder="e.g. KDEN → KLAX" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Aircraft</label>
+          <select class="field-select" id="s1-aircraft">
+            <option value="PMDG 737-800">PMDG 737-800</option>
+            <option value="Cessna 172">Cessna 172</option>
+            <option value="Cessna Longitude">Cessna Longitude</option>
+            <option value="FlyByWire A320">FlyByWire A320neo</option>
+            <option value="PMDG 777">PMDG 777-300ER</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Complication / Drama</label>
+          <input class="field-input" id="s1-drama" type="text" placeholder="e.g. wind shear on final, engine bleed fault" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Real-World Tie-In (optional)</label>
+          <input class="field-input" id="s1-realworld" type="text" placeholder="e.g. density altitude at KDEN, recent KDEN diversion" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Content Pillar</label>
+          <select class="field-select" id="s1-pillar">
+            <option value="Destination Flight">Destination Flight (40%)</option>
+            <option value="Tech & Setup">Tech & Setup (35%)</option>
+            <option value="Real World × Sim">Real World × Sim (25%)</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Target Length</label>
+          <select class="field-select" id="s1-length">
+            <option value="12–15 min">12–15 min (tight)</option>
+            <option value="15–20 min">15–20 min (standard)</option>
+            <option value="20–30 min">20–30 min (deep dive)</option>
+          </select>
+        </div>
+        <button class="btn" onclick="F1.generate()">GENERATE SPINE →</button>
+        <button class="btn amber" onclick="F1.addToPipeline()" id="s1-addBtn" style="display:none">ADD TO PIPELINE →</button>
+      </div>
+
+      <div class="spine-output" id="spineOutput">
+        <div class="spine-placeholder">
+          Enter flight details →<br>F1 builds the story.<br><br>
+          INTRO · PROBLEM · REVELATION · YOU
+        </div>
+      </div>
     </div>
-    <div class="audit-grid" id="auditGrid"></div>
   </section>
 
-  <section id="fable5">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">🧠</span> Fable5 Framework</div>
-      <div class="section-subtitle">The five-layer creator intelligence OS — click any card to expand tasks</div>
+  <!-- ── F2: RETENTION RADAR ───────────────────────────── -->
+  <section id="retention">
+    <div class="section-label">F2 — Retention Radar</div>
+    <h2>Watch the<br>Audience</h2>
+    <p class="lead">Six KPIs that predict growth. Populated from Google Sheets when connected — or enter video data manually below. Review weekly, never miss a retention cliff.</p>
+
+    <div class="retention-layout">
+      <div class="retention-kpis" id="kpiGrid"></div>
+
+      <div class="charts-row">
+        <div class="chart-panel">
+          <div class="chart-title">CTR (%) — 8-Week Trend</div>
+          <canvas id="ctrChart"></canvas>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-title">Avg View Duration (min)</div>
+          <canvas id="avdChart"></canvas>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label" style="margin-bottom:1rem;">Video Performance Log</div>
+        <div class="video-log">
+          <div class="video-row header">
+            <span>Title</span><span>CTR</span><span>AVD</span><span>Retention</span><span>Subs</span>
+          </div>
+          <div id="videoLog"></div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1rem;">
+          <button class="btn" onclick="F2.showAddForm()" style="width:auto;padding:0.6rem 1.2rem;">+ LOG VIDEO</button>
+          <button class="btn amber" onclick="F2.pullFromSheets()" style="width:auto;padding:0.6rem 1.2rem;" id="pullSheetsBtn">↓ PULL FROM SHEETS</button>
+        </div>
+        <div id="addVideoForm" style="display:none;margin-top:1rem;">
+          <div style="display:grid;grid-template-columns:2fr 80px 80px 100px 80px;gap:0.8rem;align-items:end;">
+            <div class="field-group"><label class="field-label">Title</label><input class="field-input" id="nv-title" placeholder="Video title" /></div>
+            <div class="field-group"><label class="field-label">CTR %</label><input class="field-input" id="nv-ctr" type="number" step="0.1" placeholder="4.2" /></div>
+            <div class="field-group"><label class="field-label">AVD min</label><input class="field-input" id="nv-avd" type="number" step="0.1" placeholder="7.5" /></div>
+            <div class="field-group"><label class="field-label">Retention %</label><input class="field-input" id="nv-ret" type="number" step="1" placeholder="62" /></div>
+            <div class="field-group"><label class="field-label">+Subs</label><input class="field-input" id="nv-subs" type="number" placeholder="14" /></div>
+          </div>
+          <button class="btn green" onclick="F2.addVideo()" style="margin-top:0.8rem;width:auto;padding:0.6rem 1.5rem;">SAVE →</button>
+        </div>
+      </div>
     </div>
-    <div class="fable5-stack" id="fable5Stack"></div>
   </section>
 
-  <section id="pillars">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">📹</span> Content Pillars</div>
-      <div class="section-subtitle">Three pillars, fifteen ideas — connect Notion to sync live pipeline</div>
+  <!-- ── F3: SHORTS AUTOPILOT ──────────────────────────── -->
+  <section id="shorts">
+    <div class="section-label">F3 — Shorts Autopilot</div>
+    <h2>The Clip<br>Pipeline</h2>
+    <p class="lead">Every long-form yields 3 Shorts: the arrival, the complication, the landing. F3 generates hook variants and tracks your Shorts queue from clip to live.</p>
+
+    <div class="shorts-grid">
+      <div>
+        <div class="section-label" style="margin-bottom:0.8rem;">Shorts Queue</div>
+        <div class="shorts-queue" id="shortsQueue"></div>
+        <button class="btn" onclick="F3.addShort()" style="margin-top:1rem;">+ ADD CLIP</button>
+      </div>
+
+      <div class="shorts-form">
+        <div class="section-label" style="margin-bottom:0.8rem;">Hook Generator</div>
+        <div class="field-group">
+          <label class="field-label">Moment Description</label>
+          <input class="field-input" id="s3-moment" placeholder="e.g. VR approach KDEN R16L, fog at 200ft" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Clip Length</label>
+          <select class="field-select" id="s3-len">
+            <option value="15s">15 seconds</option>
+            <option value="30s" selected>30 seconds</option>
+            <option value="60s">60 seconds</option>
+          </select>
+        </div>
+        <button class="btn" onclick="F3.generateHooks()">GENERATE HOOKS →</button>
+        <div id="hookVariants" class="hook-variants"></div>
+        <div class="callout amber" style="margin-top:1rem;">
+          <p><strong>Shorts Algorithm Note:</strong> Post 3x/week minimum. Same-day clips from a live stream perform 40% better than next-day uploads. Optimize title for the first 3 words.</p>
+        </div>
+      </div>
     </div>
-    <div id="pillarsNotionCta"></div>
-    <div class="pillars-grid" id="pillarsGrid"></div>
   </section>
 
-  <section id="runway">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">🛫</span> 90-Day Runway</div>
-      <div class="section-subtitle">Three phases to launch, grow, and monetize — checkboxes auto-save</div>
+  <!-- ── F4: COMMUNITY BRIEF ───────────────────────────── -->
+  <section id="community">
+    <div class="section-label">F4 — Community Brief</div>
+    <h2>Know Your<br>Co-Pilots</h2>
+    <p class="lead">Your superfans — the 100 true fans who will buy everything. F4 tracks engagement, generates weekly Community posts, and surfaces who needs a personal reply.</p>
+
+    <div class="community-layout">
+      <div>
+        <div class="section-label" style="margin-bottom:0.8rem;">Superfan Tracker</div>
+        <div class="superfan-list" id="superfanList"></div>
+        <button class="btn" onclick="F4.addSuperfan()" style="margin-top:1rem;">+ ADD MEMBER</button>
+      </div>
+
+      <div class="community-post-gen">
+        <div class="section-label" style="margin-bottom:0.8rem;">Weekly Post Generator</div>
+        <div class="field-group">
+          <label class="field-label">Post Type</label>
+          <select class="field-select" id="postType">
+            <option value="route-vote">Route Vote Poll</option>
+            <option value="debrief">Weekly Debrief</option>
+            <option value="question">Engagement Question</option>
+            <option value="milestone">Milestone Celebration</option>
+            <option value="atis">ATIS Weather Report</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Context (optional)</label>
+          <input class="field-input" id="postContext" placeholder="e.g. just hit 500 subs, flew KDEN-JFK last night" />
+        </div>
+        <button class="btn" onclick="F4.generatePost()">GENERATE POST →</button>
+        <div id="postOutput" class="post-output empty">Post will appear here...</div>
+        <button class="btn amber" onclick="F4.copyPost()" style="margin-top:0;width:auto;padding:0.6rem 1.2rem;">COPY TO CLIPBOARD</button>
+      </div>
     </div>
-    <div class="phase-tabs">
-      <button class="phase-tab active" data-phase="0">Phase 1 · Foundations</button>
-      <button class="phase-tab" data-phase="1">Phase 2 · Consistency</button>
-      <button class="phase-tab" data-phase="2">Phase 3 · Monetize</button>
-    </div>
-    <div id="runwayPanels"></div>
   </section>
 
-  <section id="metrics">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">📊</span> Key Metrics</div>
-      <div class="section-subtitle">Six KPIs that predict growth — connect Google Sheets for live data</div>
-    </div>
-    <div id="sheetsStatusCta"></div>
-    <div class="metrics-kpi-grid" id="kpiGrid"></div>
-    <div class="charts-grid" id="chartsGrid"></div>
-  </section>
-
+  <!-- ── F5: REVENUE TOWER ─────────────────────────────── -->
   <section id="revenue">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">💰</span> Monetization Stack</div>
-      <div class="section-subtitle">Six revenue streams sequenced by subscriber milestone</div>
+    <div class="section-label">F5 — Revenue Tower</div>
+    <h2>The Money<br>Dashboard</h2>
+    <p class="lead">Six revenue streams tracked in one place. Affiliate commissions, membership revenue, and digital product sales — all logged and totalled monthly.</p>
+
+    <div class="revenue-layout">
+      <div class="revenue-summary" id="revenueSummary"></div>
+
+      <div>
+        <div class="section-label" style="margin-bottom:0.8rem;">Affiliate Link Tracker</div>
+        <div class="affiliate-table">
+          <div class="af-row header">
+            <span>Product / Brand</span><span>Affiliate Link</span><span>Est. Monthly</span><span>Status</span><span>Edit</span>
+          </div>
+          <div id="affiliateRows"></div>
+        </div>
+        <button class="btn" onclick="F5.addAffiliate()" style="margin-top:1rem;width:auto;padding:0.6rem 1.2rem;">+ ADD AFFILIATE</button>
+      </div>
+
+      <div class="callout">
+        <p><strong>Superfan Math:</strong> 100 members × $5/mo = $500. 10 guide sales × $29 = $290. 2 affiliate hardware comms × $40 avg = $80. That is <strong>$870/month</strong> before a single sponsorship or AdSense dollar.</p>
+      </div>
     </div>
-    <div class="revenue-grid" id="revenueGrid"></div>
   </section>
+
+  <!-- ── PIPELINE ──────────────────────────────────────── -->
+  <section id="pipeline">
+    <div class="section-label">Content Pipeline</div>
+    <h2>From Idea<br>to Upload</h2>
+    <p class="lead">Drag cards across columns to update video status. All data persists in localStorage — connect Notion via config for team sync.</p>
+
+    <div class="pipeline-board">
+      <div class="pipeline-col" id="col-idea" ondragover="Pipeline.onDragOver(event)" ondrop="Pipeline.onDrop(event,'idea')">
+        <div class="pipeline-col-header idea">💡 Idea</div>
+      </div>
+      <div class="pipeline-col" id="col-script" ondragover="Pipeline.onDragOver(event)" ondrop="Pipeline.onDrop(event,'script')">
+        <div class="pipeline-col-header script">✏️ Scripted</div>
+      </div>
+      <div class="pipeline-col" id="col-filmed" ondragover="Pipeline.onDragOver(event)" ondrop="Pipeline.onDrop(event,'filmed')">
+        <div class="pipeline-col-header filmed">🎬 Filmed</div>
+      </div>
+      <div class="pipeline-col" id="col-live" ondragover="Pipeline.onDragOver(event)" ondrop="Pipeline.onDrop(event,'live')">
+        <div class="pipeline-col-header live">✅ Live</div>
+      </div>
+    </div>
+    <button class="btn" onclick="Pipeline.addCard()" style="margin-top:1.5rem;width:auto;padding:0.6rem 1.5rem;">+ ADD VIDEO IDEA</button>
+  </section>
+
+  <!-- ── CONFIG ────────────────────────────────────────── -->
+  <section id="config">
+    <div class="section-label">Configuration</div>
+    <h2>Connect<br>Your Stack</h2>
+    <p class="lead">Link Google Sheets for live metrics. Set your channel details. All config saves to localStorage — never sent anywhere.</p>
+
+    <div class="config-panel">
+      <div class="config-row">
+        <label class="field-label">Channel Name</label>
+        <input class="field-input" id="cfg-channel" placeholder="@gatec31" />
+      </div>
+      <div class="config-row">
+        <label class="field-label">Google Sheets API Key</label>
+        <input class="field-input" id="cfg-key" type="password" placeholder="AIza..." />
+      </div>
+      <div class="config-row">
+        <label class="field-label">Google Sheets ID</label>
+        <input class="field-input" id="cfg-sheetid" placeholder="1BxiMVs0XRA5nFMd..." />
+      </div>
+      <div class="config-row">
+        <label class="field-label">Notion Proxy URL</label>
+        <input class="field-input" id="cfg-notion" placeholder="https://yoursite.netlify.app/.netlify/functions/notion" />
+      </div>
+      <button class="btn green" onclick="Config.save()" style="width:auto;padding:0.6rem 1.5rem;">SAVE CONFIG →</button>
+      <div id="configMsg" style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--green-light);display:none;">CONFIG SAVED ✓</div>
+    </div>
+
+    <div class="callout" style="margin-top:1.5rem;">
+      <p><strong>Google Sheets setup:</strong> Create a sheet with tab named <code style="color:var(--radar)">Metrics</code>. Columns: Date | CTR | AVD_sec | Subs | RPM | Engagement | ShortsConv. Enable the Sheets API and create an unrestricted API key in Google Cloud Console.</p>
+    </div>
+  </section>
+
 </main>
+
+<footer>
+  <span>@GATEC31 · Fable5 OS</span>
+  <span>KDEN · MSFS 2024</span>
+  <span>CLEARED FOR TAKEOFF ◆</span>
+</footer>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
