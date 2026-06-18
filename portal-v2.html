@@ -1459,9 +1459,9 @@ function renderCard(app, isFeatured = false) {
       <button class="btn btn-gold" data-url="${esc(safeUrl(app.saleUrl))}" onclick="event.stopPropagation(); window.open(this.dataset.url,'_blank')">
         Buy $${app.price.toFixed(2)}
       </button>
-      ${app.url ? `<button class="btn btn-outline" data-url="${esc(safeUrl(app.url))}" onclick="event.stopPropagation(); window.open(this.dataset.url,'_blank')">Preview</button>` : ''}
+      ${app.url && safeUrl(app.url) !== '#' ? `<button class="btn btn-outline" data-url="${esc(safeUrl(app.url))}" onclick="event.stopPropagation(); window.open(this.dataset.url,'_blank')">Preview</button>` : ''}
     `;
-  } else if (app.url) {
+  } else if (app.url && safeUrl(app.url) !== '#') {
     actions = `<button class="btn btn-primary" data-url="${esc(safeUrl(app.url))}" onclick="event.stopPropagation(); window.open(this.dataset.url,'_blank')">Launch →</button>`;
   }
 
@@ -1633,7 +1633,7 @@ function openDrawer(id) {
       <button class="btn btn-gold" data-url="${esc(safeUrl(a.saleUrl))}" onclick="window.open(this.dataset.url,'_blank')">Buy for $${a.price.toFixed(2)}</button>
       ${a.url ? `<button class="btn btn-outline" data-url="${esc(safeUrl(a.url))}" onclick="window.open(this.dataset.url,'_blank')">Preview</button>` : ''}
     `;
-  } else if (a.url && a.status !== 'coming-soon') {
+  } else if (a.url && safeUrl(a.url) !== '#' && a.status !== 'coming-soon') {
     actions = `<button class="btn btn-primary" data-url="${esc(safeUrl(a.url))}" onclick="window.open(this.dataset.url,'_blank')">Launch App →</button>`;
   }
 
