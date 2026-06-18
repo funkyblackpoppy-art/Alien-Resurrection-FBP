@@ -51,6 +51,48 @@ const SEED = {
   avdData:    [5.2, 6.8, 7.1, 8.3, 9.0, 10.1, 11.3, 13.2],
 };
 
+// ── BACKEND API LAYER ─────────────────────────────────────
+// When a backend base URL is configured, the app talks to the
+// Netlify Functions (read+write Sheets, Notion sync). Otherwise
+// it falls back to direct browser fetch / localStorage.
+const API = {
+  base() { return (LS.get('config', {}).backendUrl || '').replace(/\/$/, ''); },
+  enabled() { return !!this.base(); },
+
+  async sheetsRead(range = 'Metrics!A:G') {
+    const r = await fetch(`${this.base()}/api/sheets?range=${encodeURIComponent(range)}`);
+    if (!r.ok) throw new Error('sheets read failed');
+    return (await r.json()).values || [];
+  },
+  async sheetsWrite(values, opts = {}) {
+    const r = await fetch(`${this.base()}/api/sheets`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values, ...opts }),
+    });
+    if (!r.ok) throw new Error('sheets write failed');
+    return r.json();
+  },
+  async notionRead() {
+    const r = await fetch(`${this.base()}/api/notion`);
+    if (!r.ok) throw new Error('notion read failed');
+    return (await r.json()).cards || [];
+  },
+  async notionCreate(card) {
+    const r = await fetch(`${this.base()}/api/notion`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(card),
+    });
+    return r.json();
+  },
+  async notionUpdate(id, status) {
+    const r = await fetch(`${this.base()}/api/notion`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    });
+    return r.json();
+  },
+};
+
 // ── CHART INSTANCES ────────────────────────────────────────
 let charts = {};
 
@@ -220,18 +262,23 @@ const F2 = {
 
   async pullFromSheets() {
     const cfg = LS.get('config', {});
-    if (!cfg.sheetsKey || !cfg.sheetsId) {
-      alert('Configure Google Sheets API Key and Sheet ID in the Config section first.');
+    const useBackend = API.enabled();
+    if (!useBackend && (!cfg.sheetsKey || !cfg.sheetsId)) {
+      alert('Set a Backend URL, or a Google Sheets API Key + Sheet ID, in the Config section first.');
       return;
     }
     const btn = document.getElementById('pullSheetsBtn');
     btn.textContent = 'PULLING...';
     try {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetsId}/values/Metrics!A:G?key=${cfg.sheetsKey}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Sheets API error');
-      const json = await res.json();
-      const rows = (json.values || []).slice(1);
+      let rows;
+      if (useBackend) {
+        rows = (await API.sheetsRead('Metrics!A:G')).slice(1);
+      } else {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetsId}/values/Metrics!A:G?key=${cfg.sheetsKey}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Sheets API error');
+        rows = ((await res.json()).values || []).slice(1);
+      }
       if (rows.length) {
         const live = rows.map(r => ({
           title: r[0] || 'Untitled',
@@ -242,7 +289,7 @@ const F2 = {
         }));
         LS.set('videos', live);
         this.render();
-        document.getElementById('sheetsStatusNav').textContent = 'SHEETS · LIVE';
+        document.getElementById('sheetsStatusNav').textContent = useBackend ? 'BACKEND · LIVE' : 'SHEETS · LIVE';
       }
       btn.textContent = 'PULLED ✓';
     } catch (e) {
@@ -469,6 +516,16 @@ const F5 = {
 const Pipeline = {
   dragging: null,
 
+  async syncFromNotion() {
+    if (!API.enabled()) return;
+    try {
+      const cards = await API.notionRead();
+      if (cards.length) { LS.set('pipeline', cards); this.render(); }
+      const nav = document.getElementById('sheetsStatusNav');
+      if (nav) nav.textContent = 'NOTION · SYNCED';
+    } catch (e) { /* fall back to localStorage silently */ }
+  },
+
   render() {
     const videos = LS.get('pipeline', SEED.pipeline);
     const cols = { idea: 'col-idea', script: 'col-script', filmed: 'col-filmed', live: 'col-live' };
@@ -500,7 +557,12 @@ const Pipeline = {
     if (!Pipeline.dragging) return;
     const videos = LS.get('pipeline', SEED.pipeline);
     const v = videos.find(x => x.id === Pipeline.dragging);
-    if (v) { v.status = newStatus; LS.set('pipeline', videos); this.render(); }
+    if (v) {
+      v.status = newStatus;
+      LS.set('pipeline', videos);
+      this.render();
+      if (API.enabled() && String(v.id).length > 20) API.notionUpdate(v.id, newStatus).catch(() => {});
+    }
     Pipeline.dragging = null;
   },
 
@@ -508,29 +570,38 @@ const Pipeline = {
     const title = prompt('Video idea title:');
     if (!title) return;
     const pillar = prompt('Pillar (Destination / Tech & Setup / Real World × Sim):') || 'Destination';
+    const card = { id: 'p' + Date.now(), title, pillar, status: 'idea' };
     const videos = LS.get('pipeline', SEED.pipeline);
-    videos.push({ id: 'p' + Date.now(), title, pillar, status: 'idea' });
+    videos.push(card);
     LS.set('pipeline', videos);
     this.render();
+    if (API.enabled()) API.notionCreate({ title, pillar, status: 'idea' }).then(() => this.syncFromNotion()).catch(() => {});
   },
 };
 
 // ── CONFIG ────────────────────────────────────────────────
 const Config = {
+  statusText(c) {
+    if (c.backendUrl) return 'BACKEND · READY';
+    if (c.sheetsKey && c.sheetsId) return 'SHEETS · READY';
+    return 'NOT CONNECTED';
+  },
+
   load() {
     const c = LS.get('config', {});
     document.getElementById('cfg-channel').value = c.channel || '@gatec31';
+    document.getElementById('cfg-backend').value = c.backendUrl || '';
     document.getElementById('cfg-key').value = c.sheetsKey || '';
     document.getElementById('cfg-sheetid').value = c.sheetsId || '';
     document.getElementById('cfg-notion').value = c.notionProxy || '';
-    const hasSheets = c.sheetsKey && c.sheetsId;
     const nav = document.getElementById('sheetsStatusNav');
-    if (nav) nav.textContent = hasSheets ? 'SHEETS · READY' : 'SHEETS · NOT CONNECTED';
+    if (nav) nav.textContent = this.statusText(c);
   },
 
   save() {
     const c = {
       channel:     document.getElementById('cfg-channel').value.trim(),
+      backendUrl:  document.getElementById('cfg-backend').value.trim(),
       sheetsKey:   document.getElementById('cfg-key').value.trim(),
       sheetsId:    document.getElementById('cfg-sheetid').value.trim(),
       notionProxy: document.getElementById('cfg-notion').value.trim(),
@@ -540,7 +611,9 @@ const Config = {
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 2500);
     const nav = document.getElementById('sheetsStatusNav');
-    if (nav) nav.textContent = c.sheetsKey && c.sheetsId ? 'SHEETS · READY' : 'SHEETS · NOT CONNECTED';
+    if (nav) nav.textContent = this.statusText(c);
+    // Pull live data immediately if backend just got configured
+    if (c.backendUrl) { Pipeline.syncFromNotion(); }
   },
 };
 
@@ -586,4 +659,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Charts with seed data
   mkChart('ctrChart', SEED.weekLabels, SEED.ctrData, '#00A8E8');
   mkChart('avdChart', SEED.weekLabels, SEED.avdData, '#52B788');
+
+  // If a backend is configured, pull live data
+  if (API.enabled()) {
+    Pipeline.syncFromNotion();
+    F2.pullFromSheets?.();
+  }
 });
