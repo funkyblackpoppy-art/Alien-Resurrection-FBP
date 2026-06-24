@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🌹 Funky Black Poppy Resurrection OS v15 — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8eaed;--surf:#f4f5f7;--surf2:#ffffff;--crust:#d4d8de;
+  --border:#c0c6ce;--border2:#9aa3af;
+  --ink:#1a1e24;--ink2:#3a4250;--muted:#6a7585;--faint:#9aa3af;
+  --rose:#b03060;--bloom:#c84070;--rosebg:rgba(176,48,96,.08);--rosebdr:rgba(176,48,96,.25);
+  --gold:#7a5808;--goldbg:rgba(122,88,8,.09);
+  --ok:#256a42;--okbg:rgba(37,106,66,.1);
+  --warn:#7a4808;--warnbg:rgba(122,72,8,.1);
+  --danger:#7a1818;--dangerbg:rgba(122,24,24,.1);
+  --info:#224878;--infobg:rgba(34,72,120,.08);
+  --sh:0 1px 3px rgba(0,0,0,.09),0 1px 2px rgba(0,0,0,.05);
+  --sh2:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.05);
+}
+/* ── DARK THEME ── */
+[data-theme="dark"]{
+  --bg:#0f1014;--surf:#1a1e24;--surf2:#20252d;--crust:#252b35;
+  --border:#2e3540;--border2:#3e4a58;
+  --ink:#e8eaed;--ink2:#b0bac8;--muted:#6a7a8e;--faint:#4a5568;
+  --rose:#c84070;--bloom:#e05080;--rosebg:rgba(200,64,112,.12);--rosebdr:rgba(200,64,112,.3);
+  --gold:#c89830;--goldbg:rgba(200,152,48,.12);
+  --ok:#3a9660;--okbg:rgba(58,150,96,.12);
+  --warn:#c07820;--warnbg:rgba(192,120,32,.12);
+  --danger:#c03030;--dangerbg:rgba(192,48,48,.12);
+  --info:#4888c8;--infobg:rgba(72,136,200,.12);
+  --sh:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  --sh2:0 4px 12px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.3);
+}
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;
+  border:1.5px solid var(--border);background:var(--surf);color:var(--muted);
+  font-family:"IBM Plex Mono";font-size:11px;cursor:pointer;transition:all .17s;white-space:nowrap;}
+.theme-toggle:hover{border-color:var(--border2);color:var(--ink);}
+/* ── BATCH ACTIONS ── */
+.batch-bar{display:none;align-items:center;gap:8px;padding:.5rem .7rem;
+  background:var(--rosebg);border:1px solid var(--rosebdr);border-radius:8px;margin-bottom:.7rem;flex-wrap:wrap;}
+.batch-bar.show{display:flex;}
+.batch-cnt{font-size:11px;color:var(--bloom);font-weight:600;}
+.card-check{position:absolute;top:8px;left:8px;z-index:10;width:18px;height:18px;cursor:pointer;accent-color:var(--bloom);}
+.card{position:relative;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Mono",monospace;overflow-x:hidden;min-height:100%;}
+
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:300;background:var(--surf2);border-bottom:2px solid var(--border);
+  box-shadow:var(--sh);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.2rem;gap:1rem;flex-wrap:wrap;}
+.logo-wrap{display:flex;align-items:center;gap:9px;}
+.logo-icon{font-size:20px;}
+.logo-name{font-family:"Playfair Display",serif;font-size:16px;color:var(--bloom);line-height:1.2;}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:.09em;margin-top:2px;}
+.hstats{display:flex;gap:1rem;flex-shrink:0;align-items:center;}
+.hs{text-align:right;}
+.hs-v{font-size:15px;font-weight:700;font-family:"Playfair Display",serif;}
+.hs-l{font-size:9px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;}
+
+/* ── CSV UPLOAD BUTTON ── */
+.csv-btn{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:8px;
+  border:1.5px dashed var(--bloom);background:var(--rosebg);color:var(--bloom);
+  font-family:"IBM Plex Mono";font-size:11px;cursor:pointer;transition:all .17s;white-space:nowrap;
+  position:relative;overflow:hidden;}
+.csv-btn:hover{background:rgba(200,64,112,.15);border-style:solid;box-shadow:0 0 0 3px rgba(200,64,112,.12);}
+.csv-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.csv-btn.active{border-style:solid;background:rgba(200,64,112,.18);}
+.csv-status{font-size:10px;color:var(--ok);margin-left:4px;white-space:nowrap;}
+
+/* ── DROP ZONE (full page) ── */
+.drop-overlay{position:fixed;inset:0;z-index:9998;display:none;align-items:center;justify-content:center;
+  background:rgba(232,234,237,.92);backdrop-filter:blur(4px);}
+.drop-overlay.show{display:flex;}
+.drop-box{border:3px dashed var(--bloom);border-radius:20px;padding:3rem 4rem;text-align:center;
+  background:var(--surf2);box-shadow:var(--sh2);}
+.drop-box h2{font-family:"Playfair Display",serif;font-size:28px;color:var(--bloom);margin-bottom:.5rem;}
+.drop-box p{font-size:13px;color:var(--muted);}
+
+/* ── IMPORT MODAL ── */
+.modal-bg{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(26,30,36,.55);backdrop-filter:blur(3px);}
+.modal-bg.show{display:flex;}
+.modal{background:var(--surf2);border:1px solid var(--border);border-radius:16px;padding:1.8rem;
+  width:min(520px,94vw);box-shadow:0 8px 32px rgba(0,0,0,.18);}
+.modal h3{font-family:"Playfair Display",serif;font-size:20px;color:var(--bloom);margin-bottom:.4rem;}
+.modal .sub{font-size:11px;color:var(--muted);margin-bottom:1.2rem;line-height:1.6;}
+.modal-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.2rem;}
+.mstat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.7rem;text-align:center;}
+.mstat-v{font-size:22px;font-weight:700;font-family:"Playfair Display",serif;color:var(--bloom);}
+.mstat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.modal-warn{background:var(--warnbg);border:1px solid rgba(122,72,8,.25);border-radius:8px;
+  padding:.7rem .9rem;font-size:11px;color:var(--warn);margin-bottom:1rem;line-height:1.6;}
+.modal-err{background:var(--dangerbg);border:1px solid rgba(122,24,24,.25);border-radius:8px;
+  padding:.7rem .9rem;font-size:11px;color:var(--danger);margin-bottom:1rem;line-height:1.6;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.mbtn{padding:8px 18px;border-radius:8px;font-family:"IBM Plex Mono";font-size:12px;cursor:pointer;transition:all .15s;border:1px solid;}
+.mbtn-cancel{border-color:var(--border);background:var(--surf);color:var(--muted);}
+.mbtn-cancel:hover{background:var(--bg);color:var(--ink);}
+.mbtn-confirm{border-color:var(--bloom);background:var(--bloom);color:#fff;}
+.mbtn-confirm:hover{background:var(--rose);}
+.col-preview{font-size:10px;color:var(--muted);margin-bottom:.8rem;line-height:1.8;
+  background:var(--bg);border-radius:6px;padding:.5rem .7rem;max-height:80px;overflow:auto;}
+
+/* ── NAV ── */
+.nav{position:sticky;top:53px;z-index:299;background:var(--surf2);border-bottom:1px solid var(--border);
+  box-shadow:0 2px 4px rgba(0,0,0,.04);display:flex;gap:3px;padding:.5rem 1.2rem;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nb{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-family:"IBM Plex Mono";font-size:11px;cursor:pointer;white-space:nowrap;
+  transition:all .15s;letter-spacing:.03em;}
+.nb:hover{background:var(--bg);color:var(--ink);border-color:var(--border2);}
+.nb.on{background:var(--bloom);color:#fff;border-color:var(--bloom);box-shadow:0 2px 6px rgba(176,48,96,.28);}
+
+.main{padding:1.2rem;max-width:1500px;margin:0 auto;}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin-bottom:1.1rem;}
+.sc{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;box-shadow:var(--sh);}
+.sc-v{font-size:25px;font-weight:700;font-family:"Playfair Display",serif;}
+.sc-l{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-top:3px;}
+.sc-s{font-size:11px;color:var(--muted);margin-top:4px;}
+.stitle{font-family:"Playfair Display",serif;font-size:18px;color:var(--ink);
+  margin-bottom:.85rem;display:flex;align-items:center;gap:10px;}
+.stitle::after{content:"";flex:1;height:1px;background:var(--border);}
+
+/* ── FILTERS ── */
+.fbar{display:flex;gap:7px;margin-bottom:.85rem;flex-wrap:wrap;align-items:center;}
+.fi{background:var(--surf2);border:1px solid var(--border);color:var(--ink);
+  font-family:"IBM Plex Mono";font-size:12px;padding:7px 11px;border-radius:7px;outline:none;min-width:195px;}
+.fi:focus{border-color:var(--bloom);}
+.fs{background:var(--surf2);border:1px solid var(--border);color:var(--ink2);
+  font-family:"IBM Plex Mono";font-size:11px;padding:7px 9px;border-radius:7px;outline:none;cursor:pointer;}
+.fcnt{font-size:11px;color:var(--muted);margin-left:auto;}
+.chip-row{display:flex;gap:5px;margin-bottom:.7rem;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{padding:4px 11px;border-radius:20px;font-size:10px;font-family:"IBM Plex Mono";cursor:pointer;
+  border:1px solid var(--border);background:var(--surf2);color:var(--muted);transition:all .14s;white-space:nowrap;}
+.chip:hover{border-color:var(--border2);color:var(--ink);}
+.chip.on{background:var(--bloom);color:#fff;border-color:var(--bloom);}
+
+/* ── CARDS ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:13px;}
+.card{background:var(--surf2);border:1px solid var(--border);border-radius:11px;overflow:hidden;
+  box-shadow:var(--sh);transition:box-shadow .17s,transform .17s,border-color .17s;}
+.card:hover{box-shadow:var(--sh2);transform:translateY(-2px);border-color:var(--border2);}
+.card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--crust);display:block;}
+.card-ph{width:100%;aspect-ratio:1;background:linear-gradient(135deg,var(--crust),var(--bg));
+  display:flex;align-items:center;justify-content:center;font-size:36px;}
+.cbody{padding:11px 12px;}
+.c-brand{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;}
+.c-title{font-size:12px;color:var(--ink);line-height:1.45;margin-bottom:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-nt{font-size:11px;color:var(--bloom);line-height:1.4;margin-bottom:6px;
+  border-left:2px solid var(--bloom);padding-left:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-price{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.cp-c{font-size:14px;font-weight:700;color:var(--bloom);}
+.cp-a{font-size:10px;color:var(--muted);}
+.cp-s{font-size:12px;color:var(--gold);}
+.c-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.bdg{font-size:10px;padding:2px 7px;border-radius:6px;font-family:"IBM Plex Mono";}
+.bh1{background:#efefef;color:var(--muted);}
+.bh2{background:#e6e8f0;color:var(--ink2);}
+.bh3{background:var(--goldbg);color:var(--gold);}
+.bh4{background:var(--rosebg);color:var(--rose);}
+.bh5{background:rgba(176,48,96,.16);color:var(--bloom);}
+.ba-fresh{background:var(--okbg);color:var(--ok);}
+.ba-ok{background:var(--goldbg);color:var(--gold);}
+.ba-crit{background:var(--warnbg);color:var(--warn);}
+.ba-ghost{background:var(--dangerbg);color:var(--danger);}
+.bsw{background:var(--infobg);color:var(--info);}
+.bca{background:var(--rosebg);color:var(--rose);}
+.btag{background:var(--goldbg);color:var(--gold);}
+.c-plat{font-size:10px;color:var(--faint);margin-top:4px;}
+.card-acts{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+.abtn{width:100%;padding:6px 0;border-radius:7px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);font-family:"IBM Plex Mono";font-size:10px;
+  cursor:pointer;transition:all .14s;letter-spacing:.03em;}
+.abtn:hover{background:var(--bg);color:var(--ink);border-color:var(--border2);}
+.abtn.rose-h:hover{background:var(--rosebg);color:var(--bloom);border-color:var(--rosebdr);}
+.abtn.gold-h:hover{background:var(--goldbg);color:var(--gold);border-color:rgba(122,88,8,.3);}
+.abtn.green-h:hover{background:var(--okbg);color:var(--ok);border-color:rgba(37,106,66,.3);}
+.abtn.done-rel{background:var(--okbg);color:var(--ok);border-color:rgba(37,106,66,.3);cursor:default;}
+.abtn.cpd{background:var(--okbg);color:var(--ok);border-color:rgba(37,106,66,.3);}
+.pin-a{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:6px 0;
+  border-radius:7px;border:1px solid #e0ccd4;background:#fcf5f7;color:#7a2040;
+  font-family:"IBM Plex Mono";font-size:10px;cursor:pointer;text-decoration:none;transition:all .14s;}
+.pin-a:hover{background:#f5e0e8;border-color:var(--bloom);}
+.ht-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-top:7px;}
+.ht-lbl{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;}
+.ht-text{font-size:11px;color:var(--rose);line-height:1.8;word-break:break-word;}
+
+/* ── TABLES ── */
+.tbl-wrap{background:var(--surf2);border:1px solid var(--border);border-radius:11px;
+  overflow:hidden;overflow-x:auto;margin-bottom:1.1rem;box-shadow:var(--sh);}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
+  padding:9px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;background:var(--surf);}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--crust);font-size:12px;vertical-align:top;}
+.tbl tr:hover td{background:var(--bg);}
+.old{color:var(--muted);}
+.new{color:var(--bloom);border-left:2px solid var(--bloom);padding-left:5px;margin-top:3px;}
+.dbtn{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:"IBM Plex Mono";white-space:nowrap;transition:all .14s;}
+.dbtn:hover,.dbtn.dn{background:var(--okbg);border-color:rgba(37,106,66,.4);color:var(--ok);}
+.tbtn{font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:"IBM Plex Mono";white-space:nowrap;transition:all .14s;}
+.tbtn:hover{background:var(--rosebg);border-color:var(--rosebdr);color:var(--bloom);}
+
+/* ── STRATEGY / WORLDS ── */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(242px,1fr));gap:12px;margin-bottom:1.1rem;}
+.scard{background:var(--surf2);border:1px solid var(--border);border-top:3px solid var(--bloom);
+  border-radius:11px;padding:1rem;box-shadow:var(--sh);}
+.scard-t{font-family:"Playfair Display",serif;font-size:14px;color:var(--bloom);margin-bottom:.5rem;}
+.scard-b{font-size:11px;color:var(--ink2);line-height:1.75;}
+.scard-b li{margin-left:13px;margin-bottom:2px;}
+.scard-b strong{color:var(--ink);}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(182px,1fr));gap:11px;margin-bottom:1.1rem;}
+.wcard{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:.85rem;box-shadow:var(--sh);}
+.wnum{font-size:10px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px;}
+.wtitle{font-family:"Playfair Display",serif;font-size:14px;color:var(--ink);margin-bottom:6px;}
+.wsteps{font-size:11px;color:var(--ink2);line-height:1.8;}
+.wsteps li{margin-left:11px;margin-bottom:1px;}
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:10px;}
+.sw-card{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:.9rem;
+  cursor:pointer;transition:all .17s;box-shadow:var(--sh);}
+.sw-card:hover{border-color:var(--bloom);box-shadow:var(--sh2);}
+.sw-name{font-family:"Playfair Display",serif;font-size:13px;color:var(--ink);margin-bottom:2px;}
+.sw-ct{font-size:22px;font-weight:700;font-family:"Playfair Display",serif;color:var(--bloom);}
+.sw-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.sw-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--goldbg);color:var(--gold);}
+
+.load-more{width:100%;margin-top:1.1rem;padding:9px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--bloom);font-family:"IBM Plex Mono";font-size:12px;cursor:pointer;
+  box-shadow:var(--sh);transition:all .14s;}
+.load-more:hover{background:var(--rosebg);border-color:var(--rosebdr);}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:10px 18px;
+  border-radius:10px;font-size:12px;font-family:"IBM Plex Mono";z-index:9999;
+  box-shadow:var(--sh2);opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--crust);border-radius:3px;}
+@keyframes fi{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.card,.sc{animation:fi .24s ease both;}
+
+/* ── 📸 PHOTO STUDIO (scoped) ── */
+#psRoot{display:none;max-width:560px;margin:1.2rem auto;padding:0 1rem;}
+#psRoot.show{display:block;}
+#psRoot .ps-card{background:var(--surf2);border:1px solid var(--border);border-radius:18px;box-shadow:var(--sh2);padding:18px 18px 24px;display:flex;flex-direction:column;gap:14px;}
+#psRoot .ps-canvas-wrap{background:var(--bg);border-radius:14px;display:flex;justify-content:center;align-items:center;padding:12px;position:relative;aspect-ratio:1/1;overflow:hidden;box-shadow:inset 0 1px 6px rgba(0,0,0,.05);}
+#psRoot .ps-canvas-wrap.ps-removal{box-shadow:inset 0 0 0 3px var(--bloom),0 0 0 4px rgba(200,64,112,.2);cursor:crosshair;}
+#psRoot canvas{display:block;max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.12);}
+#psRoot .ps-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+#psRoot .ps-icon{background:var(--surf);border:1px solid var(--border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;color:var(--ink);transition:.15s;}
+#psRoot .ps-icon:hover{background:var(--bg);transform:scale(1.06);}
+#psRoot .ps-ratios{display:flex;gap:4px;background:var(--surf);border-radius:24px;padding:3px;border:1px solid var(--border);}
+#psRoot .ps-ratio{border:none;background:transparent;padding:7px 12px;border-radius:20px;font-size:12px;font-family:"IBM Plex Mono";color:var(--muted);cursor:pointer;}
+#psRoot .ps-ratio.on{background:var(--bloom);color:#fff;font-weight:600;}
+#psRoot .ps-slider{display:flex;align-items:center;gap:10px;width:100%;}
+#psRoot .ps-slider label{font-size:11px;color:var(--ink2);width:78px;font-family:"IBM Plex Mono";}
+#psRoot input[type=range]{flex:1;height:4px;-webkit-appearance:none;background:var(--crust);border-radius:8px;}
+#psRoot input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--bloom);border-radius:50%;cursor:pointer;}
+#psRoot .ps-val{font-size:11px;color:var(--muted);min-width:36px;text-align:right;font-family:"IBM Plex Mono";}
+#psRoot .ps-bgrow{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:14px;padding:10px 14px;flex-wrap:wrap;gap:8px;}
+#psRoot .ps-dot{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:.15s;box-shadow:0 2px 5px rgba(0,0,0,.1);}
+#psRoot .ps-dot.on{border-color:var(--bloom);transform:scale(1.1);}
+#psRoot .ps-btn{background:var(--bloom);color:#fff;border:none;padding:10px 18px;border-radius:22px;font-weight:600;font-size:12px;cursor:pointer;font-family:"IBM Plex Mono";transition:.15s;}
+#psRoot .ps-btn.warn{background:var(--danger);}
+#psRoot .ps-btn.ghost{background:var(--surf);color:var(--ink2);border:1px solid var(--border);}
+#psRoot .ps-hint{font-size:11px;color:var(--muted);}
+#psRoot .ps-status{font-size:11px;color:var(--danger);text-align:center;display:none;font-weight:600;}
+#psRoot .ps-export{background:linear-gradient(135deg,var(--rose),var(--bloom));width:100%;padding:13px;font-size:13px;letter-spacing:.05em;}
+/* ── v14: ITEM DETAIL MODAL ── */
+.item-modal-bg{position:fixed;inset:0;z-index:8000;display:none;align-items:flex-start;justify-content:center;
+  background:rgba(26,30,36,.7);backdrop-filter:blur(4px);overflow-y:auto;padding:1.5rem;}
+.item-modal-bg.show{display:flex;}
+.item-modal{background:var(--surf2);border:1px solid var(--border);border-radius:18px;
+  width:min(780px,96vw);box-shadow:0 12px 40px rgba(0,0,0,.18);overflow:hidden;margin:auto;}
+.im-hero{width:100%;aspect-ratio:1;object-fit:cover;background:var(--crust);display:block;max-height:420px;}
+.im-hero-ph{width:100%;height:280px;display:flex;align-items:center;justify-content:center;
+  font-size:64px;background:linear-gradient(135deg,var(--crust),var(--bg));}
+.im-body{padding:1.4rem 1.6rem 2rem;}
+.im-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;}
+.im-brand{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;}
+.im-title{font-family:"Playfair Display",serif;font-size:18px;color:var(--ink);line-height:1.35;margin:.2rem 0 .5rem;}
+.im-price{font-size:22px;font-weight:700;font-family:"Playfair Display",serif;color:var(--bloom);}
+.im-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surf);
+  cursor:pointer;font-size:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);}
+.im-close:hover{background:var(--bg);color:var(--ink);}
+.im-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1rem;}
+.im-field{background:var(--bg);border-radius:8px;padding:.55rem .75rem;}
+.im-fl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.im-fv{font-size:12px;color:var(--ink);word-break:break-word;}
+.im-desc{background:var(--bg);border-radius:8px;padding:.7rem .85rem;margin-bottom:1rem;
+  font-size:11px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.im-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.2rem;}
+.im-btn{padding:8px 14px;border-radius:8px;border:1px solid;font-family:"IBM Plex Mono";
+  font-size:11px;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.im-btn-rose{background:var(--rosebg);border-color:var(--rosebdr);color:var(--bloom);}
+.im-btn-rose:hover{background:rgba(200,64,112,.18);}
+.im-btn-gold{background:var(--goldbg);border-color:rgba(122,88,8,.25);color:var(--gold);}
+.im-btn-info{background:var(--infobg);border-color:rgba(34,72,120,.25);color:var(--info);}
+.im-btn-ok{background:var(--okbg);border-color:rgba(37,106,66,.25);color:var(--ok);}
+.im-btn-neutral{background:var(--surf);border-color:var(--border);color:var(--ink2);}
+/* AI comp panel */
+.ai-comp-panel{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:1rem;}
+.ai-comp-hd{font-family:"Playfair Display",serif;font-size:14px;color:var(--bloom);margin-bottom:.7rem;
+  display:flex;align-items:center;gap:8px;}
+.ai-comp-loading{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;padding:.5rem 0;}
+.ai-spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--bloom);
+  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-comp-section{margin-bottom:.85rem;}
+.ai-comp-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
+.ai-comp-val{font-size:12px;color:var(--ink);line-height:1.65;}
+.ai-price-row{display:flex;align-items:center;gap:.65rem;padding:.4rem 0;border-bottom:1px solid var(--border);}
+.ai-price-row:last-child{border-bottom:none;}
+.ai-price-badge{font-size:13px;font-weight:700;font-family:"Playfair Display",serif;}
+.price-ok{color:var(--ok);}
+.price-low{color:var(--warn);}
+.price-high{color:var(--info);}
+</style>
+</head>
+<body>
+
+<!-- ── DROP OVERLAY ── -->
+<div class="drop-overlay" id="dropOverlay">
+  <div class="drop-box">
+    <div style="font-size:48px;margin-bottom:.75rem">📂</div>
+    <h2>Drop your Vendoo CSV</h2>
+    <p>Release to import listings</p>
+  </div>
+</div>
+
+<!-- ── IMPORT MODAL ── -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>📊 Import Preview</h3>
+    <p class="sub" id="modalSub"></p>
+    <div class="modal-stats" id="modalStats"></div>
+    <div id="statusFilters" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.7rem .9rem;margin-bottom:1rem;font-size:11px;line-height:2">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Import which statuses?</div>
+      <label style="margin-right:14px;cursor:pointer"><input type="checkbox" id="impActive" checked> ✅ Active (<span id="cntActive">0</span>)</label>
+      <label style="margin-right:14px;cursor:pointer"><input type="checkbox" id="impDraft" checked> 📝 Drafts (<span id="cntDraft">0</span>)</label>
+      <label style="cursor:pointer"><input type="checkbox" id="impSold" checked> 💰 Sold (<span id="cntSold">0</span>)</label>
+      <div style="font-size:10px;color:var(--ok);margin-top:4px">Sold &amp; Drafts load into their own read-only tabs. They can never enter relist queues.</div>
+    </div>
+    <div id="modalWarn"></div>
+    <div class="col-preview" id="colPreview"></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-confirm" id="confirmBtn" onclick="confirmImport()">✅ Load Listings</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="hdr">
+  <div class="logo-wrap">
+    <div class="logo-icon">🦇</div>
+    <div>
+      <div class="logo-name">Funky Black Poppy Resurrection OS <span style="font-size:11px;color:var(--muted)">v15 · FW26 Edition</span></div>
+      <div class="logo-sub" id="logoSub">@rachaelnike · Drop a Vendoo CSV to begin</div>
+    </div>
+  </div>
+  <div class="hstats">
+    <div class="hs"><div class="hs-v" id="hTotal" style="color:var(--bloom)">—</div><div class="hs-l">Active</div></div>
+    <div class="hs"><div class="hs-v" style="color:var(--danger)" id="hg">—</div><div class="hs-l">Ghosts</div></div>
+    <div class="hs"><div class="hs-v" style="color:var(--warn)" id="hc">—</div><div class="hs-l">Critical</div></div>
+    <div class="hs"><div class="hs-v" style="color:var(--gold)" id="hh">—</div><div class="hs-l">Hero ★★+</div></div>
+    <div class="hs"><div class="hs-v" style="color:var(--ok)" id="hr">0</div><div class="hs-l">Relisted</div></div>
+    <!-- THEME TOGGLE -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark">🌙</button>
+    <!-- CSV UPLOAD BUTTON -->
+    <label class="csv-btn" id="csvBtn" title="Upload Vendoo CSV export">
+      <span>📂 Load CSV</span>
+      <input type="file" accept=".csv,text/csv" onchange="handleFileInput(this)">
+    </label>
+  </div>
+</div>
+
+<div class="nav" id="nav">
+  <button class="nb on" data-v="cmd">⚡ Command</button>
+  <button class="nb" data-v="relist">🔄 Relist Queue</button>
+  <button class="nb" data-v="heroes">🦇 Hero Items</button>
+  <button class="nb" data-v="ghosts">👻 Ghosts</button>
+  <button class="nb" data-v="titles">✍️ SEO Titles</button>
+  <button class="nb" data-v="pricing">💰 Pricing</button>
+  <button class="nb" data-v="worlds">🌍 Style Worlds</button>
+  <button class="nb" data-v="aesthetics">🎨 Core Aesthetics</button>
+  <button class="nb" data-v="strategy">🗺️ Strategy</button>
+  <button class="nb" data-v="radar">📡 Trend Radar</button>
+  <button class="nb" data-v="zombies" style="border-color:var(--danger);color:var(--danger)">🧟 Delist Now</button>
+  <button class="nb" data-v="wizard">🪄 Listing Wizard</button>
+  <button class="nb" data-v="photo">📸 Photo Studio</button>
+  <button class="nb" data-v="drafts">📝 Drafts</button>
+  <button class="nb" data-v="sold">💰 Sold</button>
+  <button class="nb" data-v="all">📦 All Listings</button>
+</div>
+<div class="main" id="app"></div>
+<!-- ── 📸 PHOTO STUDIO — persistent panel, ported from Command Center v10 ── -->
+<div id="psRoot">
+  <div class="ps-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <label for="psFile" class="ps-btn ghost" style="cursor:pointer">📁 Choose product image</label>
+      <input type="file" id="psFile" accept="image/*" hidden>
+      <button class="ps-btn ghost" id="psResetAll">↺ Reset all</button>
+    </div>
+    <div class="ps-canvas-wrap" id="psWrap"><canvas id="psCanvas"></canvas></div>
+    <div id="psStatus" class="ps-status">Tap the background colour in the photo</div>
+    <div class="ps-controls">
+      <button class="ps-icon" id="psRotL">↺</button>
+      <button class="ps-icon" id="psRotR">↻</button>
+      <div class="ps-ratios" id="psRatios">
+        <button class="ps-ratio on" data-ratio="free">Free</button>
+        <button class="ps-ratio" data-ratio="1:1">1:1 Posh/Depop</button>
+        <button class="ps-ratio" data-ratio="4:5">4:5 Etsy</button>
+        <button class="ps-ratio" data-ratio="16:9">16:9</button>
+      </div>
+    </div>
+    <div class="ps-slider"><label>Brightness</label><input type="range" id="psBright" min="0" max="200" value="100"><span class="ps-val" id="psBrightV">100%</span></div>
+    <div class="ps-slider"><label>Contrast</label><input type="range" id="psContrast" min="0" max="200" value="100"><span class="ps-val" id="psContrastV">100%</span></div>
+    <div class="ps-slider"><label>Saturation</label><input type="range" id="psSat" min="0" max="200" value="100"><span class="ps-val" id="psSatV">100%</span></div>
+    <div class="ps-controls">
+      <button class="ps-btn" id="psRemoveBg">🔍 Remove background</button>
+      <span class="ps-hint">Tol</span><input type="range" id="psTol" min="5" max="100" value="30" style="width:80px"><span class="ps-val" id="psTolV">30</span>
+      <span class="ps-hint">Feather</span><input type="range" id="psFeather" min="0" max="15" value="2" step="0.5" style="width:70px"><span class="ps-val" id="psFeatherV">2</span>
+      <button class="ps-btn ghost" id="psResetCut">Reset cutout</button>
+    </div>
+    <div class="ps-hint">Tap "Remove background" → then tap the background colour on the photo. Tolerance = how much similar colour gets removed; feather = soft edge.</div>
+    <div class="ps-bgrow">
+      <span style="font-size:12px;font-weight:600">New background</span>
+      <div style="display:flex;gap:7px;flex-wrap:wrap" id="psDots">
+        <span class="ps-dot on" data-color="#ffffff" style="background:#ffffff;border:2px solid var(--border)"></span>
+        <span class="ps-dot" data-color="#f2e9de" style="background:#f2e9de"></span>
+        <span class="ps-dot" data-color="#e8dff0" style="background:#e8dff0"></span>
+        <span class="ps-dot" data-color="#f6d9e6" style="background:#f6d9e6"></span>
+        <span class="ps-dot" data-color="#5e503a" style="background:#5e503a"></span>
+        <span class="ps-dot" data-color="#1a1216" style="background:#1a1216"></span>
+      </div>
+      <input type="color" id="psCustom" value="#ffffff" style="width:34px;height:34px;border:1px solid var(--border);border-radius:50%;background:transparent;cursor:pointer">
+    </div>
+    <button class="ps-btn ps-export" id="psExport">⬇️ Download photo (1600px, listing-ready)</button>
+  </div>
+</div>
+<!-- ── v14 ITEM DETAIL MODAL ── -->
+<div class="item-modal-bg" id="itemModalBg" onclick="handleModalBgClick(event)">
+  <div class="item-modal" id="itemModal">
+    <div id="imContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// ── LIVE DATA ── populated by CSV import; starts empty
+// ══════════════════════════════════════════════════════════════════════
+let D = [];
+
+// ── CATS for dropdown ──
+const CATS = ["Accessory Sets","Activewear Jackets","Activewear Pants","Activewear Shorts","Activewear Tops","Athletic Shoes","BB, CC & Alphabet Cream","Bags & Backpacks","Bags, Handbags & Cases","Bags, Skins & Travel Cases","Behavior Training","Belts","Bodysuits","Boots","Bowls, Plates & Cups","Bras & Bra Sets","Brightening Creams","Bronzer, Contour & Highlighter","CDs","Camisoles","Camisoles & Camisole Sets","Cases, Bags & Covers","Casual Button-Down Shirts","Clothes Hangers","Coats & Jackets","Coats, Jackets & Vests","Collars","Comfort Shoes","Corsets & Bustiers","Corsets & Girdles","Dresses","Eye Shadow","Flats","Glassware & Drinkware","Hats","Heels","Hoodies & Sweatshirts","Jeans","Jumpsuits & Rompers","Laptop Cases & Bags","Leggings","Lenses","Lip Gloss","Moisturizers","Necklaces & Pendants","Ornaments","Other Clothing, Shoes & Accessories","Other Cutting Tools","Other Funeral & Cemetery","Other Health & Beauty","Other Vintage & Antique Jewelry","Other Vintage Clothing","Other Women's Fitness Clothing","Other Women's Vintage Clothing","Outfits & Sets","Pants","Pants & Shorts","Pet Memorials & Urns","Sandals","Shorts","Skirts","Sleepwear & Robes","Slips","Snow Pants & Bibs","Socks","Sports Bras","Styling Products","Suit Jackets & Blazers","Suits & Suit Separates","Sweaters","Swimwear","Tops","Tops & Blouses","Towels & Washcloths","Women's Bags & Handbags","Women's Vintage Shoes","World Music","Wristwatches"];
+
+// ══════════════════════════════════════════════════════════════════════
+// ── CSV PARSER ──
+// Handles Vendoo export format: quoted fields, embedded commas/newlines
+// ══════════════════════════════════════════════════════════════════════
+function parseCSV(text) {
+  const rows = [];
+  let i = 0, col = 0, field = '', cur = [], inQ = false;
+  // Normalize line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  while (i < text.length) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (text[i+1] === '"') { field += '"'; i += 2; continue; } // escaped quote
+        inQ = false; i++; continue;
+      }
+      field += ch; i++;
+    } else {
+      if (ch === '"') { inQ = true; i++; continue; }
+      if (ch === ',') { cur.push(field.trim()); field = ''; i++; continue; }
+      if (ch === '\n') {
+        cur.push(field.trim()); field = '';
+        if (cur.some(c => c !== '')) rows.push(cur); // skip blank lines
+        cur = []; i++; continue;
+      }
+      field += ch; i++;
+    }
+  }
+  if (field.trim() || cur.length) { cur.push(field.trim()); if(cur.some(c=>c!=='')) rows.push(cur); }
+  return rows;
+}
+
+// ── COLUMN MAP ──
+// Maps known Vendoo CSV column names → our internal field names
+// Case-insensitive, handles variations in export naming
+const COL_MAP = {
+  // title
+  'title': 't', 'listing title': 't', 'item title': 't', 'name': 't',
+  // brand
+  'brand': 'b', 'brand name': 'b', 'make': 'b',
+  // price
+  'price': 'p', 'asking price': 'p', 'list price': 'p', 'listing price': 'p',
+  // suggested price (we compute if missing)
+  'suggested price': 'sp', 'recommended price': 'sp',
+  // SOLD data (Vendoo: "Price Sold", "Sold Date") — kept separate, never used as suggested price
+  'price sold': 'psold', 'sale price': 'psold', 'sold price': 'psold',
+  'sold date': 'solddate', 'date sold': 'solddate',
+  // STATUS (Vendoo: Active / Sold / Draft) — the master filter
+  'status': 'st', 'listing status': 'st', 'item status': 'st',
+  // description (size lives in here in Vendoo exports)
+  'description': 'desc', 'item description': 'desc',
+  // days listed / age
+  'days listed': 'a', 'days active': 'a', 'age (days)': 'a', 'days on market': 'a', 'days': 'a',
+  // category
+  'category': 'cat', 'item category': 'cat', 'subcategory': 'cat',
+  // condition
+  'condition': 'cond', 'item condition': 'cond',
+  // color
+  'color': 'clr', 'colour': 'clr', 'primary color': 'clr',
+  // platforms
+  'platforms': 'pl', 'listed on': 'pl', 'marketplaces': 'pl', 'listed platforms': 'pl', 'listing platforms': 'pl',
+  // image
+  'image': 'img', 'images': 'img', 'image url': 'img', 'photo url': 'img', 'cover image': 'img', 'thumbnail': 'img', 'photos link': 'img',
+  // sku
+  'sku': 'sku', 'item sku': 'sku', 'inventory sku': 'sku',
+  // date listed
+  'date listed': 'listed', 'listed date': 'listed', 'list date': 'listed', 'created date': 'listed', 'date created': 'listed',
+  // financials (Vendoo full export) — enables real profit math
+  'cost of goods': 'cogs', 'cogs': 'cogs',
+  'marketplace fees': 'fees', 'fees': 'fees',
+  'shipping expenses': 'shipx', 'shipping cost': 'shipx',
+  'sold platform': 'soldpl',
+  'secondary color': 'clr2',
+  'warehouse location': 'loc', 'internal notes': 'notes',
+  'labels': 'labels', 'quantity left': 'qleft', 'quantity sold': 'qsold',
+  'shipped date': 'shipdate',
+  // style world (if pre-tagged)
+  'style world': 'sw', 'world': 'sw',
+  // core aesthetic (if pre-tagged)
+  'core aesthetic': 'ca', 'aesthetic': 'ca',
+  // hero score
+  'hero score': 'h', 'hero': 'h', 'priority': 'h',
+  // SEO title
+  'seo title': 'nt', 'optimized title': 'nt',
+  // hashtags
+  'hashtags': 'ht_raw', 'tags': 'tags_raw',
+  // pinterest
+  'pinterest': 'pin', 'pinterest url': 'pin',
+  // price action
+  'price action': 'pa', 'action': 'pa', 'recommendation': 'pa',
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// ── 🎨 20 STYLE WORLDS — from Rachael's Notion FBP Reseller OS
+// Source: app.notion.com/p/afd2a66bf24044a7a77a29d12f07d523
+// Every world: buyer aesthetic (SEO titles) · hashtags · key pieces · price mod
+// ══════════════════════════════════════════════════════════════════════
+const STYLE_WORLDS = {
+  '01 · Velvet Underground':  {buyer:'Dark Romantic Goth Velvet Lace',     era:'70s 90s',  pal:'black burgundy purple ivory',        ht:['#VelvetUnderground','#GothGlamour','#DarkRomantic','#VelvetFashion','#GothVintage'],          keys:['velvet','lace blouse','slip dress','victorian collar','siouxsie','the cure','nico'],    pm:1.15},
+  '02 · Corp Goth':           {buyer:'Corporate Goth Dark Professional',    era:'90s 2000s',pal:'black charcoal gray wine',           ht:['#CorpGoth','#CorporateGoth','#DarkProfessional','#GothSuit','#BlackOffice'],                 keys:['blazer','wide-leg trouser','turtleneck','pencil skirt','office','professional','corp'],  pm:1.1},
+  '03 · Quiet Luxury Dark':   {buyer:'Old Money Goth Quiet Luxury',         era:'2020s',    pal:'black charcoal cream forest slate',  ht:['#QuietLuxuryDark','#OldMoneyGoth','#DarkOldMoney','#StealthWealth','#GothLuxury'],           keys:['cashmere','tailored coat','leather loafer','silk blouse','quiet luxury','old money'],    pm:1.25},
+  '04 · Punk Debutante':      {buyer:'Punk Prim Tartan Vivienne Westwood',  era:'80s 90s',  pal:'black tartan red silver plaid',      ht:['#PunkDebutante','#VivienneWestwood','#TartanPunk','#PunkPrim','#RebelFemme'],               keys:['tartan','studded','ruffled blouse','plaid','punk','vivienne westwood'],               pm:1.2},
+  '05 · Indie Sleaze':        {buyer:'Indie Sleaze Y2K Vintage Grunge',     era:'2000s',    pal:'washed black faded denim neon',      ht:['#IndieSleaze','#Y2KFashion','#ViceMagazine','#NoughtsStyle','#GrungeRevival'],              keys:['indie sleaze','band tee','micro mini','fishnet','washed denim','vice','tumblr'],        pm:1.0},
+  '06 · Witchcore':           {buyer:'Witchcore Garden Witch Botanical',    era:'timeless', pal:'black forest violet brown moon',     ht:['#Witchcore','#WitchFashion','#GardenWitch','#HerbWitch','#DarkBotanical'],                  keys:['witch','botanical','cape','maxi skirt','linen','wide brim hat','crystal','moon','wicca'],pm:1.15},
+  '07 · Dark Cottagecore':    {buyer:'Dark Cottagecore Gothic Prairie',     era:'Victorian',pal:'brown black muted floral dark green', ht:['#DarkCottagecore','#GothicCottagecore','#PrairieDark','#VictorianGoth','#DarkRural'],        keys:['prairie dress','cottage','dark floral','pinafore','apron','rural gothic'],             pm:1.1},
+  '08 · Grunge Revival':      {buyer:'90s Grunge Vintage Flannel Combat',   era:'90s',      pal:'plaid washed black rust dark olive', ht:['#GrungeRevival','#90sGrunge','#GrungeStyle','#FlannelSeason','#PunkGrunge'],                keys:['flannel','ripped denim','combat boot','grunge','plaid shirt','band tee'],              pm:1.1},
+  '09 · Y2K Afterdark':       {buyer:'Y2K Cyber Goth Club Kid Iridescent',  era:'Y2K 2000s',pal:'black iridescent neon metallic uv', ht:['#Y2KAfterdark','#CyberGoth','#ClubKid','#Y2KFashion','#GothClub'],                         keys:['pvc','mesh top','platform boot','vinyl','holographic','cyber goth','y2k club'],        pm:1.2},
+  '10 · Art School Rebel':    {buyer:'Deconstructed Conceptual Art Fashion', era:'80s 90s',  pal:'black raw white bold pop',          ht:['#ArtSchoolRebel','#DeconstructedFashion','#ConceptualStyle','#MargieleVibes','#FashionAsArt'],keys:['deconstructed','asymmetric','inside-out','margiela','art school','smock'],              pm:1.1},
+  '11 · Funeral Chic':        {buyer:'Victorian Mourning All Black Goth',   era:'Victorian',pal:'absolute black jet midnight charcoal',ht:['#FuneralChic','#MourningDress','#VictorianMourning','#AllBlackEverything','#GothFuneral'],  keys:['widow veil','jet jewelry','mourning','black lace','glove','funeral','all black'],       pm:1.2},
+  '12 · Dark Bohemian':       {buyer:'Dark Bohemian Stevie Nicks Witch Boho',era:'70s',    pal:'black earth rust forest moonstone',  ht:['#DarkBohemian','#BohoGoth','#StevieNicksVibes','#WitchBoho','#DarkLayering'],               keys:['flowy maxi','shawl','velvet vest','tapestry','dark bohemian','stevie','boho goth'],     pm:1.1},
+  '13 · 80s Power Occult':    {buyer:'80s Dynasty Glam Shoulder Pad Drama', era:'80s',      pal:'black gold silver deep red midnight',ht:['#80sPowerOccult','#PowerDressing','#80sGlam','#ShoulderPads','#DarkGlamour'],               keys:['shoulder pad','metallic','power blouse','dynasty','glam','80s','draped','sequin'],      pm:1.25},
+  '14 · Riotgrrrl Archive':   {buyer:'90s Punk Feminist DIY Riotgrrrl',     era:'90s',      pal:'black bold primary raw denim white', ht:['#Riotgrrrl','#DIYPunk','#FeministFashion','#90sPunk','#GirlPower'],                        keys:['band tee','diy denim','slogan','baby doll','stompy boot','riot grrrl','bikini kill'],   pm:1.1},
+  '15 · Dark Academia':       {buyer:'Dark Academia Gothic Campus Tweed',   era:'timeless', pal:'oxblood dark green camel brown ivory',ht:['#DarkAcademia','#GothicCampus','#AcademiaAesthetic','#TweedGoth','#DarkStudy'],            keys:['tweed','plaid trouser','turtleneck','dark loafer','satchel','academia','houndstooth'],   pm:1.15},
+  '16 · Secondhand Rebellion':{buyer:'Vintage Rebel Thrift Punk Sustainable', era:'all',    pal:'black pink purple silver',           ht:['#SecondhandRebellion','#FunkyBlackPoppy','#VintageRebel','#ThriftPunk','#AntiConsumption'],  keys:['vintage','reclaimed','thrifted','reworked','upcycled','secondhand'],                   pm:1.0},
+  '17 · Leather & Lace':      {buyer:'Moto Goth Leather Lace Rock Femme',   era:'80s 90s',  pal:'black leather ivory lace red silver',ht:['#LeatherAndLace','#RockFemme','#MotoGoth','#LeatherLace','#DarkFeminine'],                  keys:['leather jacket','lace blouse','moto','biker','rock femme','chrissie hynde'],           pm:1.2},
+  '18 · Maximalist Goth':     {buyer:'Maximalist Goth Theatrical Layered',  era:'all',      pal:'black every jewel tone dramatic',   ht:['#MaximalistGoth','#MoreIsMore','#GothLayering','#TheatricalGoth','#GothDrama'],              keys:['cape','dramatic','layered','stacked jewelry','theatrical','opera goth','overdressed'],  pm:1.1},
+  '19 · Androgyne Noir':      {buyer:'Gender Fluid Androgyne Tailored Bowie',era:'80s 90s', pal:'black white charcoal bold primary', ht:['#AndroyneNoir','#GenderFluidFashion','#TailoredDark','#BowieStyle','#AndrogyneGoth'],       keys:['oversized suit','androgyne','bowie','grace jones','annie lennox','flat-brim hat'],     pm:1.1},
+  '20 · Haunted Americana':   {buyer:'Western Gothic Dark Country Southern', era:'timeless', pal:'dust black dark denim rust faded',  ht:['#HauntedAmericana','#WesternGothic','#DarkCountry','#SouthernGothic','#GothicWest'],       keys:['western shirt','dark denim','cowboy boot','prairie skirt','americana','southern gothic'],pm:1.15},
+};
+
+// ── LEGACY MAPPING: old sw names → Notion world numbers ──
+const SW_LEGACY = {
+  'Y2K Mall Goth Resurrection':'09 · Y2K Afterdark','Velvet Funeral':'01 · Velvet Underground',
+  'Rain Witch':'07 · Dark Cottagecore','Black Poppy Archive':'16 · Secondhand Rebellion',
+  'Archive Femme Noir':'16 · Secondhand Rebellion','Laura Ashley Bloom':'07 · Dark Cottagecore',
+  'Goth Corp':'02 · Corp Goth','Whimsy Goth':'18 · Maximalist Goth','Floral Mourning':'07 · Dark Cottagecore',
+  'Victorian Noir':'11 · Funeral Chic','Haunted Librarian':'15 · Dark Academia',
+  'Romantic Witchwear':'06 · Witchcore','Glam Crypt':'13 · 80s Power Occult',
+  'CBK Ghost Prep':'03 · Quiet Luxury Dark','Indie Sleaze After-Hours':'05 · Indie Sleaze',
+};
+function resolveWorld(sw){ return STYLE_WORLDS[sw] ? sw : (STYLE_WORLDS[SW_LEGACY[sw]] ? SW_LEGACY[sw] : '16 · Secondhand Rebellion'); }
+
+// ── CLASSIFY: score each world by keyword density ──
+function classify(row) {
+  const txt=(sv(row.t)+' '+sv(row.cat)+' '+sv(row.b)+' '+sv(row.desc).substring(0,400)+' '+(row.tags||[]).join(' ')).toLowerCase();
+  const scores={};
+  for(const[name,sw]of Object.entries(STYLE_WORLDS)){
+    let score=0;
+    sw.keys.forEach(k=>{if(txt.includes(k))score+=3;});
+    sw.pal.split(' ').forEach(c=>{if(c.length>3&&txt.includes(c))score+=1;});
+    sw.era.split(' ').forEach(e=>{if(e.length>2&&txt.includes(e))score+=1;});
+    if(score>0)scores[name]=score;
+  }
+  const top=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const swn=top.length?top[0][0]:'16 · Secondhand Rebellion';
+  return {sw:swn, ca:swn};
+}
+
+// ── HASHTAG BUILDER — reads from STYLE_WORLDS ──
+const HT_MAP = {};
+Object.entries(STYLE_WORLDS).forEach(([k,v])=>{ HT_MAP[k]=v.ht; });
+Object.entries(SW_LEGACY).forEach(([k,lk])=>{ HT_MAP[k]=(STYLE_WORLDS[lk]?.ht)||HT_MAP['16 · Secondhand Rebellion']||[]; });
+// ── SEASON MODE ── 'SS' or 'FW' — controls trend engine globally
+// Updated to FW (Fall/Winter) June 2026 — early pivot for sourcing + relist priority
+const SEASON_MODE = 'FW';
+
+// ── CONFIRMED FW26 HASHTAGS (eRank · Depop Trend Reports · Poshmark Oct data) ──
+const CIRC = ['#CircularFashion','#ThriftedFashion','#SecondhandStyle','#SustainableFashion'];
+const FALL_PIVOT = ['#Halloween','#GothicFashion','#Gothmas','#DarkAutumn','#WitchSeason','#SpookySeason','#FallFashion','#FW26','#CoatSeason','#DarkAcademia','#Whimsigoth','#GothStyle'];
+// Era+item combos — Depop's highest-converting format (FW26 updated)
+const ERA_COMBOS = {'dress':'#vintagedress','top':'#vintage top','jeans':'#vintagedenim','boots':'#combatboots','coat':'#vintagecoat','blazer':'#vintageblazer','flannel':'#90sflannel','cardigan':'#vintagecardigan','sweater':'#vintagesweater','jacket':'#vintagejacket'};
+// Confirmed FW26 Depop trending aesthetics (Vendoo + eRank data)
+const DEPOP_CONFIRMED = ['#darkacademia','#whimsigoth','#gothicfashion','#quietluxury','#gorpcore','#balletcore','#darkcoquette','#mobywifefall','#corpgoth','#vintagedark'];
+
+// ── FALL / WINTER 2026 TREND KEYWORDS ──
+// Source: Etsy FW26 Trend Report · eRank Oct 2026 · Poshmark seasonal data
+// Themes: dark romanticism, layering, warmth-as-drama, Halloween momentum,
+// quiet authority, collector energy, archival depth
+const TREND26 = {
+  // Numbered worlds (current system)
+  '01 · Velvet Underground':  ['Dark Romance','Velvet Season','Romantic Layer'],
+  '02 · Corp Goth':           ['Power Dressing','Office Authority','Dark Professional'],
+  '03 · Quiet Luxury Dark':   ['Quiet Authority','Old Money Moment','Investment Piece'],
+  '04 · Punk Debutante':      ['Punk Revival','Rebel Archive','Seasonal Edge'],
+  '05 · Indie Sleaze':        ['Nostalgia Core','Archive Moment','Throwback Layer'],
+  '06 · Witchcore':           ['Witch Season','Halloween Peak','Celestial Dark'],
+  '07 · Dark Cottagecore':    ['Dark Harvest','Prairie Gothic','Seasonal Depth'],
+  '08 · Grunge Revival':      ['Grunge Layer','Flannel Season','90s Depth'],
+  '09 · Y2K Afterdark':       ['Y2K Dark','Club Archive','Seasonal Statement'],
+  '10 · Art School Rebel':    ['Deconstructed Layer','Conceptual Dark','Archive Find'],
+  '11 · Funeral Chic':        ['All Black Season','Gothic Peak','Dark Statement'],
+  '12 · Dark Bohemian':       ['Layered Boho','Dark Earth','Seasonal Ritual'],
+  '13 · 80s Power Occult':    ['Drama Season','Power Piece','Glam Dark'],
+  '14 · Riotgrrrl Archive':   ['Punk Archival','DIY Dark','Feminist Statement'],
+  '15 · Dark Academia':       ['Academic Layer','Scholar Dark','Collector Season'],
+  '16 · Secondhand Rebellion':['Curated Archive','One of a Kind','Circular Find'],
+  '17 · Leather & Lace':      ['Moto Season','Leather Peak','Rock Femme Dark'],
+  '18 · Maximalist Goth':     ['Dramatic Layer','More is More','Halloween Statement'],
+  '19 · Androgyne Noir':      ['Tailored Dark','Gender Fluid Season','Bowie Dark'],
+  '20 · Haunted Americana':   ['Western Dark','Harvest Gothic','Dark Country'],
+  // Legacy world names (fallback)
+  'Rain Witch':                ['Dark Harvest','Botanical Dark','Seasonal Layer'],
+  'Floral Mourning':           ['Dark Floral','Gothic Garden','Harvest Romance'],
+  'Laura Ashley Bloom':        ['Prairie Dark','Soft Layer','Harvest Romantic'],
+  'Whimsy Goth':               ['Whimsigoth Season','Halloween Peak','Playful Dark'],
+  'Velvet Funeral':            ['Velvet Season','Romantic Layer','Dark Statement'],
+  'Y2K Mall Goth Resurrection':['Y2K Dark','Mall Goth Archive','Nostalgia Dark'],
+  'Black Poppy Archive':       ['Curated Archive','Collector Find','One of a Kind'],
+  'Archive Femme Noir':        ['Archive Find','Collector Dark','Statement Piece'],
+  'Goth Corp':                 ['Power Dressing','Dark Office','Authority Piece'],
+  'Victorian Noir':            ['Heirloom Dark','Old World Layer','Victorian Peak'],
+  'Haunted Librarian':         ['Dark Academia','Scholar Layer','Archive Depth'],
+  'Romantic Witchwear':        ['Witch Season','Celestial Dark','Halloween Peak'],
+  'Glam Crypt':                ['Drama Season','Glam Dark','Statement Layer'],
+  'CBK Ghost Prep':            ['Quiet Authority','Old Money Dark','Investment Layer'],
+  'Indie Sleaze After-Hours':  ['Nostalgia Core','Archive Moment','Throwback Dark'],
+};
+const TREND26_HT = ['#FW26','#DarkAcademia','#WitchSeason','#VintageDark','#ArchiveFashion','#GothicFashion'];
+function trendKw(sw){
+  // Works with both numbered (01 · Velvet Underground) and legacy names
+  const t = TREND26[sw] || TREND26[resolveWorld(sw)] || TREND26['16 · Secondhand Rebellion'] || ['Archive Find'];
+  return t[0];
+}
+
+function buildHashtags(row) {
+  const rw=resolveWorld(row.sw||'16 · Secondhand Rebellion'); const swHts=(STYLE_WORLDS[rw]?.ht||CIRC).slice(0,5);
+  const cat = (row.cat||'').split(' ').filter(w=>w.length>3).map(w=>'#'+w.replace(/[^a-zA-Z0-9]/g,'')).slice(0,2);
+  const brand = row.b && !['unknown','n/a','none'].includes(sv(row.b).toLowerCase()) ? ['#'+sv(row.b).replace(/[^a-zA-Z0-9]/g,'').substring(0,18)] : [];
+  // FW26 hashtag engine — season mode controls pivot direction
+  const itemKw = sv(row.cat).toLowerCase().split(/\s+/)[0];
+  const eraCombo = ERA_COMBOS[itemKw] || '#vintage';
+  // Pick a confirmed trending aesthetic tag relevant to this world
+  const depopAesth = DEPOP_CONFIRMED[Math.floor(Math.random()*Math.min(4, DEPOP_CONFIRMED.length))];
+  const fallPick = FALL_PIVOT[Math.floor(Math.random()*FALL_PIVOT.length)];
+  const trendTags = SEASON_MODE === 'FW'
+    ? [TREND26_HT[0], TREND26_HT[1], fallPick, depopAesth]
+    : [TREND26_HT[0], '#Summer2026', eraCombo, depopAesth];
+  const all = [...swHts.slice(0,5), ...(cat.slice(0,1)), ...brand, ...trendTags, ...CIRC];
+  const deduped = [...new Set(all.filter(Boolean))];
+  const pads=['#FunkyBlackPoppy','#VintageFashion','#AltFashion','#RebelCloset','#ArchiveFashion','#SustainableOOTD','#PrelovedFashion','#ThriftedFind'];
+  let i=0; while(deduped.length<13 && i<pads.length){ if(!deduped.includes(pads[i])) deduped.push(pads[i]); i++; }
+  return deduped.slice(0,13);
+}
+
+// ── PRICE ACTION LOGIC ──
+function priceAction(a, h, p) {
+  if (a >= 500) return `Delete & Relist \u221220%`;
+  if (a >= 365) return `Drop 15% + Offer to Likers`;
+  if (a >= 90)  return `Drop 10%`;
+  if (h >= 4)   return `Raise 15% (hero)`;
+  return `Hold`;
+}
+
+// ── SUGGESTED PRICE ──
+function suggestedPrice(p, a, h) {
+  if (a >= 500) return parseFloat((p * 0.80).toFixed(2));
+  if (a >= 365) return parseFloat((p * 0.85).toFixed(2));
+  if (a >= 90)  return parseFloat((p * 0.90).toFixed(2));
+  if (h >= 4)   return parseFloat((p * 1.15).toFixed(2));
+  return p;
+}
+
+// ── HERO SCORE CALCULATOR ──
+function heroScore(row) {
+  let h = 1;
+  const p = row.p || 0;
+  const b = (row.b || '').toLowerCase();
+  const t = (row.t || '').toLowerCase();
+  if (p >= 100) h++;
+  if (p >= 50) h++;
+  const heroBrands = ['jean paul gaultier','dr. martens','kate spade','coach','betsey johnson','free people','vivienne','norma kamali','levi','ralph lauren','donna karan'];
+  if (heroBrands.some(hb => b.includes(hb))) h++;
+  const heroKws = ['rare','vintage','deadstock','nwt','pvc','velvet','silk','leather','corset','archive'];
+  if (heroKws.some(k => t.includes(k))) h++;
+  return Math.min(5, Math.max(1, h));
+}
+
+// ── COMP SEARCH BUILDERS ──
+// A local HTML file can't scrape marketplace prices (CORS/auth), so v6 builds
+// precision deep-links: eBay SOLD+COMPLETED comps, Poshmark availability:sold_out,
+// and Google Shopping — pre-filled with brand + item terms. One click = real comps.
+function compTerms(row){
+  const b = sv(row.b) && !['unknown','n/a','none'].includes(sv(row.b).toLowerCase()) ? sv(row.b) : '';
+  // strip noise words from title, keep first 5 meaningful terms
+  const stop = new Set(['the','a','an','with','and','for','vintage','womens','women\'s','size','sz','rare','euc','nwt','nwot']);
+  const bWords = new Set(b.toLowerCase().split(/\s+/).filter(Boolean));
+  const tw = sv(row.t).split(/\s+/).filter(w=>w.length>2 && !stop.has(w.toLowerCase()) && !bWords.has(w.toLowerCase())).slice(0,5).join(' ');
+  return (b + ' ' + tw).trim().substring(0,80);
+}
+function ebayCompUrl(row){ return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(compTerms(row))+'&LH_Sold=1&LH_Complete=1&_sop=13'; }
+function poshCompUrl(row){ return 'https://poshmark.com/search?query='+encodeURIComponent(compTerms(row))+'&availability=sold_out'; }
+function gShopUrl(row){ return 'https://www.google.com/search?tbm=shop&q='+encodeURIComponent(compTerms(row)); }
+
+// ── TREND RADAR ── Fall / Winter 2026 (Depop · Poshmark · Etsy FW26 data)
+// Updated June 2026 — seasonal pivot to FW sourcing + relist priorities
+const TRENDS = {
+  'Dark Coquette':       {kw:['bow','lace','ruffle','ballet flat','dark floral','ribbon','velvet bow','pearl','babydoll'], pl:'Depop/Posh', tip:'Dark bows, velvet ribbons, black florals — coquette gone goth. #1 FW26 aesthetic on Depop.'},
+  'Ballet Punk':         {kw:['leg warmer','wrap skirt','ballet flat','leotard','tutu','tiered skirt','wrap dress'], pl:'Depop', tip:'Ballet silhouettes + punk edge. Leg warmers, wrap skirts, unexpected layering. Strong sourcing opp.'},
+  'Gorpcore':            {kw:['fleece','technical','hiking','windbreaker','vest','barn jacket','chore coat','gorpcore','outdoor','puffer','patagonia'], pl:'Posh/Depop', tip:'Technical outerwear, fleece, hiking-inspired. Barn + chore coats are Posh workhorses right now.'},
+  'Mob Wife FW':         {kw:['animal print','leopard','faux fur','fur coat','velvet coat','gold chain','dramatic'], pl:'Posh/Depop', tip:'FW evolution of mob wife: full-length fur coats, velvet, animal print. Very high ASP on Poshmark.'},
+  'Quiet Luxury Dark':   {kw:['cashmere','tailored coat','camel coat','wool trouser','quiet luxury','old money','leather loafer'], pl:'Posh/Etsy', tip:'Understated luxury: cashmere, camel, tailored. YOUR highest ASP segment. Price up these pieces.'},
+  'Gothic Academia':     {kw:['tweed','houndstooth','dark plaid','blazer','oxford','dark academia','waistcoat','vest','argyle'], pl:'Depop/Etsy', tip:'Tweed, plaid blazers, layered academia — huge Halloween season momentum. Relist all you have NOW.'},
+  'Whimsigoth FW':       {kw:['witch','velvet','cape','gothic','crystal','moon','bat','halloween','black dress','cobweb','tarot'], pl:'Depop/Posh', tip:'YOUR peak season. October is the highest-grossing month for this niche. Relist everything witchy now.'},
+  'Vintage Denim FW':    {kw:['baggy jean','low rise','jorts','cargo','washed denim','denim jacket','corduroy','flare jean'], pl:'Depop/Posh', tip:'FW denim: baggy + washed, layered over turtlenecks. Corduroy strong. Source more wide-leg.'},
+  'Moto & Leather FW':   {kw:['moto','leather jacket','biker','studded','combat boot','doc martens','dr martens','leather coat'], pl:'Posh/Depop', tip:'Peak season for leather. Combat boots + moto jackets — relist everything in this category immediately.'},
+  'Dark Layering':       {kw:['turtleneck','cardigan','oversized','layered','longline','duster coat','knit','fisherman knit'], pl:'Etsy/Depop', tip:'Oversized turtlenecks, longline dusters, layered knits. Dark earthy tones over black base. Etsy top seller.'},
+};
+function trendHits(row){
+  const txt=(sv(row.t)+' '+sv(row.cat)+' '+sv(row.desc).substring(0,200)).toLowerCase();
+  const hits=[];
+  for(const name in TRENDS){ if(TRENDS[name].kw.some(k=>txt.includes(k))) hits.push(name); }
+  return hits;
+}
+let fTrend = 'all';
+function drillTrend(n){fTrend=n;fSW='all';fCA='all';fCat='all';fSeason=SEASON_MODE==='FW'?'fw':'ss_now';curView='all';vis=60;document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.querySelector('[data-v="all"]').classList.add('on');render();}
+
+// ── SEASON ENGINE ── SS26 reselling relevance
+// Hard FW = hold/storage until Aug; Shoulder = list but deprioritize; SS = push now
+const FW_HARD = ['coat','parka','puffer','snow','ski','spyder','fleece','wool','thermal','turtleneck','beanie','mitten','snowboard','shearling','down jacket','winter','bibs'];
+const FW_SOFT = ['sweater','cardigan','hoodie','sweatshirt','corduroy','flannel','knit','long sleeve','jacket','blazer','scarf','tights','velvet'];
+const SS_BOOST = ['dress','skirt','shorts','tank','swimsuit','swim','sandal','linen','sundress','romper','crop','sleeveless','maxi','mini','floral','mesh','sheer','tee','t-shirt','camisole','slip'];
+function seasonOf(row){
+  const txt = (sv(row.t)+' '+sv(row.cat)).toLowerCase();
+  if (FW_HARD.some(k=>txt.includes(k))) return 'FW';
+  if (SS_BOOST.some(k=>txt.includes(k))) return 'SS';
+  if (FW_SOFT.some(k=>txt.includes(k))) return 'Shoulder';
+  return 'All';
+}
+function seasonBadge(sn){
+  if(SEASON_MODE==='FW'){
+    // In FW mode: FW items are priority, SS items get held
+    if(sn==='FW') return '<span class="bdg" style="background:var(--okbg);color:var(--ok)">🍂 FW26 push</span>';
+    if(sn==='SS') return '<span class="bdg" style="background:var(--infobg);color:var(--info)">☀ Hold til spring</span>';
+    if(sn==='Shoulder') return '<span class="bdg" style="background:var(--goldbg);color:var(--gold)">🌤 Shoulder</span>';
+  } else {
+    if(sn==='FW') return '<span class="bdg" style="background:var(--infobg);color:var(--info)">❄ Winter — hold</span>';
+    if(sn==='SS') return '<span class="bdg" style="background:var(--okbg);color:var(--ok)">☀ SS26 push</span>';
+    if(sn==='Shoulder') return '<span class="bdg" style="background:var(--goldbg);color:var(--gold)">🍂 Shoulder</span>';
+  }
+  return '';
+}
+
+// ── PINTEREST URL BUILDER ──
+function pinUrl(row) {
+  const img = sv(row.img);
+  const title = sv(row.nt || row.t).substring(0, 500);
+  const pageUrl = img || 'https://www.funkyblackpoppy.com';
+  if (img) {
+    return 'https://www.pinterest.com/pin/create/button/?url='
+      + encodeURIComponent(pageUrl)
+      + '&media=' + encodeURIComponent(img)
+      + '&description=' + encodeURIComponent(title);
+  }
+  // Fallback: Pinterest search if no image
+  const q = encodeURIComponent(sv(row.ca) + ' ' + sv(row.sw).split('·')[1]?.trim() + ' vintage');
+  return 'https://www.pinterest.com/search/pins/?q=' + q;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── BUYER-FIRST SEO ENGINE ── Rachael's keyword-bucket spec
+// Buckets: Brand · Item type · Era · Fit · Fabric · Feature · Occasion · Size
+// Formulas: Etsy  = Brand + item + era + key feature + size
+//           Posh  = Brand + item + size + color/material + key style
+//           Depop = Era + brand + item + aesthetic + fit + vibe
+// ══════════════════════════════════════════════════════════════════════
+const ERA_KW   = [['y2k','Y2K'],['90s','Vintage 90s'],['1990s','Vintage 90s'],['2000s','2000s'],['00s','2000s'],['80s','80s'],['1980s','80s'],['70s','70s'],['1970s','70s'],['60s','60s'],['1960s','60s'],['50s','50s'],['1950s','50s'],['vtge','Vintage'],['vtg','Vintage'],['retro','Retro'],['vintage','Vintage']];
+const FIT_KW   = ['oversized','cropped','boxy','fitted','relaxed','low-rise','low rise','high-rise','high rise','flared','straight leg','slouchy','baggy','bodycon','a-line','wide-leg','wide leg','strapless','sleeveless','tiered','maxi','midi','mini','longline','open back','open-back'];
+const FABRIC_KW= ['cable knit','lace','satin','denim','silk','velvet','suede','leather','cotton','wool','tweed','linen','mesh','chiffon','corduroy','sequin','crochet','tulle','flannel','rayon','knit','fleece','sherpa','faux fur'];
+const FEAT_KW  = ['deadstock','rare','embroidered','distressed','sheer','lined','adjustable','reversible','handmade','upcycled','beaded','ruffled','ruffle','pleated','fringe','patchwork','studded','floral','plaid','paisley','cut-out','cutout','smocked','gathered','zip-up','button-down','wrap'];
+const OCC_KW   = ['festival','workwear','bridal','party','vacation','wedding','cocktail','beach','office'];
+const ITEM_NOUNS = ['babydoll dress','wrap dress','bodycon dress','t-shirt dress','maxi dress','mini dress','slip dress','sundress','dress','corset top','crop top','tank top','tube top','turtleneck','polo','button down','bodysuit','blouse','top','cardigan','duster','sweater','sweatshirt','hoodie','blazer','bomber jacket','denim jacket','moto jacket','leather jacket','trench coat','pea coat','jacket','coat','vest','jeans','cargo pants','sweat pants','sweatpants','track pants','joggers','pants','trousers','leggings','denim shorts','biker shorts','shorts','mini skirt','maxi skirt','midi skirt','skirt','jumpsuit','romper','overalls','swimsuit','bikini','kimono','leg warmer','western boots','ankle boots','chelsea boots','combat boots','boots','heels','sandals','sneakers','satchel','hobo bag','shoulder bag','crossbody','tote','handbag','purse','bag','necklace','earrings','bracelet','ring','belt','scarf','hat','corset','camisole','cami','windbreaker','bra','slip','nightgown','robe','t-shirt','tee','shirt'];
+
+// SW_BUYER_AESTH — derived from STYLE_WORLDS
+const SW_BUYER_AESTH = {};
+Object.entries(STYLE_WORLDS).forEach(([k,v])=>{ SW_BUYER_AESTH[k]=v.buyer; });
+Object.entries(SW_LEGACY).forEach(([k])=>{ SW_BUYER_AESTH[k]=STYLE_WORLDS[resolveWorld(k)]?.buyer||'Vintage Dark Alt'; });
+function pickKw(txt, list){
+  for (const k of list){
+    const kw = Array.isArray(k)?k[0]:k, label = Array.isArray(k)?k[1]:k;
+    // word-boundary match — 'ring' must not match 'spring', 'tee' must not match 'street'
+    const re = new RegExp('(^|[^a-z0-9])'+kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'($|[^a-z0-9])','i');
+    if (re.test(txt)) return label.charAt(0).toUpperCase()+label.slice(1);
+  }
+  return '';
+}
+function extractBuckets(row){
+  const txt = (sv(row.t)+' '+sv(row.cat)+' '+sv(row.desc).substring(0,250)).toLowerCase();
+  const brand = sv(row.b) && !['unknown','dont know','n/a','none'].includes(sv(row.b).toLowerCase()) ? sv(row.b) : '';
+  let item = pickKw(txt, ITEM_NOUNS);
+  if (!item){ const c = sv(row.cat).split('&')[0].trim().replace(/s$/,''); item = c || 'Piece'; }
+  return {
+    brand, item,
+    era:    pickKw(txt, ERA_KW),
+    fit:    pickKw(txt, FIT_KW),
+    fabric: pickKw(txt, FABRIC_KW),
+    feat:   pickKw(txt, FEAT_KW),
+    occ:    pickKw(txt, OCC_KW),
+    size:   sv(row.size),
+    color:  wzUpSafe(sv(row.clr)),
+    aesth:  SW_BUYER_AESTH[sv(row.sw)] || 'Vintage',
+  };
+}
+function wzUpSafe(c){ try{ return wzUp(c)||c; }catch(e){ return c; } }
+function clean(parts){
+  const seen=new Set(); const out=[];
+  parts.filter(Boolean).join(' ').split(/\s+/).forEach(w=>{
+    const k=w.toLowerCase(); if(seen.has(k))return; seen.add(k); out.push(w);
+  });
+  return out.join(' ').trim();
+}
+
+// ── AESTHETIC HOOKS — dual searchable alt-market terms per style world ──
+// These are the compound aesthetic tags buyers across the dark/alt/witchy/fairy/
+// grunge/goth/Y2K secondhand market actually type into search. Primary + secondary.
+const AESTH_HOOK = {
+  '01 · Velvet Underground': ['Dark Romantic Aesthetic','Whimsigoth'],
+  '02 · Corp Goth':          ['Corp Goth Aesthetic','Dark Minimalist'],
+  '03 · Quiet Luxury Dark':  ['Dark Academia Aesthetic','Old Money Dark'],
+  '04 · Punk Debutante':     ['Punk Aesthetic','Whimsigoth'],
+  '05 · Indie Sleaze':       ['Y2K Indie Aesthetic','Indie Sleaze'],
+  '06 · Witchcore':          ['Witchcore Aesthetic','Witch Aesthetic'],
+  '07 · Dark Cottagecore':   ['Dark Cottagecore','Fairy Grunge Aesthetic'],
+  '08 · Grunge Revival':     ['90s Grunge Aesthetic','Vintage Grunge'],
+  '09 · Y2K Afterdark':      ['Y2K Aesthetic','Mallgoth'],
+  '10 · Art School Rebel':   ['Art Hoe Aesthetic','Avant Garde'],
+  '11 · Funeral Chic':       ['Gothic Aesthetic','Whimsigoth'],
+  '12 · Dark Bohemian':      ['Boho Witch Aesthetic','Fairy Grunge'],
+  '13 · 80s Power Occult':   ['80s Aesthetic','Goth Glam'],
+  '14 · Riotgrrrl Archive':  ['Riot Grrrl Aesthetic','90s Punk'],
+  '15 · Dark Academia':      ['Dark Academia','Gothic Academia'],
+  '16 · Secondhand Rebellion':['Vintage Aesthetic','Alt Vintage'],
+  '17 · Leather & Lace':     ['Dark Romantic Aesthetic','Grunge Aesthetic'],
+  '18 · Maximalist Goth':    ['Maximalist Goth','Dark Aesthetic'],
+  '19 · Androgyne Noir':     ['Androgynous Fashion','Dark Minimalist'],
+  '20 · Haunted Americana':  ['Western Gothic','Americana Vintage'],
+  'Fairycore':               ['Fairycore Aesthetic','Fairy Grunge'],
+  'Fairy Grunge':            ['Fairy Grunge Aesthetic','Fairycore'],
+};
+function aesthHooks(sw){
+  const h = AESTH_HOOK[resolveWorld(sv(sw))] || AESTH_HOOK[sv(sw)] || ['Vintage','Alt'];
+  return Array.isArray(h) ? h : [h, 'Alt'];
+}
+function aesthHook(sw){ return aesthHooks(sw)[0]; }   // primary, back-compat
+
+// Normalize verbose size words → standard abbreviations
+function normSz(s){
+  if(!s) return '';
+  const m={'XSMALL':'XS','EXTRASMALL':'XS','SMALL':'S','MEDIUM':'M','LARGE':'L',
+    'XLARGE':'XL','XTRA LARGE':'XL','EXTRA LARGE':'XL','XXLARGE':'XXL','2XL':'XXL',
+    'XXXLARGE':'XXXL','3XL':'XXXL','XTRASMALL':'XS'};
+  return m[s.toUpperCase().replace(/[\s-]/g,'')] || s;
+}
+
+function buildTitles(row){
+  const x = extractBuckets(row);
+  const hooks = aesthHooks(row.sw);
+  const hook = hooks[0], hook2 = hooks[1];
+  const era = x.era || '';
+  const color = x.color || '';
+  const item = x.item;
+  const brand = x.brand;
+  const sz = normSz(x.size);
+
+  // NWT detection — "New With Tags" or "NWT" → prepend on every platform
+  const isNWT = /new.with.tags|brand.new|deadstock|nwt/i.test(sv(row.cond)+' '+sv(row.t));
+  const nwt = isNWT ? 'NWT' : '';
+
+  // Stack up to 3 distinct descriptors for Etsy's 140-char budget
+  const d1 = x.feat || '';
+  const d2 = x.fabric && x.fabric !== d1 ? x.fabric : '';
+  const d3 = x.fit   && x.fit !== d1 && x.fit !== d2 ? x.fit : '';
+
+  // FW26 trend signal — first matching trend name, trimmed to one word
+  const trendSig = (row.trends && row.trends.length > 0) ? row.trends[0].split(' ')[0] : '';
+
+  // ── ETSY (≤140) — keyword-dense, pipe separator, full 140-char budget ──
+  // Formula: [NWT] Brand Color Desc Desc Item | Hook Hook2 Era Trend Size
+  let etsy = clean([nwt, brand, color, d1, d2, item, '|', hook, hook2, era, trendSig, sz?'Size '+sz:'']);
+  if (etsy.length>140) etsy = clean([nwt, brand, color, d1, item, '|', hook, hook2, era, sz?'Size '+sz:'']);
+  if (etsy.length>140) etsy = clean([nwt, brand, color, item, '|', hook, era, sz?'Size '+sz:'']);
+  if (etsy.length>140) etsy = etsy.substring(0,138).trim();
+
+  // ── POSHMARK (≤80) — NWT leads, brand + item + aesthetic + size ──
+  let posh = clean([nwt, brand, color, d1, item, sz?'Sz '+sz:'', hook]);
+  if (posh.length>80) posh = clean([nwt, brand, color, item, sz?'Sz '+sz:'', hook]);
+  if (posh.length>80) posh = clean([nwt, brand, item, sz?'Sz '+sz:'']);
+  if (posh.length>80) posh = posh.substring(0,78).trim();
+
+  // ── DEPOP (≤100) — lowercase, vibe-led, compound aesthetic ──
+  let depop = clean([hook.toLowerCase(), era.toLowerCase(), brand.toLowerCase(),
+    color.toLowerCase(), (d3||d1||'').toLowerCase(), item.toLowerCase(), sz?'sz '+sz.toLowerCase():'']);
+  if (depop.length>100) depop = clean([hook.toLowerCase(), brand.toLowerCase(),
+    color.toLowerCase(), item.toLowerCase(), sz?'sz '+sz.toLowerCase():'']);
+  if (depop.length>100) depop = depop.substring(0,98).trim();
+
+  return { etsy, posh, depop };
+}
+
+// ── SEO TITLE BUILDER ──
+function seoTitle(row) {
+  if (!row.t) return '';
+  const title = row.t.trim();
+  const aesthetic = row.ca || 'Archivecore';
+  const tags = (row.tags || []).slice(0, 2).join(' ');
+  const trend = trendKw(row.sw);
+  let nt = `${title} | ${aesthetic} ${trend} ${tags}`.trim().replace(/\s+/g,' ');
+  if (nt.length > 140) nt = `${title} | ${aesthetic} ${trend}`.trim();
+  if (nt.length > 140) nt = nt.substring(0, 137).trim() + '…';
+  return nt;
+}
+
+// ── DAYS SINCE LISTED ──
+function daysSince(dateStr) {
+  if (!dateStr) return 0;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return 0;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+// ── ROW → ITEM CONVERTER ──
+function rowToItem(raw, headers) {
+  const r = {};
+  // Map raw CSV columns to internal fields
+  headers.forEach((h, i) => {
+    const key = COL_MAP[h.toLowerCase().trim()];
+    if (key) r[key] = (raw[i] || '').trim();
+  });
+
+  // Numeric conversions
+  r.p = parseFloat(r.p) || 0;
+  r.a = parseInt(r.a) || daysSince(r.listed) || 0;
+  r.h = parseInt(r.h) || 0;
+
+  // Auto-classify if style world not in CSV
+  if (!r.sw || !r.ca) {
+    const cls = classify(r);
+    r.sw = r.sw || cls.sw;
+    r.ca = r.ca || cls.ca;
+  }
+
+  // Auto hero score if not in CSV
+  if (!r.h || r.h < 1) r.h = heroScore(r);
+
+  // Suggested price + price action
+  r.sp = r.sp ? parseFloat(r.sp) : suggestedPrice(r.p, r.a, r.h);
+  r.pa = r.pa || priceAction(r.a, r.h, r.p);
+
+  // Status normalization (Active / Sold / Draft) — blank = Active
+  r.st = (r.st || 'Active').trim();
+  const stl = r.st.toLowerCase();
+  r.st = (stl.startsWith('sold') || stl.startsWith('shipped')) ? 'Sold' : stl.startsWith('draft') ? 'Draft' : 'Active';
+
+  // Sold + financial data
+  r.psold = parseFloat(r.psold) || 0;
+  r.solddate = r.solddate || r.shipdate || '';
+  r.cogs = parseFloat(r.cogs) || 0;
+  r.fees = parseFloat(r.fees) || 0;
+  r.shipx = parseFloat(r.shipx) || 0;
+  r.profit = r.psold > 0 ? +(r.psold - r.cogs - r.fees - r.shipx).toFixed(2) : 0;
+  r.soldpl = r.soldpl || '';
+
+  // Size — Vendoo buries it in Description; regex extraction with fallbacks
+  r.size = '';
+  if (r.desc) {
+    const m = r.desc.match(/\bSize[:\s]+([A-Z0-9X\/\-\.]{1,8})\b/i)
+          || r.desc.match(/\bSz\.?\s+([A-Z0-9X\/\-\.]{1,8})\b/i)
+          || (r.t||'').match(/\b(?:Size|Sz)\.?\s+([A-Z0-9X\/\-\.]{1,8})\b/i);
+    if (m) r.size = m[1].toUpperCase();
+  }
+
+  // First image only (Vendoo "Images" can be a delimited list)
+  if (r.img) r.img = r.img.split(/[|;,\s]+/).filter(u=>u.startsWith('http'))[0] || '';
+
+  // Tags array
+  r.tags = r.tags_raw ? r.tags_raw.split(/[|,;]/).map(s=>s.trim()).filter(Boolean) : [r.ca, r.sw].filter(Boolean);
+
+  // Hashtags
+  r.ht = r.ht_raw ? r.ht_raw.split(/[\s,]+/).filter(s=>s.startsWith('#')) : buildHashtags(r);
+  if (r.ht.length < 3) r.ht = buildHashtags(r);
+
+  // Season + trend radar
+  r.season = seasonOf(r);
+  r.trends = trendHits(r);
+
+  // Pinterest + comps
+  r.fp = null;  // forward price computed lazily (needs trends, set above)
+  r.pin = r.pin || pinUrl(r);
+  r.ebayComp = ebayCompUrl(r);
+  r.poshComp = poshCompUrl(r);
+  r.gShop = gShopUrl(r);
+
+  // SEO titles — buyer-first formulas, all three platforms
+  const bt = buildTitles(r);
+  r.ntE = bt.etsy; r.ntP = bt.posh; r.ntD = bt.depop;
+  r.nt = r.nt || bt.etsy;
+
+  // Defaults
+  r.img = r.img || '';
+  r.sku = r.sku || '';
+  r.listed = r.listed || '';
+  r.clr = r.clr || '';
+  r.cond = r.cond || '';
+  r.pl = r.pl || '';
+
+  return r;
+}
+
+// ── PENDING IMPORT STATE ──
+let pendingRows = null;
+let pendingHeaders = null;
+let pendingItems = null;
+let pendingFileName = '';
+
+// ── FILE HANDLERS ──
+function handleFileInput(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-selected
+  readCSVFile(file);
+}
+
+function readCSVFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    toastMsg('Please upload a .csv file'); return;
+  }
+  pendingFileName = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = parseCSV(e.target.result);
+      if (rows.length < 2) { toastMsg('CSV appears empty'); return; }
+      const headers = rows[0];
+      const dataRows = rows.slice(1).filter(r => r.some(c => c));
+      pendingHeaders = headers;
+      pendingRows = dataRows;
+      showImportModal(headers, dataRows, file.name);
+    } catch(err) {
+      toastMsg('Parse error: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function showImportModal(headers, rows, filename) {
+  const modal = document.getElementById('modalBg');
+  const mapped = headers.map(h => COL_MAP[h.toLowerCase().trim()]).filter(Boolean);
+  const hasTile = mapped.includes('t');
+  const hasAge  = mapped.includes('a') || mapped.includes('listed');
+  const hasImg  = mapped.includes('img');
+  const hasStatus = mapped.includes('st');
+
+  document.getElementById('modalSub').textContent =
+    `${filename} · ${rows.length.toLocaleString()} rows · ${headers.length} columns`;
+
+  // Warnings (shown immediately, before processing)
+  let warn = '';
+  if (!hasTile) warn += '<p>⚠️ No <strong>Title</strong> column found — item names will be empty.</p>';
+  if (!hasAge)  warn += '<p>⚠️ No <strong>Days Listed</strong> or date column — ages set to 0.</p>';
+  if (!hasImg)  warn += '<p>⚠️ No <strong>Image</strong> column — cards will show placeholder icons.</p>';
+  if (!hasStatus) warn += '<p>⚠️ No <strong>Status</strong> column — all rows will be treated as Active.</p>';
+  if (D.length > 0) warn += `<p>ℹ️ This will replace your current ${D.length} listings.</p>`;
+  document.getElementById('modalWarn').innerHTML = warn ? `<div class="modal-warn">${warn}</div>` : '';
+
+  // Column preview
+  const colList = headers.map(h => {
+    const key = COL_MAP[h.toLowerCase().trim()];
+    return key ? `<span style="color:var(--ok)">✓ ${h}</span>` : `<span style="color:var(--faint)">· ${h}</span>`;
+  }).join('  ');
+  document.getElementById('colPreview').innerHTML = colList;
+
+  // Show modal immediately with progress bar; disable confirm until done
+  document.getElementById('confirmBtn').textContent = `⏳ Processing…`;
+  document.getElementById('confirmBtn').disabled = true;
+  document.getElementById('modalStats').innerHTML =
+    `<div class="mstat"><div class="mstat-v" id="impProg">0 / ${rows.length}</div><div class="mstat-l">Parsed</div></div>`+
+    `<div class="mstat"><div class="mstat-v" style="color:var(--danger)" id="impGhosts">—</div><div class="mstat-l">Ghosts</div></div>`+
+    `<div class="mstat"><div class="mstat-v" style="color:var(--gold)" id="impHeros">—</div><div class="mstat-l">Heroes</div></div>`;
+  document.getElementById('cntActive').textContent = '…';
+  document.getElementById('cntSold').textContent = '…';
+  document.getElementById('cntDraft').textContent = '…';
+  document.getElementById('impActive').checked = true;
+  document.getElementById('impSold').checked = true;
+  document.getElementById('impDraft').checked = true;
+  modal.classList.add('show');
+
+  // Chunked processing — 80 rows per tick to keep UI responsive
+  const CHUNK = 80;
+  pendingItems = [];
+  let idx = 0;
+
+  function processChunk() {
+    const end = Math.min(idx + CHUNK, rows.length);
+    for (; idx < end; idx++) {
+      const item = rowToItem(rows[idx], headers);
+      if (item.t || item.img) pendingItems.push(item);
+    }
+    document.getElementById('impProg').textContent = `${idx} / ${rows.length}`;
+    if (idx < rows.length) { setTimeout(processChunk, 0); return; }
+
+    // All done — update stats
+    const nAct   = pendingItems.filter(i=>i.st==='Active').length;
+    const nSold  = pendingItems.filter(i=>i.st==='Sold').length;
+    const nDraft = pendingItems.filter(i=>i.st==='Draft').length;
+    const act    = pendingItems.filter(i=>i.st==='Active');
+    const ghosts = act.filter(i=>i.a>=500).length;
+    const heros  = act.filter(i=>i.h>=4).length;
+
+    document.getElementById('cntActive').textContent = nAct;
+    document.getElementById('cntSold').textContent   = nSold;
+    document.getElementById('cntDraft').textContent  = nDraft;
+    document.getElementById('impProg').textContent   = pendingItems.length;
+    document.getElementById('impGhosts').textContent = ghosts;
+    document.getElementById('impHeros').textContent  = heros;
+    document.getElementById('confirmBtn').textContent = `✅ Load ${nAct + nSold + nDraft} Listings`;
+    document.getElementById('confirmBtn').disabled = false;
+  }
+
+  setTimeout(processChunk, 0);
+}
+
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('show');
+  pendingRows = null; pendingHeaders = null; pendingItems = null;
+}
+
+// Stable identity key — survives re-imports (SKU first, title+brand fallback)
+function itemKey(r) {
+  const base = sv(r.sku) || (sv(r.t) + '|' + sv(r.b));
+  return base.toLowerCase().replace(/[^a-z0-9_|-]/g, '_').substring(0, 80);
+}
+
+function confirmImport() {
+  if (!pendingItems) return;
+  const keep = new Set();
+  if (document.getElementById('impActive').checked) keep.add('Active');
+  if (document.getElementById('impSold').checked)   keep.add('Sold');
+  if (document.getElementById('impDraft').checked)  keep.add('Draft');
+  if (!keep.size) { toastMsg('Select at least one status to import'); return; }
+
+  // ── v7 ZOMBIE KILLER ──
+  // Vendoo exports can contain the SAME item as an Active row AND a Sold row
+  // (relist/crosslist artifacts). SOLD ALWAYS WINS. The Active twin gets
+  // flagged as a ZOMBIE: it sold but is still live on platforms → DELIST NOW.
+  const soldByKey = {};
+  pendingItems.forEach(r => {
+    const k = itemKey(r);
+    if (r.st === 'Sold' && k && k !== '|') soldByKey[k] = r;
+  });
+  let zombieCount = 0;
+  pendingItems.forEach(r => {
+    const k = itemKey(r);
+    r._zombie = (r.st === 'Active' && k && k !== '|' && !!soldByKey[k]);
+    if (r._zombie) {
+      const twin = soldByKey[k];   // inherit the real sale facts from the sold twin
+      r.st = 'Sold'; r._wasActive = true; zombieCount++;
+      r.psold = r.psold || twin.psold; r.solddate = r.solddate || twin.solddate;
+      r.soldpl = r.soldpl || twin.soldpl; r.profit = r.profit || twin.profit;
+    }
+  });
+
+  // Filter by status + dedupe by key (Sold rows win the dedupe slot)
+  const seen = new Set();
+  const ordered = [...pendingItems].sort((a,b)=>(a.st==='Sold'?-1:1)-(b.st==='Sold'?-1:1));
+  const kept = new Set();
+  ordered.forEach(r => {
+    const k = itemKey(r);
+    if (!k || k === '|') { kept.add(r); return; } // blank keys never dedupe
+    if (seen.has(k)) return;
+    seen.add(k); kept.add(r);
+  });
+  D = pendingItems.filter(r => kept.has(r) && keep.has(r._zombie ? 'Active' : r.st) || (kept.has(r) && r._zombie));
+  D.forEach((r, i) => { r._i = i; r._k = itemKey(r); });
+  ZOMBIE_CNT = D.filter(r=>r._zombie).length;
+  const skipped = pendingItems.length - D.length;
+  closeModal();
+  if (ZOMBIE_CNT > 0) setTimeout(()=>toastMsg('🧟 '+ZOMBIE_CNT+' ZOMBIES found — sold items still live on platforms. Check the Delist tab!'), 2600);
+  // Update header subtitle
+  document.getElementById('logoSub').textContent =
+    `@rachaelnike · ${pendingFileName} · ${D.length} listings · ${new Date().toLocaleDateString()}`;
+  // Refresh all derived state and re-render
+  reboot();
+  toastMsg(`✅ ${D.length} loaded · ${skipped} filtered out (sold/drafts/dupes)`);
+}
+
+// ── REBOOT ── re-derives all counts + re-renders after data load
+function reboot() {
+  buildComps();
+  D.forEach(i=>{ if(i.st==='Active') i.fp = forwardPrice(i); });
+  const W = workSet();
+  GHOST_CNT = W.filter(i=>i.a>=500).length;
+  CRIT_CNT  = W.filter(i=>i.a>=365&&i.a<500).length;
+  HERO_CNT  = W.filter(i=>i.h>=4).length;
+  ALL_SWS_L = [...new Set(D.map(i=>sv(i.sw)).filter(Boolean))].sort();
+  ALL_CAS_L = [...new Set(D.map(i=>sv(i.ca)).filter(Boolean))].sort();
+  document.getElementById('hTotal').textContent = workSet().length || '—';
+  document.getElementById('hg').textContent = GHOST_CNT || '—';
+  document.getElementById('hc').textContent = CRIT_CNT  || '—';
+  document.getElementById('hh').textContent = HERO_CNT  || '—';
+  curView = 'cmd'; vis = 60; fSW='all'; fCA='all'; fCat='all'; fQ=''; fH=0; fA='all'; fPl='all'; fSt='all'; hideRel=true; fSeason= SEASON_MODE==='FW' ? 'fw' : 'ss_now'; fTrend='all';
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.querySelector('[data-v="cmd"]').classList.add('on');
+  render();
+}
+
+// ── DRAG AND DROP ──
+let dragCount = 0;
+document.addEventListener('dragenter', e => {
+  if ([...e.dataTransfer.types].includes('Files')) {
+    dragCount++;
+    document.getElementById('dropOverlay').classList.add('show');
+  }
+});
+document.addEventListener('dragleave', () => {
+  dragCount--;
+  if (dragCount <= 0) { dragCount=0; document.getElementById('dropOverlay').classList.remove('show'); }
+});
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  dragCount = 0;
+  document.getElementById('dropOverlay').classList.remove('show');
+  const file = e.dataTransfer.files[0];
+  if (file) readCSVFile(file);
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// ── APP STATE ──
+// ══════════════════════════════════════════════════════════════════════
+let GHOST_CNT=0, CRIT_CNT=0, HERO_CNT=0, ZOMBIE_CNT=0;
+let ALL_SWS_L=[], ALL_CAS_L=[];
+let curView="cmd", fSW="all", fCA="all", fCat="all", fQ="", fH=0, fA="all", vis=60;
+let fPl="all", fSt="all", hideRel=true;  // v5: platform filter, status filter, hide-relisted toggle
+let fSeason="ss_now";  // v7: 'ss_now' (SS+All+Shoulder), 'ss_only', 'fw', 'all_season' 
+
+// ── BATCH SELECT STATE ──
+let selectedItems = new Set(); // holds item._k values
+function toggleSelect(key, checked){ if(checked) selectedItems.add(key); else selectedItems.delete(key); updateBatchBar(); }
+function clearSelect(){ selectedItems.clear(); updateBatchBar(); document.querySelectorAll('.card-check').forEach(cb=>cb.checked=false); }
+function selectAll(items){ items.forEach(i=>selectedItems.add(i._k)); updateBatchBar(); document.querySelectorAll('.card-check').forEach(cb=>cb.checked=true); }
+function updateBatchBar(){
+  const bar = document.getElementById('batchBar'); if(!bar) return;
+  const cnt = selectedItems.size;
+  bar.classList.toggle('show', cnt > 0);
+  const el = document.getElementById('batchCnt'); if(el) el.textContent = cnt + ' selected';
+}
+function batchCopyTitles(){
+  const items = D.filter(i=>selectedItems.has(i._k) && i.nt);
+  if(!items.length){ toastMsg('No SEO titles in selection'); return; }
+  const text = items.map(i=>`${sv(i.t)}\n  Etsy: ${sv(i.ntE)}\n  Posh: ${sv(i.ntP)}\n  Depop: ${sv(i.ntD)}`).join('\n\n');
+  navigator.clipboard.writeText(text).catch(()=>{});
+  toastMsg(`✓ Copied ${items.length} SEO titles`);
+}
+function batchCopyHashtags(){
+  const items = D.filter(i=>selectedItems.has(i._k) && i.ht && i.ht.length);
+  if(!items.length){ toastMsg('No hashtags in selection'); return; }
+  const text = items.map(i=>`${sv(i.t).substring(0,40)}: ${i.ht.join(' ')}`).join('\n');
+  navigator.clipboard.writeText(text).catch(()=>{});
+  toastMsg(`✓ Copied ${items.length} hashtag sets`);
+}
+
+// ── RELIST TRACKING ──
+// v5: keyed by stable item identity (SKU/title) — survives re-imports correctly
+let qDone  = new Set(JSON.parse(localStorage.getItem("fbp5qd")||"[]"));
+let manRel = new Set(JSON.parse(localStorage.getItem("fbp5mr")||"[]"));
+function saveQ(){ localStorage.setItem("fbp5qd",JSON.stringify([...qDone])); updRel(); }
+function saveM(){ localStorage.setItem("fbp5mr",JSON.stringify([...manRel])); updRel(); }
+function isRel(item){ return qDone.has(item._k) || manRel.has(item._k); }
+function updRel(){ const el=document.getElementById("hr"); if(el) el.textContent=D.filter(isRel).length || (qDone.size+manRel.size); }
+function resetAll(){ if(!confirm("Reset all relist progress?")) return; qDone=new Set(); manRel=new Set(); localStorage.removeItem("fbp5qd"); localStorage.removeItem("fbp5mr"); updRel(); render(); }
+function markQ(k,btn){ qDone.add(k); saveQ(); btn.textContent="✓ Done"; btn.classList.add("dn"); }
+function markMan(key,btn){ manRel.add(key); saveM(); btn.textContent="✓ Relisted"; btn.classList.add("done-rel"); btn.disabled=true; toastMsg("Marked as relisted ✓"); }
+
+// ══════════════════════════════════════════════════════════════════════
+// ── HELPERS ──
+// ══════════════════════════════════════════════════════════════════════
+const sv   = v  => (v==null?"":String(v));
+const esc  = v  => sv(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+
+function toastMsg(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2400); }
+
+function cpText(text,btn,idle){
+  navigator.clipboard.writeText(text).catch(()=>{});
+  btn.textContent="✓ Copied!"; btn.classList.add("cpd");
+  setTimeout(()=>{ btn.textContent=idle; btn.classList.remove("cpd"); },2000);
+  toastMsg("Copied ✓");
+}
+
+// ── BADGES ──
+function hBadge(h){ h=h||1; return "<span class=\"bdg bh"+h+"\">"+("★".repeat(h))+("☆".repeat(5-h))+"</span>"; }
+function ageCls(a){ return a<90?"fresh":a<365?"ok":a<500?"crit":"ghost"; }
+function aLabel(a){ return {fresh:"Fresh",ok:"Aging",crit:"⚠ Critical",ghost:"👻 Ghost"}[ageCls(a)]; }
+function aBadge(a){ return "<span class=\"bdg ba-"+ageCls(a)+"\">"+a+"d "+aLabel(a)+"</span>"; }
+function swBadge(w){ return w?"<span class=\"bdg bsw\">"+esc(sv(w).substring(0,22))+"</span>":""; }
+function caBadge(c){ return c?"<span class=\"bdg bca\">"+esc(c)+"</span>":""; }
+function tBadge(t){ return t?"<span class=\"bdg btag\">"+esc(t)+"</span>":""; }
+function priceH(p,sp){
+  const c="<span class=\"cp-c\">$"+(p||0).toFixed(2)+"</span>";
+  if(sp>0&&Math.abs(sp-(p||0))>0.49) return c+"<span class=\"cp-a\">"+(sp>p?"↑":"↓")+"</span><span class=\"cp-s\">$"+sp.toFixed(2)+"</span>";
+  return c;
+}
+
+// ── CARD ──
+function mkCard(item, idx){
+  const t=sv(item.t), nt=sv(item.nt), b=sv(item.b), pl=sv(item.pl);
+  const sw=sv(item.sw), ca=sv(item.ca), cat=sv(item.cat), img=sv(item.img);
+  const p=item.p||0, sp=item.sp||0, a=item.a||0, h=item.h||1;
+  const tags=Array.isArray(item.tags)?item.tags:[];
+  const ht=Array.isArray(item.ht)?item.ht:[];
+  const pin=sv(item.pin);
+  const key=item._k || (sv(item.sku)||"idx-"+idx).replace(/[^a-zA-Z0-9_-]/g,"_");
+  const rel=isRel(item);
+  const imgEl=img
+    ?"<img class=\"card-img\" src=\""+esc(img)+"\" alt=\"\" loading=\"lazy\" onerror=\"this.outerHTML='<div class=\\&quot;card-ph\\&quot;>🦇</div>'\">"
+    :"<div class=\"card-ph\">🦇</div>";
+  let acts="";
+  if(nt)        acts+="<button class=\"abtn rose-h\" onclick=\"cpText(D["+idx+"].nt,this,'📋 Copy SEO title')\">📋 Copy SEO title</button>";
+  if(ht.length) acts+="<button class=\"abtn gold-h\" onclick=\"cpText(D["+idx+"].ht.join(' '),this,'🏷 Copy 13 hashtags')\">🏷 Copy 13 hashtags</button>";
+  if(pin)       acts+="<a class=\"pin-a\" href=\""+esc(pin)+"\" target=\"_blank\" rel=\"noopener\">📌 Search Pinterest</a>";
+  acts+="<a class=\"pin-a\" href=\""+esc(item.ebayComp||"")+"\" target=\"_blank\" rel=\"noopener\" style=\"background:var(--infobg);color:var(--info);border-color:rgba(34,72,120,.25)\">💲 eBay SOLD comps</a>";
+  acts+="<a class=\"pin-a\" href=\""+esc(item.poshComp||"")+"\" target=\"_blank\" rel=\"noopener\" style=\"background:var(--rosebg);color:var(--rose);border-color:var(--rosebdr)\">💲 Posh sold comps</a>";
+  acts+="<button class=\"abtn green-h"+(rel?" done-rel":"")+"\" onclick=\"markMan('"+key+"',this)\" "+(rel?"disabled":"")+">"+(rel?"✓ Relisted":"✅ Mark as Relisted")+"</button>";
+  const isSel = selectedItems.has(key);
+  return "<div class=\"card\" style=\"cursor:pointer\">"
+    +"<input type=\"checkbox\" class=\"card-check\" "+(isSel?"checked":"")+" onclick=\"event.stopPropagation();toggleSelect('"+key+"',this.checked)\">"
+    +"<div onclick=\"openItem("+idx+")\" style=\"display:contents\">"
+    +imgEl+"<div class=\"cbody\">"
+    +"<div class=\"c-brand\">"+esc(b)+" &middot; "+esc(cat)+"</div>"
+    +"<div class=\"c-title\">"+esc(t)+"</div>"
+    +(nt?"<div class=\"c-nt\">"+esc(nt.substring(0,115))+"</div>":"")
+    +"<div class=\"c-price\">"+priceH(p,sp)+"</div>"
+    +"<div class=\"c-badges\">"+(item.trends&&item.trends.length?"<span class=\"bdg\" style=\"background:var(--goldbg);color:var(--gold);font-weight:700\">🔥 "+esc(item.trends[0])+"</span>":"")+(item._zombie?"<span class=\"bdg\" style=\"background:var(--dangerbg);color:var(--danger);font-weight:700\">🧟 SOLD — DELIST</span>":"")+seasonBadge(item.season)+hBadge(h)+aBadge(a)
+    +(item.st&&item.st!=="Active"?"<span class=\"bdg\" style=\"background:"+(item.st==="Sold"?"var(--okbg);color:var(--ok)":"var(--infobg);color:var(--info)")+"\">"+esc(item.st)+(item.st==="Sold"&&item.psold>0?" $"+item.psold.toFixed(0):"")+"</span>":"")
+    +(item.size?"<span class=\"bdg btag\">Sz "+esc(item.size)+"</span>":"")
+    +swBadge(sw)+caBadge(ca)+tags.slice(0,2).map(tBadge).join("")+"</div>"
+    +"<div class=\"c-plat\">"+esc(pl)+"</div>"
+    +"<div class=\"card-acts\">"+acts+"</div>"
+    +(ht.length?"<div class=\"ht-box\"><div class=\"ht-lbl\">13 SEO Hashtags</div><div class=\"ht-text\">"+esc(ht.join("  "))+"</div></div>":"")
+    +"</div></div></div>";
+}
+
+// ── FILTER ──
+function getFiltered(){
+  let r=[...D];
+  if(fQ){const ql=fQ.toLowerCase();r=r.filter(i=>sv(i.t).toLowerCase().includes(ql)||sv(i.b).toLowerCase().includes(ql)||sv(i.sw).toLowerCase().includes(ql)||sv(i.ca).toLowerCase().includes(ql)||sv(i.cat).toLowerCase().includes(ql)||sv(i.sku).toLowerCase().includes(ql));}
+  if(fSW!=="all") r=r.filter(i=>sv(i.sw)===fSW);
+  if(fCA!=="all") r=r.filter(i=>sv(i.ca)===fCA);
+  if(fCat!=="all") r=r.filter(i=>sv(i.cat)===fCat);
+  if(fSt==="all") r=r.filter(i=>i.st==="Active");  // v6: default = Active only; pick Sold/Draft explicitly
+  else r=r.filter(i=>i.st===fSt);
+  if(fPl==="__not_etsy") r=r.filter(i=>!sv(i.pl).toLowerCase().includes("etsy"));
+  else if(fPl!=="all") r=r.filter(i=>sv(i.pl).toLowerCase().includes(fPl.toLowerCase()));
+  if(hideRel) r=r.filter(i=>!isRel(i));
+  if(fTrend!=='all') r=r.filter(i=>i.trends&&i.trends.includes(fTrend));
+  if(fSeason==='ss_now') r=r.filter(i=>i.season!=='FW');
+  else if(fSeason==='ss_only') r=r.filter(i=>i.season==='SS');
+  else if(fSeason==='fw') r=r.filter(i=>i.season==='FW');
+  if(fH>0) r=r.filter(i=>i.h>=fH);
+  if(fA==="ghost") r=r.filter(i=>i.a>=500);
+  else if(fA==="crit") r=r.filter(i=>i.a>=365&&i.a<500);
+  else if(fA==="fresh") r=r.filter(i=>i.a<90);
+  return r.sort((a,b)=>b.h-a.h||b.a-a.a);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── VIEWS ──
+// ══════════════════════════════════════════════════════════════════════
+function vEmpty(){
+  return `<div style="padding:4rem 2rem;text-align:center">
+    <div style="font-size:56px;margin-bottom:1rem">🦇</div>
+    <div style="font-family:'Playfair Display',serif;font-size:24px;color:var(--bloom);margin-bottom:.75rem">No Listings Loaded</div>
+    <p style="font-size:13px;color:var(--muted);max-width:480px;margin:0 auto 1.5rem;line-height:1.8">
+      Click <strong style="color:var(--bloom)">📂 Load CSV</strong> in the top-right corner<br>
+      or <strong>drag &amp; drop</strong> your Vendoo export anywhere on this page.<br><br>
+      Vendoo columns supported: Title, Description, Brand, Primary Color,<br>
+      Condition, Category, Tags, Sku, Price, <strong>Status</strong>,<br>
+      <strong>Listing Platforms</strong>, Sold Date, Price Sold, Images, Date Listed.<br>
+      <span style="color:var(--ok)">Sold &amp; Draft rows are filtered at import — you choose what loads.</span>
+    </p>
+    <label class="csv-btn" style="display:inline-flex;margin:0 auto;font-size:13px;padding:10px 22px">
+      <span>📂 Load Vendoo CSV</span>
+      <input type="file" accept=".csv,text/csv" onchange="handleFileInput(this)">
+    </label>
+  </div>`;
+}
+
+function vCmd(){
+  if(!D.length) return vEmpty();
+  const cols={};
+  workSet().forEach(i=>{const c=resolveWorld(sv(i.sw)||'16 · Secondhand Rebellion');cols[c]=(cols[c]||0)+1;});
+  const colRows=Object.entries(cols).sort((a,b)=>b[1]-a[1]).map(([n,c])=>
+    "<div style=\"display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--crust)\">"
+    +"<div style=\"font-size:12px;color:var(--ink)\">"+esc(n)+"</div>"
+    +"<span style=\"font-size:20px;font-weight:700;font-family:'Playfair Display';color:var(--bloom)\">"+c+"</span></div>"
+  ).join("");
+  // v5: queue excludes already-relisted items; keyed done tracking; correct D indices
+  const sRank = SEASON_MODE==='FW' ? {FW:0,Shoulder:1,All:2,SS:3} : {SS:0,All:1,Shoulder:2,FW:3};
+  const queue=workSet().filter(i=>!isRel(i)&&(SEASON_MODE==='FW'||i.season!=='FW')).sort((a,b)=>(sRank[a.season]-sRank[b.season])||(b.trends.length?1:0)-(a.trends.length?1:0)||b.h-a.h||b.a-a.a).slice(0,20);
+  const dc=D.filter(i=>qDone.has(i._k)).length;
+  const qRows=queue.map((item)=>{
+    const done=qDone.has(item._k), nt=sv(item.nt), t=sv(item.t), di=item._i;
+    const ht=Array.isArray(item.ht)?item.ht:[], pin=sv(item.pin);
+    return "<tr>"
+      +"<td>"+hBadge(item.h||1)+"</td>"
+      +"<td style=\"max-width:240px\"><div class=\"old\">"+esc(t.substring(0,56))+"</div>"+(nt?"<div class=\"new\">"+esc(nt.substring(0,74))+"</div>":"")+"</td>"
+      +"<td>"+swBadge(sv(item.sw))+"</td>"
+      +"<td style=\"color:"+(item.a>=500?"var(--danger)":item.a>=365?"var(--warn)":"var(--gold)")+";font-size:11px\">"+item.a+"d</td>"
+      +"<td>"+priceH(item.p||0,item.sp||0)+"</td>"
+      +"<td style=\"white-space:nowrap;min-width:130px\">"
+      +(nt?"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+di+"].nt,this,'Copy')\">📋 Copy title</button>":"")
+      +(ht.length?"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+di+"].ht.join(' '),this,'Tags')\">🏷 Tags</button>":"")
+      +(pin?"<a class=\"pin-a\" style=\"margin-bottom:3px\" href=\""+esc(pin)+"\" target=\"_blank\">📌 Pin</a>":"")
+      +"<button class=\"dbtn "+(done?"dn":"")+"\" style=\"display:block;width:100%\" onclick=\"markQ('"+item._k+"',this)\">"+(done?"✓ Done":"→ Relist")+"</button>"
+      +"</td></tr>";
+  }).join("");
+  const tr=qDone.size+manRel.size;
+  return (ZOMBIE_CNT>0?"<div style=\"background:var(--dangerbg);border:2px solid var(--danger);border-radius:11px;padding:.9rem 1.1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center\"><div><strong style=\"color:var(--danger);font-size:14px\">🧟 "+ZOMBIE_CNT+" SOLD ITEMS STILL LIVE ON PLATFORMS</strong><div style=\"font-size:11px;color:var(--danger);margin-top:3px\">Double-sale risk. Delist these before anything else today.</div></div><button class=\"mbtn mbtn-confirm\" style=\"background:var(--danger);border-color:var(--danger)\" onclick=\"document.querySelector('[data-v=zombies]').click()\">Open Delist list →</button></div>":"")
+    +"<div class=\"stat-row\">"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--bloom)\">"+workSet().length+"</div><div class=\"sc-l\">Active (work set)</div><div class=\"sc-s\">"+[...new Set(D.map(i=>i.st))].map(st=>st+" "+D.filter(i=>i.st===st).length).join(" · ")+"</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--danger)\">"+GHOST_CNT+"</div><div class=\"sc-l\">Ghost 500d+</div><div class=\"sc-s\">Delete &amp; relist</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--warn)\">"+CRIT_CNT+"</div><div class=\"sc-l\">Critical 365d+</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--gold)\">"+HERO_CNT+"</div><div class=\"sc-l\">Hero ★★★★+</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--ok)\">"+tr+"</div><div class=\"sc-l\">Relisted Today</div><div class=\"sc-s\"><button onclick=\"resetAll()\" style=\"font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surf);color:var(--muted);cursor:pointer;font-family:IBM Plex Mono\">Reset</button></div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--info)\">"+D.filter(i=>i.nt).length+"</div><div class=\"sc-l\">SEO Titles</div></div>"
+    +"</div>"
+    +"<div class=\"stitle\">Style Worlds in Your Inventory</div>"
+    +"<div style=\"background:var(--surf2);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:1.1rem;box-shadow:var(--sh)\">"+colRows+"</div>"
+    +"<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem\">"
+    +"<div class=\"stitle\" style=\"margin:0\">🔄 Relist Queue — Today&#39;s 20</div>"
+    +"<span style=\"font-size:11px;color:var(--muted)\">"+dc+"/20 done <button onclick=\"resetAll()\" style=\"font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surf);color:var(--muted);cursor:pointer;font-family:IBM Plex Mono;margin-left:6px\">Reset</button></span></div>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>★</th><th>Title → Optimized</th><th>Style World</th><th>Age</th><th>Price</th><th>Action</th></tr></thead><tbody>"+qRows+"</tbody></table></div>";
+}
+
+function vRelist(){
+  if(!D.length) return vEmpty();
+
+  // ── SEASON TOGGLE (persisted in localStorage) ──
+  const showShoulder = localStorage.getItem('fbp_show_shoulder') === '1';
+
+  // ── BUCKET 1: SELL THIS WEEK ──
+  // FW mode: FW + All-season items; SS mode: SS + All-season
+  const sellSeasons = SEASON_MODE==='FW' ? ['FW','All','Shoulder'] : ['SS','All'];
+  const sellNow = workSet()
+    .filter(i => !isRel(i) && sellSeasons.includes(i.season))
+    .sort((a,b) => b.trends.length - a.trends.length || b.h - a.h || (b.p||0) - (a.p||0))
+    .slice(0, 15);
+
+  // ── BUCKET 2: STALE & BLEEDING ──
+  // 90d+ items, SS or All-season, not already in sellNow, sorted oldest first
+  const sellNowKeys = new Set(sellNow.map(i => i._k));
+  const stale = workSet()
+    .filter(i => !isRel(i) && i.a >= 90
+      && (i.season === 'SS' || i.season === 'All' || (showShoulder && i.season === 'Shoulder'))
+      && !sellNowKeys.has(i._k))
+    .sort((a,b) => b.a - a.a || b.h - a.h)
+    .slice(0, 15);
+
+  // ── SHOULDER HELD ──
+  const shoulderHeld = workSet().filter(i => !isRel(i) && i.season === 'Shoulder').length;
+  const fwHeld = workSet().filter(i => !isRel(i) && i.season === 'FW').length;
+  const dc = D.filter(i => qDone.has(i._k)).length;
+
+  function mkRelistRow(item) {
+    const done = qDone.has(item._k), nt = sv(item.nt), t = sv(item.t), di = item._i;
+    const ht = Array.isArray(item.ht) ? item.ht : [], pin = sv(item.pin);
+    const img = sv(item.img);
+    const imgEl = img
+      ? "<img src=\""+esc(img)+"\" style=\"width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;flex-shrink:0\" loading=\"lazy\" onclick=\"openItem("+di+")\" onerror=\"this.style.display='none'\" title=\"Click to view item\">"
+      : "<div style=\"width:52px;height:52px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted);cursor:pointer\" onclick=\"openItem("+di+")\">🦇</div>";
+    const trendBadge = item.trends && item.trends.length
+      ? "<span style=\"font-size:9px;background:var(--goldbg);color:var(--gold);padding:1px 6px;border-radius:8px;margin-left:4px\">🔥 "+esc(item.trends[0])+"</span>"
+      : "";
+    const ageBadge = item.a >= 500
+      ? "<span style=\"font-size:9px;background:var(--dangerbg);color:var(--danger);padding:1px 6px;border-radius:8px;margin-left:4px\">GHOST "+item.a+"d</span>"
+      : item.a >= 365
+      ? "<span style=\"font-size:9px;background:var(--warnbg);color:var(--warn);padding:1px 6px;border-radius:8px;margin-left:4px\">CRITICAL "+item.a+"d</span>"
+      : item.a >= 90
+      ? "<span style=\"font-size:9px;background:var(--goldbg);color:var(--gold);padding:1px 6px;border-radius:8px;margin-left:4px\">STALE "+item.a+"d</span>"
+      : "<span style=\"font-size:9px;color:var(--muted);margin-left:4px\">"+item.a+"d</span>";
+    return "<tr style=\""+(done?"opacity:.5":"")+"\">"
+      +"<td>"+imgEl+"</td>"
+      +"<td>"+hBadge(item.h||1)+"</td>"
+      +"<td style=\"max-width:260px\">"
+        +"<div class=\"old\" style=\"cursor:pointer;font-size:11px\" onclick=\"openItem("+di+")\">"+esc(t.substring(0,70))+"</div>"
+        +(nt?"<div class=\"new\" style=\"font-size:10px\">"+esc(nt.substring(0,90))+"</div>":"")
+        +"<div style=\"margin-top:2px\">"+trendBadge+ageBadge+"</div>"
+      +"</td>"
+      +"<td>"+priceH(item.p||0, item.sp||0)+"</td>"
+      +"<td style=\"white-space:nowrap;min-width:120px\">"
+        +(nt?"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+di+"].nt,this,'📋 Copy')\">📋 Copy title</button>":"")
+        +(ht.length?"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+di+"].ht.join(' '),this,'Tags')\">🏷 13 Tags</button>":"")
+        +(pin?"<a class=\"pin-a\" style=\"display:block;margin-bottom:3px\" href=\""+esc(pin)+"\" target=\"_blank\">📌 Pinterest</a>":"")
+        +"<button class=\"dbtn "+(done?"dn":"")+"\" style=\"display:block;width:100%\" onclick=\"markQ('"+item._k+"',this)\">"+(done?"✓ Done":"→ Relist")+"</button>"
+      +"</td></tr>";
+  }
+
+  const sellRows = sellNow.map(mkRelistRow).join("")
+    || "<tr><td colspan=\"5\" style=\"padding:1rem;color:var(--muted);text-align:center\">No SS/All-season items to relist — everything is done or held.</td></tr>";
+  const staleRows = stale.map(mkRelistRow).join("")
+    || "<tr><td colspan=\"5\" style=\"padding:1rem;color:var(--muted);text-align:center\">No stale items — looking good.</td></tr>";
+
+  const weekLabel = (()=>{ const d=new Date(); return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); })();
+  return "<div style=\"display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem\">"
+    +"<div class=\"stitle\" style=\"margin:0\">🔄 Relist Queue — "+weekLabel+"</div>"
+    +"<div style=\"display:flex;gap:8px;align-items:center;flex-wrap:wrap\">"
+      +"<span style=\"font-size:11px;color:var(--muted)\">"+(dc)+" done today</span>"
+      +"<button onclick=\"resetAll()\" style=\"font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surf);color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono'\">Reset</button>"
+      +"<button onclick=\"localStorage.setItem('fbp_show_shoulder',localStorage.getItem('fbp_show_shoulder')==='1'?'0':'1');render()\" style=\"font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:"+(showShoulder?"var(--goldbg)":"var(--surf)")+";color:"+(showShoulder?"var(--gold)":"var(--muted)")+";cursor:pointer;font-family:'IBM Plex Mono'\">"
+        +(showShoulder?"👕 Hiding shoulder":"👕 Show shoulder ("+shoulderHeld+")")
+      +"</button>"
+    +"</div></div>"
+
+    // Season hold info bar
+    +"<div style=\"background:var(--infobg);border:1px solid rgba(34,72,120,.2);border-radius:9px;padding:.6rem .9rem;margin-bottom:1rem;font-size:11px;color:var(--info);display:flex;gap:1rem;flex-wrap:wrap\">"
+      +(SEASON_MODE==='FW'
+        ?"<span>🍂 <strong>FW26 MODE</strong> — coats, leather, knits are priority</span>"
+         +"<span>☀️ <strong>"+D.filter(i=>i.season==='SS').length+"</strong> summer items — hold til spring unless trending</span>"
+         +"<span>🧙 Halloween peak: relist everything witchy NOW</span>"
+        :"<span>❄️ <strong>"+fwHeld+"</strong> hard winter items held — relist in Aug</span>"
+         +"<span>👕 <strong>"+shoulderHeld+"</strong> shoulder items "+(showShoulder?"shown below":"hidden — toggle above to show")+"</span>"
+         +"<span>☀️ SS/All-season items only shown by default</span>")
+    +"</div>"
+
+    // BUCKET 1
+    +"<div class=\"stitle\" style=\"margin-bottom:.4rem\">🔥 Sell This Week — "+sellNow.length+" items</div>"
+    +"<p style=\"font-size:11px;color:var(--muted);margin-bottom:.7rem\">SS + All-season · sorted by trend momentum then hero score · these have the highest sell-through probability right now.</p>"
+    +"<div class=\"tbl-wrap\" style=\"margin-bottom:1.5rem\"><table class=\"tbl\"><thead><tr><th>Photo</th><th>★</th><th>Title + signals</th><th>Price</th><th>Actions</th></tr></thead><tbody>"+sellRows+"</tbody></table></div>"
+
+    // BUCKET 2
+    +"<div class=\"stitle\" style=\"margin-bottom:.4rem;color:var(--warn)\">⚰️ Stale & Bleeding — "+stale.length+" items 90d+</div>"
+    +"<p style=\"font-size:11px;color:var(--muted);margin-bottom:.7rem\">Sitting 90+ days. Every day these stay live with no relist the algorithm shows them to fewer people. Relist or drop the price. Oldest first.</p>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>Photo</th><th>★</th><th>Title + age</th><th>Price</th><th>Actions</th></tr></thead><tbody>"+staleRows+"</tbody></table></div>";
+}
+
+function vHeroes(){
+  if(!D.length) return vEmpty();
+  const items=workSet().filter(i=>i.h>=4&&(!hideRel||!isRel(i))).sort((a,b)=>b.h-a.h||b.a-a.a);
+  return "<div class=\"stitle\">🦇 Hero Items ★★★★+ — "+items.length+" listings</div>"
+    +"<p style=\"font-size:12px;color:var(--muted);margin-bottom:.85rem\">Highest aesthetic + commercial value. Relist first, reshoot thumbnails, raise prices after.</p>"
+    +"<div class=\"grid\">"+items.map(i=>mkCard(i,i._i)).join("")+"</div>";
+}
+
+function vGhosts(){
+  if(!D.length) return vEmpty();
+  const items=workSet().filter(i=>i.a>=500&&(!hideRel||!isRel(i))).sort((a,b)=>b.a-a.a);
+  return "<div class=\"stitle\">👻 Ghost Listings 500d+ — "+items.length+"</div>"
+    +"<p style=\"font-size:12px;color:var(--danger);font-weight:600;margin-bottom:.85rem\">DO NOT EDIT. DELETE and RELIST entirely. Start with highest ★.</p>"
+    +"<div class=\"grid\">"+items.map(i=>mkCard(i,i._i)).join("")+"</div>";
+}
+
+function vTitles(){
+  if(!D.length) return vEmpty();
+  const items=workSet().filter(i=>i.nt).sort((a,b)=>b.h-a.h||b.a-a.a);
+  const rows=items.map(item=>{
+    const idx=item._i, t=sv(item.t), nt=sv(item.nt);
+    const ht=Array.isArray(item.ht)?item.ht:[], pin=sv(item.pin);
+    return "<tr>"
+      +"<td>"+hBadge(item.h||1)+"</td>"
+      +"<td style=\"max-width:180px;font-size:11px;color:var(--muted)\">"+esc(t.substring(0,60))+"</td>"
+      +"<td style=\"max-width:245px\">"
+      +"<div style=\"font-size:11px;color:var(--bloom);margin-bottom:3px\"><strong style=\"font-size:9px;color:var(--muted)\">ETSY</strong> "+esc(sv(item.ntE))+"</div>"
+      +"<div style=\"font-size:11px;color:var(--rose);margin-bottom:3px\"><strong style=\"font-size:9px;color:var(--muted)\">POSH</strong> "+esc(sv(item.ntP))+"</div>"
+      +"<div style=\"font-size:11px;color:var(--info)\"><strong style=\"font-size:9px;color:var(--muted)\">DEPOP</strong> "+esc(sv(item.ntD))+"</div></td>"
+      +"<td>"+swBadge(sv(item.sw))+"</td>"
+      +"<td>"+caBadge(sv(item.ca))+"</td>"
+      +"<td style=\"font-size:10px;color:var(--gold);max-width:150px\">"+esc(ht.slice(0,4).join(" "))+"</td>"
+      +"<td style=\"color:"+(item.a>=500?"var(--danger)":item.a>=365?"var(--warn)":"var(--gold)")+";font-size:11px\">"+item.a+"d</td>"
+      +"<td style=\"white-space:nowrap\">"
+      +"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+idx+"].ntE,this,'Etsy')\">Etsy</button>"
+      +"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+idx+"].ntP,this,'Posh')\">Posh</button>"
+      +"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+idx+"].ntD,this,'Depop')\">Depop</button>"
+      +(ht.length?"<button class=\"tbtn\" style=\"display:block;width:100%;margin-bottom:3px\" onclick=\"cpText(D["+idx+"].ht.join(' '),this,'Tags')\">13 Tags</button>":"")
+      +(pin?"<a class=\"pin-a\" href=\""+esc(pin)+"\" target=\"_blank\">📌 Pin</a>":"")
+      +"</td></tr>";
+  }).join("");
+  return "<div class=\"stitle\">✍️ SEO Titles — "+items.length+" ready</div>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>★</th><th>Current Title</th><th>✦ Buyer-First Titles (3 platforms)</th><th>Style World</th><th>Core Aesthetic</th><th>Top Tags</th><th>Age</th><th>Copy</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+}
+
+function vPricing(){
+  if(!D.length) return vEmpty();
+  const items=workSet().filter(i=>i.fp).sort((a,b)=>(b.fp.market-b.p)-(a.fp.market-a.p));
+  const upTotal=items.reduce((a,i)=>a+Math.max(0,i.fp.market-(i.p||0)),0);
+  const under=items.filter(i=>i.fp.market>(i.p||0)*1.15).length;
+  const over=items.filter(i=>(i.p||0)>i.fp.market*1.3).length;
+  const rows=items.map(item=>{
+    const p=item.p||0, f=item.fp, d=f.market-p;
+    const col=d>3?"var(--ok)":d<-3?"var(--warn)":"var(--muted)";
+    const plCells=["Etsy","Poshmark","Depop"].map(pl=>{
+      const best=f.best===pl;
+      return "<td style=\"font-size:11px;"+(best?"color:var(--gold);font-weight:700":"color:var(--ink2)")+"\">"+(best?"⭐":"")+"$"+f.per[pl].price+"<div style=\"font-size:9px;color:var(--muted)\">net $"+f.per[pl].net.toFixed(0)+"</div></td>";
+    }).join("");
+    return "<tr>"
+      +"<td>"+hBadge(item.h||1)+(item.trends&&item.trends.length?"<div style=\"font-size:9px;color:var(--gold)\">🔥</div>":"")+"</td>"
+      +"<td style=\"max-width:200px;font-size:11px\">"+esc(sv(item.t).substring(0,55))+"</td>"
+      +"<td style=\"color:var(--muted);font-size:11px\">$"+p.toFixed(0)+"</td>"
+      +"<td style=\"color:"+col+";font-weight:700\">$"+f.market+"<div style=\"font-size:9px;color:"+col+"\">"+(d>=0?"+":"")+"$"+d.toFixed(0)+"</div></td>"
+      +plCells
+      +"<td style=\"font-size:9px;color:var(--info)\">"+esc(compHint(item)||"")+"</td>"
+      +"<td style=\"white-space:nowrap\"><a class=\"pin-a\" href=\""+esc(item.ebayComp)+"\" target=\"_blank\">eBay✓</a> <a class=\"pin-a\" href=\""+esc(item.poshComp)+"\" target=\"_blank\">Posh✓</a></td>"
+      +"</tr>";
+  }).join("");
+  return "<div class=\"stitle\">💰 Forward Pricing — what sells NOW, not what sold then</div>"
+    +"<div class=\"stat-row\">"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--ok)\">$"+upTotal.toFixed(0)+"</div><div class=\"sc-l\">Upside left on the table</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--warn)\">"+under+"</div><div class=\"sc-l\">Underpriced 15%+</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--danger)\">"+over+"</div><div class=\"sc-l\">Overpriced 30%+</div></div>"
+    +"</div>"
+    +"<p style=\"font-size:11px;color:var(--muted);margin-bottom:.8rem\">Market $ = category base × brand tier × era × 🔥trend × condition (June 2026 data: same item ≈ Posh +20% vs Depop; Depop net ~97%, Posh net ~80%, Etsy ~90%). ⭐ = platform where this item NETS the most. Use eBay✓/Posh✓ to sanity-check against live sold comps before big-ticket pricing. Past sold prices appear only as a small reference — they reflect unoptimized listings, not today's demand.</p>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>★</th><th>Item</th><th>Now</th><th>Market</th><th>Etsy</th><th>Posh</th><th>Depop</th><th>Your hist.</th><th>Verify</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+}
+
+const SW_TAGS_MAP = {
+  "Y2K Mall Goth Resurrection":["Y2K Revival","Alternative Fashion","Whimsigoth"],
+  "Velvet Funeral":            ["Soft Goth","Dark Feminine","Romantic Minimalism"],
+  "Rain Witch":                ["Cottagegore","Layered Dressing","Modern Witch"],
+  "Black Poppy Archive":       ["Archive Fashion","Alternative Fashion","Dark Feminine"],
+  "Archive Femme Noir":        ["Archive Fashion","Vintage Editorial","Dark Feminine"],
+  "Laura Ashley Bloom":        ["Cottagegore","Romantic Minimalism","Vintage Editorial"],
+  "Goth Corp":                 ["Office Siren","Monochrome Layering","Dark Feminine"],
+  "Whimsy Goth":               ["Whimsigoth","Y2K Revival","Soft Goth"],
+  "Floral Mourning":           ["Cottagegore","Dark Feminine","Soft Goth"],
+  "Victorian Noir":            ["Archive Fashion","Dark Feminine","Vintage Editorial"],
+  "Haunted Librarian":         ["Dark Academia","Archive Fashion","Vintage Editorial"],
+  "Romantic Witchwear":        ["Modern Witch","Dark Feminine","Soft Goth"],
+  "Glam Crypt":                ["Y2K Revival","Alternative Fashion","Indie Sleaze Revival"],
+  "CBK Ghost Prep":            ["Quiet Luxury","Preppy Noir","90s Minimalist"],
+  "Indie Sleaze After-Hours":  ["Indie Sleaze Revival","Y2K Revival","Alternative Fashion"],
+};
+const SW_DESC_MAP = {
+  "Y2K Mall Goth Resurrection":"PVC, chains, Lip Service, Tripp — peak mall goth energy",
+  "Velvet Funeral":            "Velvet, lace, mesh, dark romantic editorial pieces",
+  "Rain Witch":                "Oversized layers, earth tones, cottagecore-goth crossover",
+  "Black Poppy Archive":       "Core archive — the widest Black Poppy world",
+  "Archive Femme Noir":        "Vintage, deadstock, rare finds, editorial archive",
+  "Laura Ashley Bloom":        "Romantic florals, prairie, soft garden feminine",
+  "Goth Corp":                 "Blazers, pencil skirts, dark office power dressing",
+  "Whimsy Goth":               "Y2K fairy, whimsigoth, soft dark aesthetic",
+  "Floral Mourning":           "Dark florals, gothic garden, mourning romance",
+  "Victorian Noir":            "Corsets, poet sleeves, edwardian dark romance",
+  "Haunted Librarian":         "Tweed, houndstooth, dark academia scholar",
+  "Romantic Witchwear":        "Crystal, moon, celestial, witchy soft pieces",
+  "Glam Crypt":                "Sequins, glitter, glam rock, statement pieces",
+  "CBK Ghost Prep":            "Quiet luxury, minimalist prep, old money calm",
+  "Indie Sleaze After-Hours":  "Tumblr era, party grunge, trash glam, after hours",
+};
+
+function vWorlds(){
+  if(!D.length) return vEmpty();
+  const cnt={};
+  workSet().forEach(i=>{const w=resolveWorld(sv(i.sw)||'16 · Secondhand Rebellion');cnt[w]=(cnt[w]||0)+1;});
+  const cards=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([name,count])=>{
+    const tags=(SW_TAGS_MAP[name]||[]).slice(0,3);
+    return "<div class=\"sw-card\" onclick=\"drillSW('"+esc(name)+"')\">"
+      +"<div class=\"sw-name\">"+esc(name)+"</div>"
+      +"<div style=\"font-size:10px;color:var(--muted);margin-bottom:5px\">"+esc(SW_DESC_MAP[name]||"")+"</div>"
+      +"<div class=\"sw-ct\">"+count+" <span style=\"font-size:11px;color:var(--muted)\">items</span></div>"
+      +"<div class=\"sw-tags\">"+tags.map(t=>"<span class=\"sw-tag\">"+esc(t)+"</span>").join("")+"</div></div>";
+  }).join("");
+  return "<div class=\"stitle\">🌍 Style Worlds — "+Object.keys(cnt).length+" active</div>"
+    +"<p style=\"font-size:12px;color:var(--muted);margin-bottom:.85rem\">Click any world to filter and relist.</p>"
+    +"<div class=\"sw-grid\">"+cards+"</div>";
+}
+
+function vAesthetics(){
+  if(!D.length) return vEmpty();
+  const CA_DESC_MAP = {
+    "Archivecore":"Vintage archive energy. Every piece has provenance.",
+    "Garden Witch Core":"Earth, moss, storms, layered earth-witch clothing.",
+    "Romantic Goth":"Dark lace, velvet — beautifully macabre femininity.",
+    "Mall Goth Revival":"90s-Y2K goth mall brand chaos. Nostalgia + edge.",
+    "Grandmacore Noir":"Floral heirloom pieces gone slightly dark.",
+    "Corpcore":"Dark structured officewear. Blazer as armour.",
+    "Whimsigoth Core":"Soft, whimsical goth. Y2K fairy dark energy.",
+    "Cottagegore":"Cottagecore but make it ominous.",
+    "Gothcore":"Pure gothic aesthetic. Black, dramatic, intentional.",
+    "Heirloom Goth":"Victorian pieces with dark romantic patina.",
+    "Minimal Witch Core":"Editorial minimalism with witchy undercurrent.",
+    "Preppy Noir":"CBK quiet luxury meets dark prep energy.",
+    "Dark Academia Core":"Scholar-witch aesthetic. Tweed and shadows.",
+    "Soft Utility Core":"Functional, layered, practical with an edge.",
+    "Rocker Femme Core":"Glam rock, sequins, smudged eye energy.",
+    "Indie Sleaze Core":"2010s tumblr-era party grunge revival.",
+  };
+  const cnt={};
+  workSet().forEach(i=>{const c=sv(i.ca)||"Archivecore";cnt[c]=(cnt[c]||0)+1;});
+  const html=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([name,count])=>{
+    const imgs=D.filter(i=>sv(i.ca)===name).slice(0,3).map(i=>
+      i.img?"<img src=\""+esc(i.img)+"\" style=\"width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border)\" loading=\"lazy\" onerror=\"this.style.display='none'\">  "
+           :"<div style=\"width:50px;height:50px;border-radius:6px;background:var(--crust);display:flex;align-items:center;justify-content:center;font-size:18px\">🦇</div>"
+    ).join("");
+    return "<div style=\"background:var(--surf2);border:1px solid var(--border);border-radius:11px;padding:.9rem;cursor:pointer;box-shadow:var(--sh);transition:border-color .17s\" onmouseover=\"this.style.borderColor='var(--bloom)'\" onmouseout=\"this.style.borderColor='var(--border)'\" onclick=\"drillCA('"+esc(name)+"')\">"
+      +"<div style=\"display:flex;gap:10px;align-items:flex-start\">"
+      +"<div style=\"flex:1\"><div style=\"font-family:'Playfair Display',serif;font-size:14px;color:var(--ink);margin-bottom:3px\">"+esc(name)+"</div>"
+      +"<div style=\"font-size:11px;color:var(--muted);margin-bottom:6px\">"+esc(CA_DESC_MAP[name]||"")+"</div>"
+      +"<div style=\"font-size:22px;font-weight:700;font-family:'Playfair Display',serif;color:var(--bloom)\">"+count+" <span style=\"font-size:11px;color:var(--muted)\">listings</span></div></div>"
+      +"<div style=\"display:flex;gap:4px\">"+imgs+"</div></div></div>";
+  }).join("");
+  return "<div class=\"stitle\">🎨 Core Aesthetics — "+Object.keys(cnt).length+" active</div>"
+    +"<div style=\"display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:12px\">"+html+"</div>";
+}
+
+function vStrategy(){
+  return "<div class=\"stitle\">🗺️ Resurrection Strategy</div>"
+    +"<div class=\"sgrid\">"
+    +"<div class=\"scard\"><div class=\"scard-t\">👻 Ghost Protocol</div><div class=\"scard-b\"><strong style=\"color:var(--danger)\">"+GHOST_CNT+" listings are algorithm-dead.</strong><br><br><ul><li>NEVER edit ghost listings</li><li>DELETE → RELIST entirely</li><li>New relist = fresh algorithm signal</li><li>15–20 relists/day, hero first</li><li>Copy SEO title + 13 hashtags on relist</li></ul></div></div>"
+    +"<div class=\"scard\"><div class=\"scard-t\">💰 Price Reanimation</div><div class=\"scard-b\"><ul><li><strong>0–90d:</strong> Hold or raise heroes +15%</li><li><strong>91–365d:</strong> Drop 10%</li><li><strong>365–500d:</strong> Drop 15% + offer likers</li><li><strong>500d+:</strong> Relist at −20%</li></ul></div></div>"
+    +"<div class=\"scard\"><div class=\"scard-t\">✍️ SEO Title Formula</div><div class=\"scard-b\"><strong>[Title] | [Core Aesthetic] [Tag1] [Tag2]</strong><br><br>Auto-generated from your CSV. Copy from any card or the SEO Titles tab.</div></div>"
+    +"<div class=\"scard\"><div class=\"scard-t\">📌 Pinterest by Style World</div><div class=\"scard-b\">Every listing has a <strong>Pinterest search link</strong> for its exact Style World + Core Aesthetic.</div></div>"
+    +"<div class=\"scard\"><div class=\"scard-t\">🏷 13 Hashtag Strategy</div><div class=\"scard-b\">5 Style World tags + 1 Core Aesthetic + 2 Category + 1 Brand + 4 Circular Fashion.<br><br>Auto-generated on import. Copy and paste into Depop, Instagram, TikTok.</div></div>"
+    +"<div class=\"scard\"><div class=\"scard-t\">📂 CSV Import</div><div class=\"scard-b\">Click <strong>📂 Load CSV</strong> anytime to refresh with a new Vendoo export. Drag &amp; drop works too.<br><br><strong>v5:</strong> Sold + Draft rows filter out at import (toggle in the preview). Duplicates dedupe by SKU. Relist progress is keyed to each item — it survives re-imports correctly.</div></div>"
+    +"</div>"
+    +"<div class=\"stitle\">📅 FW26 — 30-Day Playbook</div>"
+    +"<div class=\"wgrid\">"
+    +"<div class=\"wcard\"><div class=\"wnum\">Week 1</div><div class=\"wtitle\">FW Pivot</div><div class=\"wsteps\"><ul><li>Load fresh Vendoo CSV</li><li>Relist all coats, leather, velvet first</li><li>Delete 500d+ ghosts — no edits</li><li>Copy FW26 SEO titles + hashtags</li></ul></div></div>"
+    +"<div class=\"wcard\"><div class=\"wnum\">Week 2</div><div class=\"wtitle\">Halloween Push</div><div class=\"wsteps\"><ul><li>All witchy pieces → front of queue</li><li>Gothic Academia layer looks for Depop</li><li>Reshoot top 20 hero thumbnails</li><li>Pin all Dark Cottagecore to Pinterest</li></ul></div></div>"
+    +"<div class=\"wcard\"><div class=\"wnum\">Week 3</div><div class=\"wtitle\">Coat Season Launch</div><div class=\"wsteps\"><ul><li>Leather + moto → Poshmark boost</li><li>Velvet Funeral → Etsy featured section</li><li>Send offers to likers on 90d+ items</li><li>Gothic Academia → Depop editorial</li></ul></div></div>"
+    +"<div class=\"wcard\"><div class=\"wnum\">Week 4</div><div class=\"wtitle\">FW Monetize</div><div class=\"wsteps\"><ul><li>Raise hero prices post-relist</li><li>Mob Wife FW: highest price test</li><li>Poshmark closet clear event</li><li>Reload CSV — track FW progress</li></ul></div></div>"
+    +"</div>";
+}
+
+function vAll(){
+  if(!D.length) return vEmpty();
+  const filtered=getFiltered();
+  const catOpts="<option value=\"all\">All Categories ("+(fCat==="all"?D.length:D.filter(i=>sv(i.cat)===fCat).length)+")</option>"
+    +[...new Set(D.map(i=>sv(i.cat)).filter(Boolean))].sort().map(c=>"<option value=\""+esc(c)+"\" "+(fCat===c?"selected":"")+">"+esc(c)+" ("+D.filter(i=>sv(i.cat)===c).length+")</option>").join("");
+  const swChips=[["all","All ("+D.length+")"],...ALL_SWS_L.map(v=>[v,(v.length>20?v.substring(0,18)+"…":v)+" ("+D.filter(i=>sv(i.sw)===v).length+")"])];
+  const caChips=[["all","All ("+D.length+")"],...ALL_CAS_L.map(v=>[v,v+" ("+D.filter(i=>sv(i.ca)===v).length+")"])];
+  const gridHtml=filtered.slice(0,vis).map(i=>mkCard(i,i._i)).join("")
+    ||"<div style=\"padding:2rem;color:var(--muted);text-align:center;grid-column:1/-1\">No listings match.</div>";
+  const moreHtml=filtered.length>vis?"<button class=\"load-more\" onclick=\"vis+=60;reGrid()\">Load more ("+(filtered.length-vis)+" remaining)</button>":"";
+  return "<div class=\"stitle\">📦 All Listings"+(fTrend!=='all'?" — 🔥 "+esc(fTrend)+" <span style=\"font-size:11px;cursor:pointer;color:var(--bloom)\" onclick=\"fTrend='all';vis=60;render()\">✕ clear</span>":"")+"</div>"
+    +"<div class=\"batch-bar" + (selectedItems.size>0?" show":"") + "\" id=\"batchBar\">"
+    +"<span class=\"batch-cnt\" id=\"batchCnt\">"+selectedItems.size+" selected</span>"
+    +"<button class=\"mbtn mbtn-confirm\" style=\"font-size:11px;padding:5px 12px\" onclick=\"batchCopyTitles()\">📋 Copy all SEO titles</button>"
+    +"<button class=\"mbtn\" style=\"font-size:11px;padding:5px 12px;border-color:var(--gold);background:var(--goldbg);color:var(--gold)\" onclick=\"batchCopyHashtags()\">🏷 Copy all hashtags</button>"
+    +"<button class=\"mbtn mbtn-cancel\" style=\"font-size:11px;padding:5px 12px\" onclick=\"selectAll(getFiltered().slice(0,vis))\">Select visible</button>"
+    +"<button class=\"mbtn mbtn-cancel\" style=\"font-size:11px;padding:5px 12px\" onclick=\"clearSelect();reGrid()\">✕ Clear</button>"
+    +"</div>"
+    +"<div class=\"fbar\">"
+    +"<input class=\"fi\" placeholder=\"Search title, brand, world, aesthetic, category…\" value=\""+esc(fQ)+"\" oninput=\"fQ=this.value;vis=60;reGrid()\">"
+    +"<select class=\"fs\" onchange=\"fH=+this.value;vis=60;reGrid()\"><option value=\"0\">All hero scores</option><option value=\"3\" "+(fH===3?"selected":"")+">★★★+</option><option value=\"4\" "+(fH===4?"selected":"")+">★★★★+</option><option value=\"5\" "+(fH===5?"selected":"")+">★★★★★ only</option></select>"
+    +"<select class=\"fs\" onchange=\"fA=this.value;vis=60;reGrid()\"><option value=\"all\">All ages</option><option value=\"fresh\" "+(fA==="fresh"?"selected":"")+">Fresh 0–90d</option><option value=\"crit\" "+(fA==="crit"?"selected":"")+">Critical 365–499d</option><option value=\"ghost\" "+(fA==="ghost"?"selected":"")+">Ghost 500d+</option></select>"
+    +"<select class=\"fs\" onchange=\"fCat=this.value;vis=60;reGrid()\">"+catOpts+"</select>"
+    +"<select class=\"fs\" onchange=\"fPl=this.value;vis=60;reGrid()\">"
+      +"<option value=\"all\">All platforms</option>"
+      +["Etsy","Poshmark","Depop","Mercari","eBay"].map(pn=>"<option value=\""+pn+"\" "+(fPl===pn?"selected":"")+">"+pn+" ("+D.filter(i=>sv(i.pl).toLowerCase().includes(pn.toLowerCase())).length+")</option>").join("")
+      +"<option value=\"__not_etsy\" "+(fPl==="__not_etsy"?"selected":"")+">⚠ NOT on Etsy ("+D.filter(i=>!sv(i.pl).toLowerCase().includes("etsy")).length+")</option>"
+    +"</select>"
+    +(hasMixedStatus()?"<select class=\"fs\" onchange=\"fSt=this.value;vis=60;reGrid()\">"
+      +"<option value=\"all\">All statuses</option>"
+      +["Active","Draft","Sold"].map(st=>"<option value=\""+st+"\" "+(fSt===st?"selected":"")+">"+st+" ("+D.filter(i=>i.st===st).length+")</option>").join("")
+    +"</select>":"")
+    +"<select class=\"fs\" onchange=\"fSeason=this.value;vis=60;reGrid()\">"
+      +(SEASON_MODE==='FW'
+      ?"<option value=\"fw\" "+(fSeason==='fw'?"selected":"")+">❄ FW26 season (hide summer)</option>"
+       +"<option value=\"all_season\" "+(fSeason==='all_season'?"selected":"")+">All seasons</option>"
+       +"<option value=\"ss_now\" "+(fSeason==='ss_now'?"selected":"")+">☀ SS holds ("+workSet().filter(i=>i.season==='SS').length+")</option>"
+       +"<option value=\"ss_only\" "+(fSeason==='ss_only'?"selected":"")+">☀ Pure summer only</option>"
+      :"<option value=\"ss_now\" "+(fSeason==='ss_now'?"selected":"")+">☀ SS26 season (hide winter)</option>"
+       +"<option value=\"ss_only\" "+(fSeason==='ss_only'?"selected":"")+">☀ Pure summer only</option>"
+       +"<option value=\"fw\" "+(fSeason==='fw'?"selected":"")+">❄ Winter holds ("+workSet().filter(i=>i.season==='FW').length+")</option>"
+       +"<option value=\"all_season\" "+(fSeason==='all_season'?"selected":"")+">All seasons</option>"
+    )
+    +"</select>"
+    +"<label style=\"font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap\"><input type=\"checkbox\" "+(hideRel?"checked":"")+" onchange=\"hideRel=this.checked;vis=60;reGrid()\"> Hide relisted ("+D.filter(isRel).length+")</label>"
+    +"<span class=\"fcnt\" id=\"fcnt\">"+filtered.length+" results</span></div>"
+    +"<div style=\"font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.07em;text-transform:uppercase\">Style World</div>"
+    +"<div class=\"chip-row\">"+swChips.map(([v,l])=>"<span class=\"chip "+(fSW===v?"on":"")+"\" onclick=\"setSW('"+esc(v)+"')\">"+esc(l)+"</span>").join("")+"</div>"
+    +"<div style=\"font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.07em;text-transform:uppercase\">Core Aesthetic</div>"
+    +"<div class=\"chip-row\">"+caChips.map(([v,l])=>"<span class=\"chip "+(fCA===v?"on":"")+"\" onclick=\"setCA('"+esc(v)+"')\">"+esc(l)+"</span>").join("")+"</div>"
+    +"<div class=\"grid\" id=\"grid\">"+gridHtml+"</div>"
+    +"<div id=\"more\">"+moreHtml+"</div>";
+}
+
+function hasMixedStatus(){ return new Set(D.map(i=>i.st)).size > 1; }
+
+// ══════════════════════════════════════════════════════════════════════
+// ── 💰 FORWARD PRICING ENGINE (v11) ──
+// Prices what WILL sell, not what DID sell. Market-researched June 2026.
+// Price = CategoryBase × BrandTier × Era × Trend × Condition → per-platform
+// Platform spread per 2026 market data: same vintage jacket ≈
+//   $55 Posh / $45 Depop / $40 Mercari (Posh +20% vs Depop baseline)
+// Fees (2026): Depop 3.3%+$0.45 · eBay ~13.25% · Posh 20% · Etsy ~9.5%
+// ══════════════════════════════════════════════════════════════════════
+const PRICE_BASE = {  // vintage mid-tier market bases, June 2026
+  'slip dress':45,'maxi dress':45,'babydoll dress':42,'mini dress':38,'sundress':36,'dress':38,
+  'corset top':42,'bodysuit':28,'crop top':26,'tank top':22,'tube top':24,'blouse':26,'top':24,
+  'tee':20,'t-shirt':20,'shirt':24,'camisole':22,'cami':22,
+  'sweater':32,'cardigan':30,'sweatshirt':28,'hoodie':30,
+  'blazer':38,'moto jacket':75,'leather jacket':75,'bomber jacket':48,'denim jacket':45,'windbreaker':38,'jacket':45,'coat':55,'vest':30,
+  'jeans':42,'cargo pants':38,'pants':32,'trousers':32,'leggings':22,'denim shorts':28,'shorts':26,
+  'maxi skirt':36,'midi skirt':32,'mini skirt':30,'skirt':30,
+  'jumpsuit':40,'romper':32,'overalls':42,'swimsuit':26,'bikini':24,'kimono':34,
+  'western boots':62,'boots':52,'heels':35,'sandals':28,'sneakers':40,
+  'satchel':48,'hobo bag':48,'shoulder bag':44,'crossbody':40,'tote':38,'handbag':45,'purse':42,'bag':40,
+  'necklace':22,'earrings':18,'bracelet':18,'ring':20,'belt':22,'scarf':18,'hat':24,
+  'bra':18,'slip':24,'nightgown':30,'robe':32,
+};
+const BRAND_TIERS = [
+  [2.8, ['jean paul gaultier','gaultier','vivienne westwood','moschino','versace','dior','chanel','betsey johnson archive','dolce']],
+  [1.55,['free people','coach','dooney','kate spade','betsey johnson','anthropologie','ralph lauren','tommy hilfiger','levi','dr. martens','dr martens','lip service','tripp','harley','pendleton','laura ashley','jessica mcclintock','gunne sax']],
+  [1.0, ['express','gap','loft','banana republic','j crew','j. crew','nine west','limited','talbots','chico']],
+  [0.75,['forever 21','h&m','shein','old navy','mossimo','no boundaries','wild fable']],
+];
+function brandTier(b){
+  const bl=sv(b).toLowerCase();
+  if(!bl||['unknown','dont know','n/a','none'].includes(bl)) return 0.95;
+  for(const[mult,names]of BRAND_TIERS){ if(names.some(n=>bl.includes(n))) return mult; }
+  return 1.0;
+}
+const PLATFORM_ADJ = { Etsy:1.15, Poshmark:1.10, Depop:0.95, Mercari:0.90, eBay:1.0 };  // vs market base
+const PLATFORM_FEE = {  // June 2026 structures
+  Etsy:p=>p*0.095+0.45, Poshmark:p=>p>15?p*0.20:2.95, Depop:p=>p*0.033+0.45,
+  Mercari:p=>p*0.10+0.50, eBay:p=>p*0.1325+0.30,
+};
+function nice(p){ if(p<15)return Math.max(12,Math.round(p)); const r=Math.round(p); return (r%10<=4? Math.floor(r/10)*10+ (r%10<=2? -1:4) : Math.floor(r/10)*10+9) || r; }
+function forwardPrice(item){
+  const x = extractBuckets(item);
+  const itemKw = x.item.toLowerCase();
+  let base = PRICE_BASE[itemKw];
+  if(base===undefined){ for(const k in PRICE_BASE){ if(itemKw.includes(k)||k.includes(itemKw)){ base=PRICE_BASE[k]; break; } } }
+  if(base===undefined) base = 28;
+  const bt = brandTier(item.b);
+  const era = (x.era==='Y2K'||x.era==='Vintage 90s'||x.era==='80s')?1.2:(x.era?1.1:1.0);
+  const tr = (item.trends||[]).length>=2?1.25:(item.trends||[]).length===1?1.15:1.0;
+  const ctxt = sv(item.cond).toLowerCase();
+  const cf = /nwt|new with/.test(ctxt)?1.25:/nwot|new without|excellent|like new/.test(ctxt)?1.1:/fair|distress|flaw|damage/.test(ctxt)?0.9:1.0;
+  const swn=resolveWorld(sv(item.sw)||'16 · Secondhand Rebellion'); const swPm=STYLE_WORLDS[swn]?.pm||1.0; const market = +(base*bt*era*tr*cf*swPm).toFixed(2);
+  const per = {};
+  for(const pl in PLATFORM_ADJ){
+    const price = nice(market*PLATFORM_ADJ[pl]);
+    per[pl] = { price, net:+(price-PLATFORM_FEE[pl](price)).toFixed(2) };
+  }
+  let best='Depop'; for(const pl of ['Etsy','Poshmark','eBay','Mercari']) if(per[pl].net>per[best].net) best=pl;
+  return { market:nice(market), per, best, factors:{base,bt,era,tr,cf} };
+}
+
+// ── v7 INTERNAL COMPS ── real comps from YOUR sold history
+let COMP_CAT={}, COMP_BRAND={};
+function median(arr){ if(!arr.length) return 0; const a=[...arr].sort((x,y)=>x-y); const m=Math.floor(a.length/2); return a.length%2?a[m]:(a[m-1]+a[m])/2; }
+function buildComps(){
+  COMP_CAT={}; COMP_BRAND={};
+  const sold = D.filter(i=>i.st==='Sold'&&i.psold>0);
+  const byCat={}, byBrand={};
+  sold.forEach(i=>{
+    const c=sv(i.cat); if(c){(byCat[c]=byCat[c]||[]).push(i.psold);}
+    const b=sv(i.b).toLowerCase(); if(b&&!['unknown','dont know','n/a'].includes(b)){(byBrand[b]=byBrand[b]||[]).push(i.psold);}
+  });
+  for(const c in byCat) COMP_CAT[c]={med:median(byCat[c]),n:byCat[c].length};
+  for(const b in byBrand) COMP_BRAND[b]={med:median(byBrand[b]),n:byBrand[b].length};
+}
+function compHint(item){
+  const c=COMP_CAT[sv(item.cat)], b=COMP_BRAND[sv(item.b).toLowerCase()];
+  const parts=[];
+  if(b&&b.n>=2) parts.push("brand med $"+b.med.toFixed(0)+" ("+b.n+" sold)");
+  if(c&&c.n>=2) parts.push("cat med $"+c.med.toFixed(0)+" ("+c.n+" sold)");
+  return parts.join(" · ");
+}
+
+// ── v6 HARD GUARD ── Sold/Draft items can NEVER enter work views,
+// even if imported. Work = Active only. Period.
+function workSet(){ return D.filter(i=>i.st==='Active'); }
+function soldSet(){ return D.filter(i=>i.st==='Sold'); }
+function draftSet(){ return D.filter(i=>i.st==='Draft'); }
+
+function reGrid(){
+  const items=getFiltered();
+  const el=document.getElementById("grid"), cnt=document.getElementById("fcnt"), mw=document.getElementById("more");
+  if(el) el.innerHTML=items.slice(0,vis).map(i=>mkCard(i,i._i)).join("")||"<div style=\"padding:2rem;color:var(--muted);text-align:center;grid-column:1/-1\">No listings match.</div>";
+  if(cnt) cnt.textContent=items.length+" results";
+  if(mw) mw.innerHTML=items.length>vis?"<button class=\"load-more\" onclick=\"vis+=60;reGrid()\">Load more ("+(items.length-vis)+" remaining)</button>":"";
+  updateBatchBar();
+}
+
+function drillSW(n){fSW=n;fCA="all";fCat="all";curView="all";vis=60;document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));document.querySelector("[data-v=\"all\"]").classList.add("on");render();}
+function drillCA(n){fCA=n;fSW="all";fCat="all";curView="all";vis=60;document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));document.querySelector("[data-v=\"all\"]").classList.add("on");render();}
+function setSW(v){fSW=v;vis=60;reGrid();}
+function setCA(v){fCA=v;vis=60;reGrid();}
+
+function vSold(){
+  const items=soldSet().sort((a,b)=>sv(b.solddate).localeCompare(sv(a.solddate)));
+  if(!items.length) return "<div style=\"padding:3rem;text-align:center;color:var(--muted)\">No sold items in this import.<br>Re-import your CSV with the <strong>💰 Sold</strong> box checked to see sold analytics here.<br><br><span style=\"color:var(--ok)\">Sold items NEVER appear in relist queues — this view is analytics only.</span></div>";
+  const rev=items.reduce((a,i)=>a+i.psold,0);
+  const cogs=items.reduce((a,i)=>a+i.cogs,0);
+  const fees=items.reduce((a,i)=>a+i.fees,0)+items.reduce((a,i)=>a+i.shipx,0);
+  const profit=items.reduce((a,i)=>a+i.profit,0);
+  const byPl={};items.forEach(i=>{const pl=sv(i.soldpl)||sv(i.pl).split(",")[0].trim()||"Unknown";byPl[pl]=(byPl[pl]||{n:0,rev:0});byPl[pl].n++;byPl[pl].rev+=i.psold;});
+  const plRows=Object.entries(byPl).sort((a,b)=>b[1].rev-a[1].rev).map(([pl,d])=>
+    "<div style=\"display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--crust)\"><span style=\"font-size:12px\">"+esc(pl)+" · "+d.n+" sales</span><span style=\"font-weight:700;color:var(--ok)\">$"+d.rev.toFixed(2)+"</span></div>").join("");
+  const rows=items.slice(0,200).map(i=>"<tr>"
+    +"<td style=\"max-width:240px;font-size:11px\">"+esc(sv(i.t).substring(0,55))+"</td>"
+    +"<td style=\"font-size:11px;color:var(--muted)\">"+esc(sv(i.soldpl)||"—")+"</td>"
+    +"<td style=\"font-size:11px\">"+esc(sv(i.solddate))+"</td>"
+    +"<td style=\"color:var(--ok)\">$"+i.psold.toFixed(2)+"</td>"
+    +"<td style=\"font-size:11px;color:var(--muted)\">$"+i.cogs.toFixed(2)+"</td>"
+    +"<td style=\"color:"+(i.profit>=0?"var(--ok)":"var(--danger)")+";font-weight:700\">$"+i.profit.toFixed(2)+"</td>"
+    +"</tr>").join("");
+  return "<div class=\"stitle\">💰 Sold Analytics — "+items.length+" sales (read-only)</div>"
+    +"<div class=\"stat-row\">"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--ok)\">$"+rev.toFixed(0)+"</div><div class=\"sc-l\">Revenue</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\">$"+cogs.toFixed(0)+"</div><div class=\"sc-l\">COGS</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--warn)\">$"+fees.toFixed(0)+"</div><div class=\"sc-l\">Fees + Ship</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:"+(profit>=0?"var(--ok)":"var(--danger)")+"\">$"+profit.toFixed(0)+"</div><div class=\"sc-l\">Net Profit</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\">$"+(items.length?(rev/items.length).toFixed(0):0)+"</div><div class=\"sc-l\">Avg Sale</div></div>"
+    +"</div>"
+    +"<div class=\"stitle\">By Platform</div><div style=\"background:var(--surf2);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:1.1rem\">"+plRows+"</div>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>Title</th><th>Platform</th><th>Date</th><th>Sold</th><th>COGS</th><th>Profit</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+}
+
+function vDrafts(){
+  const items=draftSet();
+  if(!items.length) return "<div style=\"padding:3rem;text-align:center;color:var(--muted)\">No drafts in this import.<br>Re-import with the <strong>📝 Drafts</strong> box checked to triage them here.</div>";
+  const ready=items.filter(i=>i.t&&i.img&&i.p>0);
+  const shells=items.filter(i=>!i.t||(!i.img&&!(i.p>0)));
+  const partial=items.length-ready.length-shells.length;
+  const rows=items.slice(0,300).map(i=>{
+    const state=i.t&&i.img&&i.p>0?"<span style=\"color:var(--ok)\">✅ Ready to publish</span>":(!i.t?"<span style=\"color:var(--danger)\">🗑 Blank shell — delete</span>":"<span style=\"color:var(--warn)\">⚠ Incomplete</span>");
+    const img=sv(i.img);
+    const imgEl=img
+      ?"<img src=\""+esc(img)+"\" style=\"width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:pointer\" loading=\"lazy\" onclick=\"openItem("+i._i+")\" onerror=\"this.style.display='none'\">"
+      :"<div style=\"width:40px;height:40px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted)\">🦇</div>";
+    return "<tr><td>"+imgEl+"</td><td style=\"max-width:240px;font-size:11px;cursor:pointer\" onclick=\"openItem("+i._i+")\">"+esc(sv(i.t).substring(0,60)||"(no title)")+"</td>"
+      +"<td style=\"font-size:11px\">"+(i.p>0?"$"+i.p.toFixed(2):"—")+"</td>"
+      +"<td>"+state+"</td>"
+      +"<td style=\"font-size:11px;color:var(--bloom)\">"+esc(sv(i.nt).substring(0,60))+"</td></tr>";
+  }).join("");
+  return "<div class=\"stitle\">📝 Draft Triage — "+items.length+" drafts</div>"
+    +"<div class=\"stat-row\">"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--ok)\">"+ready.length+"</div><div class=\"sc-l\">Ready to publish</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--warn)\">"+partial+"</div><div class=\"sc-l\">Incomplete</div></div>"
+    +"<div class=\"sc\"><div class=\"sc-v\" style=\"color:var(--danger)\">"+shells.length+"</div><div class=\"sc-l\">Blank shells — delete</div></div>"
+    +"</div>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>Photo</th><th>Title</th><th>Price</th><th>State</th><th>SEO Title</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+}
+
+function vZombies(){
+  const items=D.filter(i=>i._zombie);
+  if(!items.length) return "<div style=\"padding:3rem;text-align:center;color:var(--muted)\">🧟 No zombies detected.<br>A zombie = an item with BOTH an Active row and a Sold row in your Vendoo export —<br>meaning it <strong>already sold but is still live on platforms</strong>. Selling it twice = refunds + account dings.</div>";
+  const rows=items.map(i=>{
+    const img=sv(i.img);
+    const imgEl=img
+      ?"<img src=\""+esc(img)+"\" style=\"width:40px;height:40px;object-fit:cover;border-radius:6px;border:2px solid var(--danger);cursor:pointer\" loading=\"lazy\" onclick=\"openItem("+i._i+")\" onerror=\"this.style.display='none'\">"
+      :"<div style=\"width:40px;height:40px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px\">🧟</div>";
+    return "<tr>"
+      +"<td>"+imgEl+"</td>"
+      +"<td style=\"max-width:260px;font-size:11px;font-weight:600;cursor:pointer\" onclick=\"openItem("+i._i+")\">"+esc(sv(i.t).substring(0,65))+"</td>"
+      +"<td style=\"font-size:11px\">"+esc(sv(i.pl)||"—")+"</td>"
+      +"<td style=\"font-size:11px;color:var(--ok)\">"+(i.psold>0?"$"+i.psold.toFixed(2):"sold")+" "+esc(sv(i.solddate))+"</td>"
+      +"<td style=\"font-size:11px;color:var(--muted)\">"+esc(sv(i.soldpl)||"?")+"</td>"
+      +"<td><button class=\"dbtn "+(isRel(i)?"dn":"")+"\" onclick=\"markQ('"+i._k+"',this)\">"+(isRel(i)?"✓ Delisted":"→ Mark delisted")+"</button></td></tr>";
+  }).join("");
+  return "<div class=\"stitle\" style=\"color:var(--danger)\">🧟 DELIST NOW — "+items.length+" sold items still live on platforms</div>"
+    +"<p style=\"font-size:12px;color:var(--danger);font-weight:600;margin-bottom:.85rem\">These have a Sold record in Vendoo but an Active twin is still listed. Pull them off every platform TODAY — a double-sale means a forced refund and a platform strike.</p>"
+    +"<div class=\"tbl-wrap\"><table class=\"tbl\"><thead><tr><th>Photo</th><th>Item</th><th>Still live on</th><th>Sold for / date</th><th>Sold via</th><th>Done</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── 🪄 LISTING WIZARD ── ported from FBP Command Center v10 / SS26 generator
+// Etsy · Poshmark · Depop · Shopify, brand-voice descriptions, SS26 keywords
+// ══════════════════════════════════════════════════════════════════════
+const WZ_COND = {
+  "New With Tags":"Brand new with tags — never worn, perfectly pristine. Your gain, someone else's impulse buy.",
+  "New Without Tags":"New without tags — unworn and in perfect condition. Ready to make its debut in your closet.",
+  "Excellent":"In excellent condition — minimal to no signs of wear. Practically lives in a glass case.",
+  "Lovingly Worn — Great":"Lovingly worn and in great condition — this piece has been cared for. Lots of life left.",
+  "Lovingly Worn — Good":"Lovingly worn and in good condition — normal vintage character, no damage worth noting.",
+  "Lovingly Worn Vintage":"True lovingly worn vintage — character and patina are part of the story. That's the beauty.",
+  "Distressed":"Intentionally or naturally distressed — the wear IS the vibe. Perfectly imperfect.",
+};
+const WZ_COLOR = {tan:"Camel",beige:"Sand",brown:"Cocoa",gray:"Charcoal",grey:"Charcoal",white:"Ivory",cream:"Porcelain",red:"Crimson",pink:"Blush","hot pink":"Fuchsia",purple:"Plum",lavender:"Lilac",green:"Sage",olive:"Moss",blue:"Cobalt",teal:"Patina Blue",yellow:"Butter Yellow",black:"Noir",silver:"Sterling",gold:"Champagne Gold"};
+const wzUp = c => c ? (WZ_COLOR[c.toLowerCase()]||c) : c;
+
+function wizardGen(){
+  const g=id=>document.getElementById(id).value.trim();
+  const sw=g('wzSW'), brand=g('wzBrand'), item=g('wzItem'), color=wzUp(g('wzColor')), size=g('wzSize'), cond=document.getElementById('wzCond').value, feat=g('wzFeat');
+  if(!item){ toastMsg('Item type is required'); return; }
+  const ca=(HT_MAP[sw]?sw:'Black Poppy Archive');
+  const trend=trendKw(ca);
+  const condTag=cond==="New With Tags"?"NWT":cond==="New Without Tags"?"NWOT":"";
+  const condTxt=WZ_COND[cond]||"";
+  const b=brand&&!['unknown','n/a'].includes(brand.toLowerCase())?brand:"";
+  const f1=feat.split(',')[0]?feat.split(',')[0].trim():'';
+  const ht=(STYLE_WORLDS[ca]?.ht||HT_MAP[ca]||[]).slice(0,5).concat(['#'+trend.replace(/\s/g,''),'#Summer2026','#CircularFashion','#ThriftedFashion','#SustainableFashion',b?'#'+b.replace(/[^a-zA-Z0-9]/g,''):null]).filter(Boolean).slice(0,13);
+  const out={};
+  // Etsy formula: Brand + item + era/feature + size — buyer search phrase
+  const era=/y2k/i.test(item+' '+feat+' '+sw)?'Y2K':'Vintage';
+  let et=[b,era,f1,color,item,trend,size?'Size '+size:'',condTag].filter(Boolean).join(' ');
+  if(et.length>140) et=et.substring(0,137)+'…';
+  const wzSeasonLabel = SEASON_MODE==='FW' ? 'Fall / Winter 2026' : 'Summer 2026';
+  out.Etsy={t:et,d:`✨ ${ca.toUpperCase()} · ${trend} — ${b||'curated find'} ${item}\n\n${condTxt}\n\n📏 SIZE: ${size||'see measurements'}\n🎨 COLOR: ${color||'see photos'}\n📋 CONDITION: ${cond}\n\n🖤 STYLED FOR: ${ca} · ${trend} · ${wzSeasonLabel}\n\n🌹 Funky Black Poppy — Vintage with Heart. Archive with Edge.\nFind It. Love It. Wear It. 💌 Bundle for discounts!`};
+  // Poshmark formula: Brand + item + size + color/material + key style
+  let po=[b,item,size?'Size '+size:'',color,f1,condTag].filter(Boolean).join(' ');
+  if(po.length>80) po=po.substring(0,77)+'…';
+  out.Poshmark={t:po,d:`${b||'Curated'} ${item} — ${ca} · ${trend} · ${wzSeasonLabel}\n\n${condTxt}\n\n✨ Brand: ${b||'see photos'}\n📏 Size: ${size||'see measurements'}\n🎨 Color: ${color||'see photos'}\n📋 ${cond}\n\n💌 Bundle 2+ for a discount! 🚚 Ships within 2 days`};
+  // Depop: hook-led lowercase
+  let hook=ca.includes('Y2K')?'Y2K':ca.includes('Mall')?'Y2K':ca.includes('Velvet')||ca.includes('Victorian')?'dark romance':'vintage';
+  // Depop formula: Era + brand + item + aesthetic + fit + vibe; 5-10 item-tied tags
+  const depopTags=[ '#'+era.toLowerCase().replace(/\s/g,''), item?'#'+item.toLowerCase().replace(/[^a-z0-9]/g,''):null, b?'#'+b.toLowerCase().replace(/[^a-z0-9]/g,''):null, f1?'#'+f1.toLowerCase().replace(/[^a-z0-9]/g,''):null, color?'#'+color.toLowerCase().replace(/[^a-z0-9]/g,''):null, '#'+trend.toLowerCase().replace(/\s/g,''), '#vintage', '#secondhand' ].filter(Boolean).slice(0,9);
+  out.Depop={t:[era.toLowerCase(),b.toLowerCase(),item.toLowerCase(),trend.toLowerCase(),size?'sz '+size:''].filter(Boolean).join(' '),
+    d:`🖤 ${b||''} ${item.toLowerCase()} | ${ca} vibes\n\n${condTxt}\n\n📏 ${size||'see desc'} · 🎨 ${color||'see pics'} · ${cond}\n\n${depopTags.join(' ')}`};
+  // Shopify: SEO-clean, no emoji title
+  out.Shopify={t:[b,color,item,'—',ca,trend,size?'Size '+size:''].filter(Boolean).join(' ').substring(0,70),
+    d:`${b||'Curated'} ${item} in ${color||'pictured colorway'} — ${ca} energy with ${trend} styling for ${wzSeasonLabel}. ${condTxt} One of one. From the Funky Black Poppy archive.`};
+  let html='<div style="margin-top:14px">';
+  for(const pl in out){
+    const o=out[pl];
+    html+=`<div style="background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong style="color:var(--bloom);font-size:13px">${pl}</strong>
+      <span><button class="tbtn" onclick="cpText(this.closest('div').parentNode.querySelector('.wz-t').textContent,this,'Title')">📋 Title</button>
+      <button class="tbtn" onclick="cpText(this.closest('div').parentNode.querySelector('.wz-d').textContent,this,'Desc')">📋 Desc</button></span></div>
+      <div class="wz-t" style="font-size:12px;font-weight:600;background:var(--bg);padding:7px 10px;border-radius:6px;margin-bottom:6px">${esc(o.t)}</div>
+      <div class="wz-d" style="font-size:11px;color:var(--ink2);background:var(--bg);padding:7px 10px;border-radius:6px;white-space:pre-wrap;max-height:160px;overflow:auto">${esc(o.d)}</div></div>`;
+  }
+  html+=`<div style="background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="display:flex;justify-content:space-between"><strong style="color:var(--gold);font-size:13px">13 Hashtags</strong><button class="tbtn" onclick="cpText('${ht.join(' ')}',this,'Tags')">📋 Copy</button></div><div style="font-size:11px;color:var(--gold);margin-top:6px">${ht.join('  ')}</div></div></div>`;
+  document.getElementById('wzOut').innerHTML=html;
+}
+
+function vWizard(){
+  const sws=Object.keys(STYLE_WORLDS);
+  const wzSeason = SEASON_MODE==='FW' ? 'FW26' : 'SS26';
+  return `<div class="stitle">🪄 Listing Wizard — ${wzSeason} · Etsy / Poshmark / Depop / Shopify</div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:.85rem">Fill it in → platform-tuned titles, brand-voice descriptions, and 13 ${wzSeason} hashtags. Titles auto-adapt to season mode.</p>
+  <div style="background:var(--surf2);border:1px solid var(--border);border-radius:11px;padding:1.1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+    <label style="font-size:10px;color:var(--muted)">STYLE WORLD<select id="wzSW" class="fs" style="width:100%;margin-top:4px">${sws.map(w=>`<option>${w}</option>`).join('')}</select></label>
+    <label style="font-size:10px;color:var(--muted)">BRAND<input id="wzBrand" class="fi" style="width:100%;margin-top:4px" placeholder="Free People"></label>
+    <label style="font-size:10px;color:var(--muted)">ITEM TYPE *<input id="wzItem" class="fi" style="width:100%;margin-top:4px" placeholder="Maxi Dress"></label>
+    <label style="font-size:10px;color:var(--muted)">COLOR<input id="wzColor" class="fi" style="width:100%;margin-top:4px" placeholder="black → Noir"></label>
+    <label style="font-size:10px;color:var(--muted)">SIZE<input id="wzSize" class="fi" style="width:100%;margin-top:4px" placeholder="M"></label>
+    <label style="font-size:10px;color:var(--muted)">CONDITION<select id="wzCond" class="fs" style="width:100%;margin-top:4px">${Object.keys(WZ_COND).map(c=>`<option>${c}</option>`).join('')}</select></label>
+    <label style="font-size:10px;color:var(--muted);grid-column:1/-1">KEY FEATURES<input id="wzFeat" class="fi" style="width:100%;margin-top:4px" placeholder="Embroidered, Tiered, Sheer Mesh"></label>
+  </div>
+  <button class="mbtn mbtn-confirm" style="width:100%;margin-top:12px;padding:13px" onclick="wizardGen()">🦇 Generate for all platforms</button>
+  <div id="wzOut"></div>`;
+}
+
+function vRadar(){
+  const W=workSet();
+  const cards=Object.entries(TRENDS).map(([name,t])=>{
+    const mine=W.filter(i=>i.trends.includes(name));
+    const n=mine.length;
+    const stale=mine.filter(i=>i.a>=90).length;
+    const gap=n<10;
+    return `<div class="sw-card" onclick="drillTrend('${esc(name)}')" style="${gap?'border-color:var(--warn)':''}">
+      <div class="sw-name">🔥 ${esc(name)} <span style="font-size:10px;color:var(--muted)">· best on ${esc(t.pl)}</span></div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${esc(t.tip)}</div>
+      <div class="sw-ct">${n} <span style="font-size:11px;color:var(--muted)">you own</span>
+      ${stale?`<span style="font-size:11px;color:var(--warn)"> · ${stale} stale — relist now</span>`:''}
+      ${gap?`<span style="font-size:11px;color:var(--warn)"> · ⚠ SOURCE MORE</span>`:''}</div></div>`;
+  }).join('');
+  const seasonLabel = SEASON_MODE==='FW' ? 'Fall / Winter 2026 Trend Radar' : 'Summer 2026 Trend Radar';
+  const sourcing = SEASON_MODE==='FW'
+    ? `<ul><li>Leather jackets + moto — peak season, source aggressively</li><li>Fur + faux fur coats in any dark colour</li><li>Velvet anything — dresses, blazers, capes</li><li>Dark tweed + plaid blazers for Gothic Academia</li><li>Combat boots, vintage Dr. Martens</li></ul>`
+    : `<ul><li>Y2K denim: baggy low-rise, jorts, cargos</li><li>Moto / barn / chore jackets</li><li>Suede hobos, vintage Coach/Dooney</li><li>Crochet anything in breathable yarn</li><li>Upcyclable denim for embroidery</li></ul>`;
+  const titleFormula = SEASON_MODE==='FW'
+    ? `<strong>[Fabric/Material] + [Silhouette] + [Aesthetic] + [Era]</strong><br><br>"Vintage Velvet Cape, Dark Academic Gothic Maxi, 90s Black Witch Layer"<br><br>2–3 high-intent words per platform — never stuff.`
+    : `<strong>[Silhouette] + [Fabric] + [Aesthetic] + [Era]</strong><br><br>"Y2K Crochet Mini Dress, Coquette Soft Stitch Summer Festival Outfit"<br><br>2–3 high-intent words per platform — don't stuff.`;
+  return `<div class="stitle">📡 ${seasonLabel} — your stock vs the market</div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:.85rem">Live counts from YOUR inventory crossed against the FW26 trend map (Depop · Poshmark · Etsy seasonal reports). Click a trend to filter your matching pieces. Orange border = sourcing gap.</p>
+  <div class="sw-grid">${cards}</div>
+  <div class="stitle" style="margin-top:1.2rem">📅 Daily Targets (FW26 protocol)</div>
+  <div class="sgrid">
+    <div class="scard"><div class="scard-t">🆕 8–12 new listings/day</div><div class="scard-b">5–8 on Poshmark/Depop · 2–4 on Etsy for unique archival finds. Use the 🪄 Wizard. FW = coats + leather first.</div></div>
+    <div class="scard"><div class="scard-t">🔄 5–10 stale relists/day</div><div class="scard-b">Prioritize FW stale items — the queue re-sorts them to the top in FW mode. Keep daily touches 15–20. Everything witchy goes now.</div></div>
+    <div class="scard"><div class="scard-t">🛒 FW sourcing (next 2 wks)</div><div class="scard-b">${sourcing}</div></div>
+    <div class="scard"><div class="scard-t">✍️ Title formula</div><div class="scard-b">${titleFormula}</div></div>
+  </div>`;
+}
+
+const VIEWS={cmd:vCmd,relist:vRelist,heroes:vHeroes,ghosts:vGhosts,titles:vTitles,pricing:vPricing,worlds:vWorlds,aesthetics:vAesthetics,strategy:vStrategy,radar:vRadar,zombies:vZombies,wizard:vWizard,sold:vSold,drafts:vDrafts,all:vAll};
+function render(){
+  const ps=document.getElementById("psRoot"), app=document.getElementById("app");
+  if(curView==="photo"){ app.innerHTML=""; ps.classList.add("show"); psInitOnce(); return; }
+  ps.classList.remove("show");
+  app.innerHTML=(VIEWS[curView]||vCmd)();
+}
+
+document.getElementById("nav").addEventListener("click",e=>{
+  const btn=e.target.closest(".nb");if(!btn)return;
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on"); curView=btn.dataset.v; vis=60; render();
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// ── 📸 PHOTO STUDIO ENGINE ── ported from Command Center v10 photo editor
+// Click-to-remove background, tolerance + feather, brightness/contrast/sat,
+// rotate, crop ratios, FBP background presets, 1600px listing-ready export.
+// ══════════════════════════════════════════════════════════════════════
+let psInited=false;
+function psInitOnce(){ if(psInited) return; psInited=true; psInit(); }
+function psInit(){
+  const canvas=document.getElementById('psCanvas');
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  const wrap=document.getElementById('psWrap');
+  const status=document.getElementById('psStatus');
+  let image=null,rotation=0,ratio='free',brightness=100,contrast=100,saturation=100;
+  let bgColor='#ffffff',bgRemoved=false,maskData=null,removalMode=false,tolerance=30,feather=2;
+  const dpr=window.devicePixelRatio||1;
+  const $=id=>document.getElementById(id);
+
+  function loadImage(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{const img=new Image();img.onload=()=>{image=img;rotation=0;brightness=contrast=saturation=100;
+      $('psBright').value=$('psContrast').value=$('psSat').value=100;
+      $('psBrightV').textContent=$('psContrastV').textContent=$('psSatV').textContent='100%';
+      resetCutout();draw();};img.src=e.target.result;};
+    reader.readAsDataURL(file);
+  }
+  function resetAllPs(){if(!image)return;rotation=0;brightness=contrast=saturation=100;
+    $('psBright').value=$('psContrast').value=$('psSat').value=100;
+    $('psBrightV').textContent=$('psContrastV').textContent=$('psSatV').textContent='100%';resetCutout();draw();}
+  function resetCutout(){bgRemoved=false;maskData=null;exitRemoval();draw();}
+  function enterRemoval(){if(!image){toastMsg('Upload an image first');return;}removalMode=true;$('psRemoveBg').classList.add('warn');wrap.classList.add('ps-removal');status.style.display='block';}
+  function exitRemoval(){removalMode=false;$('psRemoveBg').classList.remove('warn');wrap.classList.remove('ps-removal');status.style.display='none';}
+  function rotateImg(deg){if(!image)return;rotation=(rotation+deg)%360;if(rotation<0)rotation+=360;draw();}
+
+  function logicalSize(maxOverride){
+    const rect=wrap.getBoundingClientRect();
+    let max=maxOverride||Math.min(rect.width,rect.height)-24;
+    if(max<150)max=280;
+    if(!image)return{w:max,h:max};
+    const iw=image.width,ih=image.height,vert=rotation%180!==0;
+    const ew=vert?ih:iw,eh=vert?iw:ih;
+    if(ratio==='free'){const r=ew/eh;return r>=1?{w:max,h:max/r}:{w:max*r,h:max};}
+    const [wr,hr]=ratio.split(':').map(Number);const rv=wr/hr;
+    return rv>=1?{w:max,h:max/rv}:{w:max*rv,h:max};
+  }
+
+  function drawTo(tCanvas,tCtx,w,h,scaleFactor){
+    tCanvas.width=Math.round(w*scaleFactor);tCanvas.height=Math.round(h*scaleFactor);
+    tCtx.clearRect(0,0,tCanvas.width,tCanvas.height);
+    tCtx.fillStyle=bgColor;tCtx.fillRect(0,0,tCanvas.width,tCanvas.height);
+    if(!image){tCtx.fillStyle='#9aa3af';tCtx.font=(14*scaleFactor)+'px IBM Plex Mono';tCtx.textAlign='center';tCtx.fillText('upload image',tCanvas.width/2,tCanvas.height/2);return;}
+    tCtx.save();tCtx.scale(scaleFactor,scaleFactor);tCtx.translate(w/2,h/2);tCtx.rotate(rotation*Math.PI/180);
+    const iw=image.width,ih=image.height,vert=rotation%180!==0;
+    const ew=vert?ih:iw,eh=vert?iw:ih;
+    const sc=Math.min(w/ew,h/eh),dw=iw*sc,dh=ih*sc;
+    tCtx.filter=`brightness(${brightness/100}) contrast(${contrast/100}) saturate(${saturation/100})`;
+    if(bgRemoved&&maskData){const tmp=document.createElement('canvas');tmp.width=iw;tmp.height=ih;tmp.getContext('2d').putImageData(maskData,0,0);tCtx.drawImage(tmp,-dw/2,-dh/2,dw,dh);}
+    else tCtx.drawImage(image,-dw/2,-dh/2,dw,dh);
+    tCtx.filter='none';tCtx.restore();
+  }
+  function draw(){const{w,h}=logicalSize();drawTo(canvas,ctx,w,h,dpr);canvas.style.width=w+'px';canvas.style.height=h+'px';}
+
+  function handleClick(e){
+    if(!removalMode||!image)return;
+    const rect=canvas.getBoundingClientRect();const{w,h}=logicalSize();
+    const lx=(e.clientX-rect.left)*(w/rect.width),ly=(e.clientY-rect.top)*(h/rect.height);
+    const rad=rotation*Math.PI/180,iw=image.width,ih=image.height,vert=rotation%180!==0;
+    const ew=vert?ih:iw,eh=vert?iw:ih,sc=Math.min(w/ew,h/eh);
+    const dx=lx-w/2,dy=ly-h/2;
+    const ux=dx*Math.cos(-rad)-dy*Math.sin(-rad),uy=dx*Math.sin(-rad)+dy*Math.cos(-rad);
+    const px=Math.max(0,Math.min(iw-1,Math.round(ux/sc+iw/2))),py=Math.max(0,Math.min(ih-1,Math.round(uy/sc+ih/2)));
+    const off=document.createElement('canvas');off.width=iw;off.height=ih;
+    const octx=off.getContext('2d');octx.drawImage(image,0,0);
+    const[tr,tg,tb]=octx.getImageData(px,py,1,1).data;
+    const imgData=octx.getImageData(0,0,iw,ih),data=imgData.data;
+    const maxDist=(tolerance/100)*255,tolSq=maxDist*maxDist;
+    for(let i=0;i<data.length;i+=4){const dr=data[i]-tr,dg=data[i+1]-tg,db=data[i+2]-tb;data[i+3]=(dr*dr+dg*dg+db*db)<=tolSq?0:255;}
+    if(feather>0.5){
+      const alpha=new Uint8Array(data.length/4);for(let i=0;i<alpha.length;i++)alpha[i]=data[i*4+3];
+      const blur=new Uint8Array(alpha.length),rf=Math.round(feather);
+      for(let y=0;y<ih;y++)for(let x=0;x<iw;x++){let s=0,c=0;for(let k=-rf;k<=rf;k++){const nx=x+k;if(nx>=0&&nx<iw){s+=alpha[y*iw+nx];c++;}}blur[y*iw+x]=s/c;}
+      for(let y=0;y<ih;y++)for(let x=0;x<iw;x++){let s=0,c=0;for(let k=-rf;k<=rf;k++){const ny=y+k;if(ny>=0&&ny<ih){s+=blur[ny*iw+x];c++;}}data[(y*iw+x)*4+3]=s/c;}
+    }
+    maskData=new ImageData(data,iw,ih);bgRemoved=true;exitRemoval();draw();
+    toastMsg('Background removed ✓ Pick a new background color');
+  }
+
+  function setBg(hex){bgColor=hex;$('psCustom').value=hex;document.querySelectorAll('#psDots .ps-dot').forEach(d=>d.classList.toggle('on',d.dataset.color===hex));draw();}
+  function setRatio(r){ratio=r;document.querySelectorAll('#psRatios .ps-ratio').forEach(b=>b.classList.toggle('on',b.dataset.ratio===r));draw();}
+
+  // v10 addition: high-res listing-ready export
+  function exportPhoto(){
+    if(!image){toastMsg('Upload an image first');return;}
+    const{w,h}=logicalSize(1600);
+    const out=document.createElement('canvas');
+    drawTo(out,out.getContext('2d'),w,h,1);
+    const a=document.createElement('a');
+    a.download='fbp-photo-'+Date.now()+'.jpg';
+    a.href=out.toDataURL('image/jpeg',0.92);
+    a.click();
+    toastMsg('📸 Exported — ready to upload to your listing');
+  }
+
+  $('psFile').addEventListener('change',e=>{if(e.target.files[0])loadImage(e.target.files[0]);e.target.value='';});
+  $('psResetAll').addEventListener('click',resetAllPs);
+  $('psRotL').addEventListener('click',()=>rotateImg(-90));
+  $('psRotR').addEventListener('click',()=>rotateImg(90));
+  document.querySelectorAll('#psRatios .ps-ratio').forEach(b=>b.addEventListener('click',()=>setRatio(b.dataset.ratio)));
+  $('psBright').addEventListener('input',e=>{brightness=+e.target.value;$('psBrightV').textContent=brightness+'%';draw();});
+  $('psContrast').addEventListener('input',e=>{contrast=+e.target.value;$('psContrastV').textContent=contrast+'%';draw();});
+  $('psSat').addEventListener('input',e=>{saturation=+e.target.value;$('psSatV').textContent=saturation+'%';draw();});
+  $('psDots').addEventListener('click',e=>{const d=e.target.closest('.ps-dot');if(d)setBg(d.dataset.color);});
+  $('psCustom').addEventListener('input',e=>setBg(e.target.value));
+  $('psRemoveBg').addEventListener('click',()=>removalMode?exitRemoval():enterRemoval());
+  $('psResetCut').addEventListener('click',resetCutout);
+  $('psTol').addEventListener('input',e=>{tolerance=+e.target.value;$('psTolV').textContent=tolerance;});
+  $('psFeather').addEventListener('input',e=>{feather=+e.target.value;$('psFeatherV').textContent=feather;});
+  canvas.addEventListener('click',handleClick);
+  window.addEventListener('resize',()=>{if(document.getElementById('psRoot').classList.contains('show'))draw();});
+  setBg('#ffffff');draw();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── v14: ITEM DETAIL MODAL + AI COMP ENGINE ──
+// ══════════════════════════════════════════════════════════════════════
+
+let _modalItem = null;
+
+function handleModalBgClick(e) {
+  if (e.target === document.getElementById('itemModalBg')) closeItem();
+}
+
+function closeItem() {
+  document.getElementById('itemModalBg').classList.remove('show');
+  _modalItem = null;
+}
+
+function openItem(idx) {
+  const item = D[idx];
+  if (!item) return;
+  _modalItem = { item, idx };
+  renderItemModal(item, idx, null, false);
+  document.getElementById('itemModalBg').classList.add('show');
+}
+
+function renderItemModal(item, idx, aiData, aiLoading) {
+  const img = sv(item.img);
+  const t = sv(item.t);
+  const b = sv(item.b);
+  const cat = sv(item.cat);
+  const p = item.p || 0;
+  const sp = item.sp || 0;
+  const cond = sv(item.cond) || sv(item.condition) || '';
+  const color = sv(item.clr) || sv(item.color) || '';
+  const size = sv(item.size) || '';
+  const sku = sv(item.sku) || '';
+  const pl = sv(item.pl) || '';
+  const sw = sv(item.sw) || '';
+  const desc = sv(item.desc) || sv(item.description) || '';
+  const nt = sv(item.nt) || '';
+  const ht = Array.isArray(item.ht) ? item.ht : [];
+  const a = item.a || 0;
+  const rel = isRel(item);
+  const key = item._k || sku;
+
+  const imgEl = img
+    ? `<img class="im-hero" src="${esc(img)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'im-hero-ph\\'>🦇</div>'">`
+    : `<div class="im-hero-ph">🦇</div>`;
+
+  const fields = [
+    ['Brand', b], ['Category', cat], ['Color', color], ['Size', size],
+    ['Condition', cond], ['SKU', sku], ['Platforms', pl],
+    ['Days Listed', a > 0 ? a + 'd' : '—'],
+    ['Price', '$' + p.toFixed(2)],
+    ['Suggested', sp > 0 ? '$' + sp.toFixed(2) : '—'],
+    ['Style World', sw.split('·')[1]?.trim() || sw],
+  ].filter(([, v]) => v && v !== '—');
+
+  const fieldHtml = fields.map(([l, v]) => `
+    <div class="im-field">
+      <div class="im-fl">${esc(l)}</div>
+      <div class="im-fv">${esc(v)}</div>
+    </div>`).join('');
+
+  // AI panel
+  let aiPanel = '';
+  if (aiLoading) {
+    aiPanel = `<div class="ai-comp-panel">
+      <div class="ai-comp-hd">🤖 AI Comp &amp; Style Check</div>
+      <div class="ai-comp-loading"><div class="ai-spin"></div> Checking live market + style trends…</div>
+    </div>`;
+  } else if (aiData) {
+    aiPanel = renderAIComp(aiData, p);
+  } else {
+    aiPanel = `<div class="ai-comp-panel" style="text-align:center;padding:1.2rem">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:.65rem">Check current market comps and style relevance for this item</div>
+      <button class="im-btn im-btn-rose" onclick="runAIComp(${idx})" style="margin:0 auto">
+        🤖 Run AI Comp + Style Check
+      </button>
+    </div>`;
+  }
+
+  document.getElementById('imContent').innerHTML = `
+    ${imgEl}
+    <div class="im-body">
+      <div class="im-top">
+        <div style="flex:1;min-width:0">
+          <div class="im-brand">${esc(b)} · ${esc(cat)}</div>
+          <div class="im-title">${esc(t)}</div>
+          ${nt ? `<div style="font-size:11px;color:var(--muted);margin-bottom:.5rem">${esc(nt.substring(0,120))}</div>` : ''}
+          <div class="im-price">$${p.toFixed(2)} ${sp > 0 && Math.abs(sp - p) > 0.5 ? `<span style="font-size:14px;color:var(--muted)">→ $${sp.toFixed(2)}</span>` : ''}</div>
+        </div>
+        <button class="im-close" onclick="closeItem()">✕</button>
+      </div>
+
+      <div class="im-grid">${fieldHtml}</div>
+
+      ${desc ? `<div class="im-desc">${esc(desc.substring(0, 600))}${desc.length > 600 ? '…' : ''}</div>` : ''}
+
+      <div class="im-actions">
+        ${nt ? `<button class="im-btn im-btn-rose" onclick="cpText(D[${idx}].nt,this,'SEO Title')">📋 Copy SEO Title</button>` : ''}
+        ${ht.length ? `<button class="im-btn im-btn-gold" onclick="cpText(D[${idx}].ht.join(' '),this,'Hashtags')">🏷 Copy Hashtags</button>` : ''}
+        <a class="im-btn im-btn-info" href="${esc(item.ebayComp || '')}" target="_blank" rel="noopener">💲 eBay Sold Comps</a>
+        <a class="im-btn im-btn-rose" href="${esc(item.poshComp || '')}" target="_blank" rel="noopener">💲 Posh Comps</a>
+        <button class="im-btn ${rel ? 'im-btn-ok' : 'im-btn-neutral'}" onclick="markMan('${key}',this)" ${rel ? 'disabled' : ''}>
+          ${rel ? '✓ Relisted' : '✅ Mark Relisted'}
+        </button>
+        ${img ? `<a class="im-btn im-btn-neutral" href="${esc(img)}" target="_blank" rel="noopener">🖼 Full Image</a>` : ''}
+      </div>
+
+      ${aiPanel}
+    </div>`;
+}
+
+function renderAIComp(d, currentPrice) {
+  const verdict = d.priceVerdict || '';
+  const verdictCol = verdict === 'on_target' ? 'price-ok' : verdict === 'too_low' ? 'price-low' : verdict === 'too_high' ? 'price-high' : '';
+  const verdictLabel = { on_target: '✓ Price looks right', too_low: '↑ Price too low — leave money on the table', too_high: '↓ Price too high — may be stalling' }[verdict] || '';
+
+  return `<div class="ai-comp-panel">
+    <div class="ai-comp-hd">🤖 AI Comp &amp; Style Check <span style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono'">just now</span></div>
+
+    ${verdictLabel ? `<div style="font-size:13px;font-weight:700;margin-bottom:.85rem" class="${verdictCol}">${verdictLabel}</div>` : ''}
+
+    ${d.comps && d.comps.length ? `
+    <div class="ai-comp-section">
+      <div class="ai-comp-label">Recent sold comps</div>
+      ${d.comps.map(c => `
+        <div class="ai-price-row">
+          <span class="ai-price-badge ${c.price > currentPrice * 1.1 ? 'price-ok' : c.price < currentPrice * 0.85 ? 'price-low' : ''}">$${c.price}</span>
+          <span style="font-size:11px;color:var(--ink2);flex:1">${esc(c.label)}</span>
+          <span style="font-size:10px;color:var(--muted)">${esc(c.platform || '')}</span>
+        </div>`).join('')}
+    </div>` : ''}
+
+    ${d.suggestedPrice ? `
+    <div class="ai-comp-section">
+      <div class="ai-comp-label">Suggested price range</div>
+      <div class="ai-comp-val" style="font-size:16px;font-weight:700;color:var(--bloom);font-family:'Playfair Display',serif">${esc(d.suggestedPrice)}</div>
+    </div>` : ''}
+
+    ${d.styleNotes ? `
+    <div class="ai-comp-section">
+      <div class="ai-comp-label">Style &amp; trend notes</div>
+      <div class="ai-comp-val">${esc(d.styleNotes)}</div>
+    </div>` : ''}
+
+    ${d.titleNotes ? `
+    <div class="ai-comp-section">
+      <div class="ai-comp-label">Title / SEO notes</div>
+      <div class="ai-comp-val">${esc(d.titleNotes)}</div>
+    </div>` : ''}
+
+    ${d.action ? `
+    <div style="margin-top:.65rem;padding:.65rem .85rem;background:var(--rosebg);border-radius:8px;border:1px solid var(--rosebdr)">
+      <div class="ai-comp-label">Recommended action</div>
+      <div style="font-size:12px;color:var(--bloom);font-weight:600">${esc(d.action)}</div>
+    </div>` : ''}
+  </div>`;
+}
+
+async function runAIComp(idx) {
+  if (!_modalItem) return;
+  const item = D[idx];
+  if (!item) return;
+
+  // Show loading state
+  renderItemModal(item, idx, null, true);
+
+  const t = sv(item.t);
+  const b = sv(item.b);
+  const cat = sv(item.cat);
+  const p = item.p || 0;
+  const color = sv(item.clr) || '';
+  const size = sv(item.size) || '';
+  const cond = sv(item.cond) || '';
+  const a = item.a || 0;
+  const sw = sv(item.sw) || '';
+
+  const systemPrompt = `You are a vintage resale market analyst for Funky Black Poppy (FBP). Your job is to assess whether an item is priced correctly based on current market conditions, and to give honest style/trend notes.
+
+FBP brand context: gothic/alternative vintage fashion. Punk rebellion meets ancestral craft. Buyers are alt, dark aesthetic, circular fashion conscious. Not mainstream.
+
+Always respond ONLY with valid JSON. No markdown. Schema:
+{
+  "priceVerdict": "on_target" | "too_low" | "too_high",
+  "comps": [{"price": 00.00, "label": "description of comparable sold item", "platform": "Poshmark/eBay/Depop"}],
+  "suggestedPrice": "$XX–$XX range",
+  "styleNotes": "2-3 sentences on style relevance, trend momentum, buyer demand right now for this item type",
+  "titleNotes": "specific SEO improvements for the title if any — what keywords are buyers actually searching",
+  "action": "single most important action: relist / drop price / raise price / relist with new title / bundle / hold"
+}
+
+Provide 2-3 real comparable sold items with realistic prices. Be direct and honest — if it's been sitting 90+ days it probably needs action.`;
+
+  const userPrompt = `Item: ${b} ${t}
+Category: ${cat}
+Color: ${color}
+Size: ${size}
+Condition: ${cond}
+Current price: $${p.toFixed(2)}
+Days listed: ${a}
+Style World: ${sw}
+Platform: ${sv(item.pl)}
+
+Assess this item's pricing and style relevance. Provide realistic comps from Poshmark/eBay/Depop for similar ${b} ${cat} items. Give a direct honest verdict.`;
+
+  try {
+    // Always use the deployed Netlify proxy — key lives server-side
+    const endpoint = 'https://fbpnewlisting.netlify.app/.netlify/functions/ai-review';
+
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content?.find(b => b.type === 'text')?.text || '{}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const aiData = JSON.parse(clean);
+    renderItemModal(item, idx, aiData, false);
+
+  } catch(err) {
+    renderItemModal(item, idx, null, false);
+    toastMsg('AI check failed: ' + err.message.substring(0, 60));
+  }
+}
+
+// ── THEME TOGGLE ──
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('fbp_theme', next);
+  document.getElementById('themeToggle').textContent = next==='dark' ? '☀️' : '🌙';
+}
+(function initTheme(){
+  const saved = localStorage.getItem('fbp_theme') || 'light';
+  if(saved==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.textContent = '☀️';
+  }
+})();
+
+updRel();
+render();
+</script>
+</body>
+</html>
