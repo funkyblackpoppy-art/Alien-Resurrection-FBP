@@ -821,12 +821,12 @@ function pinUrl(row) {
 //           Posh  = Brand + item + size + color/material + key style
 //           Depop = Era + brand + item + aesthetic + fit + vibe
 // ══════════════════════════════════════════════════════════════════════
-const ERA_KW   = [['y2k','Y2K'],['90s','Vintage 90s'],['1990s','Vintage 90s'],['2000s','2000s'],['80s','80s'],['1980s','80s'],['70s','70s'],['retro','Retro'],['vintage','Vintage']];
-const FIT_KW   = ['oversized','cropped','boxy','fitted','relaxed','low-rise','low rise','high-rise','high rise','flared','straight leg','slouchy','baggy','bodycon','a-line','wide-leg','wide leg','strapless','sleeveless','tiered','maxi','midi','mini'];
-const FABRIC_KW= ['lace','satin','denim','knit','silk','velvet','suede','leather','cotton','wool','tweed','linen','mesh','chiffon','corduroy','sequin','crochet','tulle','flannel','rayon'];
-const FEAT_KW  = ['deadstock','rare','embroidered','distressed','sheer','lined','adjustable','reversible','handmade','upcycled','beaded','ruffled','ruffle','pleated','fringe','patchwork','studded','floral','plaid','paisley'];
-const OCC_KW   = ['festival','workwear','bridal','party','vacation','wedding','cocktail','beach'];
-const ITEM_NOUNS = ['babydoll dress','maxi dress','mini dress','slip dress','sundress','dress','corset top','crop top','tank top','tube top','bodysuit','blouse','top','cardigan','sweater','sweatshirt','hoodie','blazer','bomber jacket','denim jacket','moto jacket','jacket','coat','vest','jeans','cargo pants','pants','trousers','leggings','denim shorts','shorts','mini skirt','maxi skirt','midi skirt','skirt','jumpsuit','romper','overalls','swimsuit','bikini','kimono','western boots','boots','heels','sandals','sneakers','satchel','hobo bag','shoulder bag','crossbody','tote','handbag','purse','bag','necklace','earrings','bracelet','ring','belt','scarf','hat','camisole','cami','windbreaker','bra','slip','nightgown','robe','t-shirt','tee','shirt'];
+const ERA_KW   = [['y2k','Y2K'],['90s','Vintage 90s'],['1990s','Vintage 90s'],['2000s','2000s'],['00s','2000s'],['80s','80s'],['1980s','80s'],['70s','70s'],['1970s','70s'],['60s','60s'],['1960s','60s'],['50s','50s'],['1950s','50s'],['vtge','Vintage'],['vtg','Vintage'],['retro','Retro'],['vintage','Vintage']];
+const FIT_KW   = ['oversized','cropped','boxy','fitted','relaxed','low-rise','low rise','high-rise','high rise','flared','straight leg','slouchy','baggy','bodycon','a-line','wide-leg','wide leg','strapless','sleeveless','tiered','maxi','midi','mini','longline','open back','open-back'];
+const FABRIC_KW= ['cable knit','lace','satin','denim','silk','velvet','suede','leather','cotton','wool','tweed','linen','mesh','chiffon','corduroy','sequin','crochet','tulle','flannel','rayon','knit','fleece','sherpa','faux fur'];
+const FEAT_KW  = ['deadstock','rare','embroidered','distressed','sheer','lined','adjustable','reversible','handmade','upcycled','beaded','ruffled','ruffle','pleated','fringe','patchwork','studded','floral','plaid','paisley','cut-out','cutout','smocked','gathered','zip-up','button-down','wrap'];
+const OCC_KW   = ['festival','workwear','bridal','party','vacation','wedding','cocktail','beach','office'];
+const ITEM_NOUNS = ['babydoll dress','wrap dress','bodycon dress','t-shirt dress','maxi dress','mini dress','slip dress','sundress','dress','corset top','crop top','tank top','tube top','turtleneck','polo','button down','bodysuit','blouse','top','cardigan','duster','sweater','sweatshirt','hoodie','blazer','bomber jacket','denim jacket','moto jacket','leather jacket','trench coat','pea coat','jacket','coat','vest','jeans','cargo pants','sweat pants','sweatpants','track pants','joggers','pants','trousers','leggings','denim shorts','biker shorts','shorts','mini skirt','maxi skirt','midi skirt','skirt','jumpsuit','romper','overalls','swimsuit','bikini','kimono','leg warmer','western boots','ankle boots','chelsea boots','combat boots','boots','heels','sandals','sneakers','satchel','hobo bag','shoulder bag','crossbody','tote','handbag','purse','bag','necklace','earrings','bracelet','ring','belt','scarf','hat','corset','camisole','cami','windbreaker','bra','slip','nightgown','robe','t-shirt','tee','shirt'];
 
 // SW_BUYER_AESTH — derived from STYLE_WORLDS
 const SW_BUYER_AESTH = {};
@@ -871,29 +871,28 @@ function clean(parts){
 // These are the compound aesthetic tags buyers across the dark/alt/witchy/fairy/
 // grunge/goth/Y2K secondhand market actually type into search. Primary + secondary.
 const AESTH_HOOK = {
-  '01 · Velvet Underground': ['Whimsigoth','Goth'],
-  '02 · Corp Goth':          ['Corpgoth','Dark Minimalist'],
-  '03 · Quiet Luxury Dark':  ['Dark Academia','Old Money Goth'],
-  '04 · Punk Debutante':     ['Punk','Whimsigoth'],
-  '05 · Indie Sleaze':       ['Y2K Grunge','Indie Sleaze'],
-  '06 · Witchcore':          ['Witchcore','Witchy'],
-  '07 · Dark Cottagecore':   ['Cottagecore','Fairygrunge'],
-  '08 · Grunge Revival':     ['90s Grunge','Grunge'],
-  '09 · Y2K Afterdark':      ['Y2K','Mallgoth'],
-  '10 · Art School Rebel':   ['Avant Garde','Grunge'],
-  '11 · Funeral Chic':       ['Goth','Whimsigoth'],
-  '12 · Dark Bohemian':      ['Fairygrunge','Boho Witch'],
-  '13 · 80s Power Occult':   ['80s Goth','Vintage Glam'],
-  '14 · Riotgrrrl Archive':  ['90s Punk','Grunge'],
-  '15 · Dark Academia':      ['Dark Academia','Whimsigoth'],
-  '16 · Secondhand Rebellion':['Vintage','Alt'],
-  '17 · Leather & Lace':     ['Grunge','Whimsigoth'],
-  '18 · Maximalist Goth':    ['Whimsigoth','Goth'],
-  '19 · Androgyne Noir':     ['Avant Garde','Dark Minimalist'],
-  '20 · Haunted Americana':  ['Western Gothic','Grunge'],
-  // Fairycore/fairygrunge catch — if classified here via legacy
-  'Fairycore':               ['Fairycore','Fairygrunge'],
-  'Fairy Grunge':            ['Fairygrunge','Grunge'],
+  '01 · Velvet Underground': ['Dark Romantic Aesthetic','Whimsigoth'],
+  '02 · Corp Goth':          ['Corp Goth Aesthetic','Dark Minimalist'],
+  '03 · Quiet Luxury Dark':  ['Dark Academia Aesthetic','Old Money Dark'],
+  '04 · Punk Debutante':     ['Punk Aesthetic','Whimsigoth'],
+  '05 · Indie Sleaze':       ['Y2K Indie Aesthetic','Indie Sleaze'],
+  '06 · Witchcore':          ['Witchcore Aesthetic','Witch Aesthetic'],
+  '07 · Dark Cottagecore':   ['Dark Cottagecore','Fairy Grunge Aesthetic'],
+  '08 · Grunge Revival':     ['90s Grunge Aesthetic','Vintage Grunge'],
+  '09 · Y2K Afterdark':      ['Y2K Aesthetic','Mallgoth'],
+  '10 · Art School Rebel':   ['Art Hoe Aesthetic','Avant Garde'],
+  '11 · Funeral Chic':       ['Gothic Aesthetic','Whimsigoth'],
+  '12 · Dark Bohemian':      ['Boho Witch Aesthetic','Fairy Grunge'],
+  '13 · 80s Power Occult':   ['80s Aesthetic','Goth Glam'],
+  '14 · Riotgrrrl Archive':  ['Riot Grrrl Aesthetic','90s Punk'],
+  '15 · Dark Academia':      ['Dark Academia','Gothic Academia'],
+  '16 · Secondhand Rebellion':['Vintage Aesthetic','Alt Vintage'],
+  '17 · Leather & Lace':     ['Dark Romantic Aesthetic','Grunge Aesthetic'],
+  '18 · Maximalist Goth':    ['Maximalist Goth','Dark Aesthetic'],
+  '19 · Androgyne Noir':     ['Androgynous Fashion','Dark Minimalist'],
+  '20 · Haunted Americana':  ['Western Gothic','Americana Vintage'],
+  'Fairycore':               ['Fairycore Aesthetic','Fairy Grunge'],
+  'Fairy Grunge':            ['Fairy Grunge Aesthetic','Fairycore'],
 };
 function aesthHooks(sw){
   const h = AESTH_HOOK[resolveWorld(sv(sw))] || AESTH_HOOK[sv(sw)] || ['Vintage','Alt'];
@@ -901,33 +900,55 @@ function aesthHooks(sw){
 }
 function aesthHook(sw){ return aesthHooks(sw)[0]; }   // primary, back-compat
 
+// Normalize verbose size words → standard abbreviations
+function normSz(s){
+  if(!s) return '';
+  const m={'XSMALL':'XS','EXTRASMALL':'XS','SMALL':'S','MEDIUM':'M','LARGE':'L',
+    'XLARGE':'XL','XTRA LARGE':'XL','EXTRA LARGE':'XL','XXLARGE':'XXL','2XL':'XXL',
+    'XXXLARGE':'XXXL','3XL':'XXXL','XTRASMALL':'XS'};
+  return m[s.toUpperCase().replace(/[\s-]/g,'')] || s;
+}
+
 function buildTitles(row){
   const x = extractBuckets(row);
-  const hooks = aesthHooks(row.sw);          // [primary, secondary] searchable aesthetics
+  const hooks = aesthHooks(row.sw);
   const hook = hooks[0], hook2 = hooks[1];
-  const era = x.era || 'Vintage';
+  const era = x.era || '';
   const color = x.color || '';
   const item = x.item;
-  const detail = x.feat || x.fabric || x.fit || '';
   const brand = x.brand;
+  const sz = normSz(x.size);
 
-  // ── ETSY (≤140) — keyword-dense, era + dual aesthetic for max search reach ──
-  let etsy = clean([era, brand, color, detail, item, hook, hook2, x.size?'Size '+x.size:'']);
-  if (etsy.length>140) etsy = clean([era, brand, color, item, hook, hook2, x.size?'Size '+x.size:'']);
-  if (etsy.length>140) etsy = clean([era, brand, color, item, hook, x.size?'Size '+x.size:'']);
+  // NWT detection — "New With Tags" or "NWT" → prepend on every platform
+  const isNWT = /new.with.tags|brand.new|deadstock|nwt/i.test(sv(row.cond)+' '+sv(row.t));
+  const nwt = isNWT ? 'NWT' : '';
+
+  // Stack up to 3 distinct descriptors for Etsy's 140-char budget
+  const d1 = x.feat || '';
+  const d2 = x.fabric && x.fabric !== d1 ? x.fabric : '';
+  const d3 = x.fit   && x.fit !== d1 && x.fit !== d2 ? x.fit : '';
+
+  // FW26 trend signal — first matching trend name, trimmed to one word
+  const trendSig = (row.trends && row.trends.length > 0) ? row.trends[0].split(' ')[0] : '';
+
+  // ── ETSY (≤140) — keyword-dense, pipe separator, full 140-char budget ──
+  // Formula: [NWT] Brand Color Desc Desc Item | Hook Hook2 Era Trend Size
+  let etsy = clean([nwt, brand, color, d1, d2, item, '|', hook, hook2, era, trendSig, sz?'Size '+sz:'']);
+  if (etsy.length>140) etsy = clean([nwt, brand, color, d1, item, '|', hook, hook2, era, sz?'Size '+sz:'']);
+  if (etsy.length>140) etsy = clean([nwt, brand, color, item, '|', hook, era, sz?'Size '+sz:'']);
   if (etsy.length>140) etsy = etsy.substring(0,138).trim();
 
-  // ── POSHMARK (≤80) — scannable, brand + item + primary vibe ──
-  let posh = clean([brand, color, detail, item, hook, x.size?'Sz '+x.size:'']);
-  if (posh.length>80) posh = clean([brand, color, item, hook, x.size?'Sz '+x.size:'']);
+  // ── POSHMARK (≤80) — NWT leads, brand + item + aesthetic + size ──
+  let posh = clean([nwt, brand, color, d1, item, sz?'Sz '+sz:'', hook]);
+  if (posh.length>80) posh = clean([nwt, brand, color, item, sz?'Sz '+sz:'', hook]);
+  if (posh.length>80) posh = clean([nwt, brand, item, sz?'Sz '+sz:'']);
   if (posh.length>80) posh = posh.substring(0,78).trim();
 
-  // ── DEPOP (≤100) — lowercase, vibe-led, dual aesthetic how Gen Z searches ──
-  let depop = clean([hook.toLowerCase(), hook2.toLowerCase(), era.toLowerCase(), brand.toLowerCase(),
-    x.fit?x.fit.toLowerCase():'', color.toLowerCase(), item.toLowerCase(),
-    x.size?'sz '+x.size.toLowerCase():'']);
-  if (depop.length>100) depop = clean([hook.toLowerCase(), era.toLowerCase(), brand.toLowerCase(),
-    color.toLowerCase(), item.toLowerCase(), x.size?'sz '+x.size.toLowerCase():'']);
+  // ── DEPOP (≤100) — lowercase, vibe-led, compound aesthetic ──
+  let depop = clean([hook.toLowerCase(), era.toLowerCase(), brand.toLowerCase(),
+    color.toLowerCase(), (d3||d1||'').toLowerCase(), item.toLowerCase(), sz?'sz '+sz.toLowerCase():'']);
+  if (depop.length>100) depop = clean([hook.toLowerCase(), brand.toLowerCase(),
+    color.toLowerCase(), item.toLowerCase(), sz?'sz '+sz.toLowerCase():'']);
   if (depop.length>100) depop = depop.substring(0,98).trim();
 
   return { etsy, posh, depop };
