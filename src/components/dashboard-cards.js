@@ -178,7 +178,7 @@ export function RecentEntriesCard({ entries }) {
         .slice()
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 10)
-        .map((e) => ({ label: e.title, meta: e.book, href: `#/library` })),
+        .map((e) => ({ label: e.title, meta: e.book, href: e.href || '#/library' })),
       'The Canon has no entries yet. Every lesson worth remembering will live here.'
     )
   );

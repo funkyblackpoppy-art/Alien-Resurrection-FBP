@@ -34,14 +34,14 @@ export function Sidebar() {
 
   const bloom = document.createElement('p');
   bloom.className = 'sidebar__bloom';
-  bloom.textContent = 'v0.1.0 · The First Bloom';
+  bloom.textContent = 'v0.4.0 · The First Bloom';
 
   // Nav
   const nav = document.createElement('nav');
   nav.className = 'sidebar__nav';
   nav.setAttribute('aria-label', 'Canon navigation');
 
-  routes.forEach((route) => {
+  routes.filter((r) => r.nav).forEach((route) => {
     const a = document.createElement('a');
     a.className = 'sidebar__link';
     a.href = `#${route.path}`;

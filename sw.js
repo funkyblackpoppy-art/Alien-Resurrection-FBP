@@ -2,7 +2,7 @@
 // Works at any base path, including GitHub Pages project sites.
 // Bump CACHE_VERSION on each release to invalidate old caches.
 
-const CACHE_VERSION = 'bpc-v0.2.0';
+const CACHE_VERSION = 'bpc-v0.4.0';
 const SHELL = [
   './',
   './index.html',
@@ -25,12 +25,26 @@ const SHELL = [
   './src/views/search.js',
   './src/views/settings.js',
   './src/views/notfound.js',
+  './src/views/entry/EntryView.js',
+  './src/views/entry/EntryEditor.js',
+  './src/views/entry/EntryPreview.js',
+  './src/views/entry/EntryToolbar.js',
+  './src/views/entry/EntryMetadata.js',
+  './src/views/entry/RelationshipPanel.js',
+  './src/views/entry/VersionHistory.js',
+  './src/views/entry/PrintView.js',
   './src/services/storage.js',
   './src/services/companions.js',
+  './src/services/canon-data.js',
+  './src/services/markdown.js',
+  './src/data/books.json',
+  './src/data/entries.json',
+  './src/data/relationships.json',
   './src/styles/variables.css',
   './src/styles/typography.css',
   './src/styles/layout.css',
   './src/styles/components.css',
+  './src/styles/entry.css',
   './src/styles/print.css'
 ];
 

@@ -343,6 +343,10 @@
 .search-fab:hover { transform: scale(1.06); }
 .search-fab svg { width: 20px; height: 20px; }
 
+/* The hidden attribute must always win — display:flex below
+   would otherwise leave an invisible wall over the whole app. */
+.search-overlay[hidden] { display: none; }
+
 .search-overlay {
   position: fixed;
   inset: 0;

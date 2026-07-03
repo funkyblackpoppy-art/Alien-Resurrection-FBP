@@ -1,0 +1,14 @@
+[
+  { "id": "BOOK-001", "title": "Constitution",       "note": "" },
+  { "id": "BOOK-002", "title": "Cosmology",          "note": "" },
+  { "id": "BOOK-003", "title": "Canon",              "note": "" },
+  { "id": "BOOK-004", "title": "Visual Canon",       "note": "" },
+  { "id": "BOOK-005", "title": "Symbolarium",        "note": "" },
+  { "id": "BOOK-006", "title": "Living Companions",  "note": "" },
+  { "id": "BOOK-007", "title": "Engineering",        "note": "" },
+  { "id": "BOOK-008", "title": "Design System",      "note": "" },
+  { "id": "BOOK-009", "title": "Chronicles",         "note": "" },
+  { "id": "BOOK-010", "title": "Looking Glass",      "note": "" },
+  { "id": "BOOK-011", "title": "Atelier",            "note": "" },
+  { "id": "BOOK-012", "title": "Root System",        "note": "" }
+]

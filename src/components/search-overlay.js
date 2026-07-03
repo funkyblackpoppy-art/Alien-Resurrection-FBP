@@ -60,7 +60,7 @@ export function initSearch(root) {
     matches.slice(0, 10).forEach((e) => {
       const li = document.createElement('li');
       const a = document.createElement('a');
-      a.href = '#/library';
+      a.href = e.href || '#/library';
       a.textContent = e.title;
       a.addEventListener('click', close);
       li.appendChild(a);

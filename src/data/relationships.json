@@ -1,0 +1,5 @@
+[
+  { "from": "ENT-001", "to": "ENT-002", "type": "entry", "label": "Reference" },
+  { "from": "ENT-001", "to": "BOOK-007", "type": "book", "label": "Engineering" },
+  { "from": "ENT-002", "to": "BOOK-007", "type": "book", "label": "Engineering" }
+]
