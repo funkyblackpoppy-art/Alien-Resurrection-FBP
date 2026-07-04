@@ -20,7 +20,7 @@ export function resolveObject(id, { entries = [], books = [] } = {}) {
   }
   const book = books.find((b) => b.id === id);
   if (book) {
-    return { kind: 'book', title: book.title, href: '#/library', book: 'The Library', updated: null, status: 'canon' };
+    return { kind: 'book', title: book.title, href: `#/book/${book.id}`, book: 'The Library', updated: null, status: 'canon' };
   }
   // Symbols, companions, products… named but not yet pages of their own.
   return { kind: 'other', title: id, href: null, book: '', updated: null, status: '' };

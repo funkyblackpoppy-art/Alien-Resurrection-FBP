@@ -36,7 +36,7 @@ export function Sidebar() {
 
   const bloom = document.createElement('p');
   bloom.className = 'sidebar__bloom';
-  bloom.textContent = 'v0.5.0 · The First Bloom';
+  bloom.textContent = 'v0.5.1 · The First Bloom';
 
   // Nav
   const nav = document.createElement('nav');
@@ -80,7 +80,8 @@ export function Sidebar() {
     rels.forEach((rel) => {
       const a = document.createElement('a');
       a.className = 'sidebar__connection';
-      a.href = rel.source.startsWith('ENT') ? `#/entry/${rel.source}` : '#/library';
+      a.href = rel.source.startsWith('ENT') ? `#/entry/${rel.source}`
+        : rel.source.startsWith('BOOK') ? `#/book/${rel.source}` : '#/library';
       a.innerHTML = '';
       const from = document.createElement('span');
       from.textContent = name(rel.source);

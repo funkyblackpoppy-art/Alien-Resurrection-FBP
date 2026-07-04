@@ -44,7 +44,11 @@ export function LibraryView() {
 
       const title = document.createElement('h3');
       title.className = 'library-book__title';
-      title.textContent = book.title;
+      const titleLink = document.createElement('a');
+      titleLink.className = 'library-book__link';
+      titleLink.href = `#/book/${book.id}`;
+      titleLink.textContent = book.title;
+      title.appendChild(titleLink);
 
       const id = document.createElement('span');
       id.className = 'panel__meta';

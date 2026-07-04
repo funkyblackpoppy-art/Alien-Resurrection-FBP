@@ -2,7 +2,7 @@
 // Works at any base path, including GitHub Pages project sites.
 // Bump CACHE_VERSION on each release to invalidate old caches.
 
-const CACHE_VERSION = 'bpc-v0.5.0';
+const CACHE_VERSION = 'bpc-v0.5.1';
 const SHELL = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const SHELL = [
   './src/components/icons.js',
   './src/views/dashboard.js',
   './src/views/library.js',
+  './src/views/book.js',
   './src/views/atelier.js',
   './src/views/search.js',
   './src/views/settings.js',

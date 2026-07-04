@@ -1,6 +1,6 @@
 # Black Poppy Canon
 
-**Version 0.5.0 — The First Bloom · Sprint 4.5: The Relationship Engine**
+**Version 0.5.1 — The First Bloom · The Books open (Book view)**
 Author: Rachael Nike
 
 The living Canon of the Black Poppy Universe — a collection of principles, symbols, systems, and stories uncovered through creating.
