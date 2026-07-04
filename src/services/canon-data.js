@@ -12,6 +12,7 @@
 // a version.
 
 import { storage } from './storage.js';
+import { createRelationship } from './RelationshipService.js';
 
 const LOCAL_ENTRIES = 'bpc-canon-entries'; // { [id]: entry } local overrides + creations
 
@@ -72,6 +73,17 @@ export async function getBook(id) {
   return books.find((b) => b.id === id) || null;
 }
 
+/* ---------- symbols (the Symbolarium) ---------- */
+
+export async function listSymbols() {
+  return loadSeed('symbols');
+}
+
+export async function getSymbol(id) {
+  const symbols = await listSymbols();
+  return symbols.find((s) => s.id === id) || null;
+}
+
 /* ---------- entries ---------- */
 
 export async function listEntries() {
@@ -100,7 +112,7 @@ export async function createEntry(partial = {}) {
     type: partial.type || 'Canon Entry',
     title: partial.title || 'Untitled Entry',
     tags: partial.tags || [],
-    status: partial.status || 'looking-glass',
+    status: partial.status || 'atelier',
     body: partial.body || '',
     author: partial.author || 'Rachael Nike',
     version: 1,
@@ -111,7 +123,16 @@ export async function createEntry(partial = {}) {
       { version: 1, timestamp: stamp, summary: 'Entry begun.', author: partial.author || 'Rachael Nike' },
     ],
   };
-  return persistEntry(entry);
+  persistEntry(entry);
+  // Canon rule: an Entry cannot exist without a parent Book.
+  // The Belongs To thread is drawn automatically — never wired by hand.
+  await createRelationship({
+    source: entry.id,
+    target: entry.bookId,
+    type: 'Belongs To',
+    author: entry.author,
+  });
+  return entry;
 }
 
 // Explicit save — creates a version. Nothing is deleted.

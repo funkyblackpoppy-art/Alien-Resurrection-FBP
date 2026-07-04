@@ -15,6 +15,7 @@ import { EntryToolbar } from './EntryToolbar.js';
 import { EntryMetadata } from './EntryMetadata.js';
 import { RelationshipPanel } from '../relationship/RelationshipPanel.js';
 import { RelationshipGraph } from '../relationship/RelationshipGraph.js';
+import { Breadcrumbs } from '../../components/breadcrumbs.js';
 import { VersionHistory } from './VersionHistory.js';
 import { PrintView } from './PrintView.js';
 
@@ -33,11 +34,12 @@ export function EntryView(params = {}) {
   return view;
 
   async function load() {
-    const [entry, books, entries, rels] = await Promise.all([
+    const [entry, books, entries, rels, symbols] = await Promise.all([
       canonData.getEntry(params.id),
       canonData.listBooks(),
       canonData.listEntries(),
       listForEntry(params.id),
+      canonData.listSymbols(),
     ]);
 
     if (!view.isConnected && !view.parentNode) {
@@ -56,10 +58,10 @@ export function EntryView(params = {}) {
       return;
     }
 
-    mount(structuredClone(entry), books, entries, rels.outgoing.length + rels.incoming.length);
+    mount(structuredClone(entry), books, entries, rels.outgoing.length + rels.incoming.length, symbols);
   }
 
-  function mount(working, books, entries, relCount) {
+  function mount(working, books, entries, relCount, symbols) {
     view.innerHTML = '';
     document.body.classList.add('printing-entry');
 
@@ -81,9 +83,13 @@ export function EntryView(params = {}) {
     const header = document.createElement('header');
     header.className = 'entry-header';
 
-    const eyebrow = document.createElement('p');
-    eyebrow.className = 'eyebrow entry-header__book';
-    eyebrow.textContent = bookTitle;
+    // Orientation, always: every segment before this page is a link.
+    const crumbs = Breadcrumbs([
+      { label: 'Dashboard', href: '#/' },
+      { label: 'Library', href: '#/library' },
+      { label: bookTitle, href: `#/book/${working.bookId}` },
+      { label: working.title },
+    ]);
 
     const titleRead = document.createElement('h2');
     titleRead.className = 'entry-header__title';
@@ -97,6 +103,7 @@ export function EntryView(params = {}) {
     titleWrite.addEventListener('input', () => {
       working.title = titleWrite.value || 'Untitled Entry';
       titleRead.textContent = working.title;
+      crumbs.querySelector('[aria-current="page"]').textContent = working.title;
       markDirty();
     });
 
@@ -164,7 +171,7 @@ export function EntryView(params = {}) {
     });
 
     actions.append(modeToggle, summaryInput, saveBtn, fullBtn);
-    header.append(eyebrow, titleRead, titleWrite, metaLine, actions);
+    header.append(crumbs, titleRead, titleWrite, metaLine, actions);
 
     /* ---------- find bar (Ctrl+K inside an entry) ---------- */
 
@@ -258,8 +265,8 @@ export function EntryView(params = {}) {
     }
 
     const metaPanel = EntryMetadata({ entry: working, books, relCount, onChange: patch });
-    const relPanel = RelationshipPanel({ entry: working, books, entries });
-    const graphPanel = RelationshipGraph({ entry: working, entries, books });
+    const relPanel = RelationshipPanel({ entry: working, books, entries, symbols });
+    const graphPanel = RelationshipGraph({ entry: working, entries, books, symbols });
     const versionPanel = VersionHistory({ entry: working, onRestore: versionPanelRestore });
     const versionPanels = { current: versionPanel };
 

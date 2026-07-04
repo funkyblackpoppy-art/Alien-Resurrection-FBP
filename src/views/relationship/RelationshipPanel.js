@@ -8,7 +8,7 @@ import { listForEntry } from '../../services/RelationshipService.js';
 import { RelationshipCard, resolveObject } from './RelationshipCard.js';
 import { RelationshipModal } from './RelationshipModal.js';
 
-export function RelationshipPanel({ entry, entries, books }) {
+export function RelationshipPanel({ entry, entries, books, symbols = [] }) {
   const el = document.createElement('details');
   el.className = 'card entry-panel entry-panel--relationships';
   el.id = 'relationship-panel';
@@ -23,7 +23,7 @@ export function RelationshipPanel({ entry, entries, books }) {
   el.appendChild(body);
 
   const modal = RelationshipModal({
-    entry, entries, books,
+    entry, entries, books, symbols,
     onCreated: paint,
   });
 
@@ -58,7 +58,7 @@ export function RelationshipPanel({ entry, entries, books }) {
       const kinds = { book: 0, symbol: 0, project: 0, component: 0 };
       [...outgoing, ...incoming].forEach((rel) => {
         const otherId = rel.source === entry.id ? rel.target : rel.source;
-        const obj = resolveObject(otherId, { entries, books });
+        const obj = resolveObject(otherId, { entries, books, symbols });
         if (obj.kind === 'book' || rel.type === 'Belongs To') kinds.book++;
         if (rel.type === 'Symbol') kinds.symbol++;
         if (rel.type === 'Project') kinds.project++;
@@ -83,7 +83,7 @@ export function RelationshipPanel({ entry, entries, books }) {
       const list = document.createElement('div');
       list.className = 'rel-card-list';
       outgoing.forEach((rel) =>
-        list.appendChild(RelationshipCard({ rel, direction: 'out', entries, books })));
+        list.appendChild(RelationshipCard({ rel, direction: 'out', entries, books, symbols })));
       body.appendChild(list);
     }
 
@@ -93,7 +93,7 @@ export function RelationshipPanel({ entry, entries, books }) {
       const list = document.createElement('div');
       list.className = 'rel-card-list';
       incoming.forEach((rel) =>
-        list.appendChild(RelationshipCard({ rel, direction: 'in', entries, books })));
+        list.appendChild(RelationshipCard({ rel, direction: 'in', entries, books, symbols })));
       body.appendChild(list);
     }
 

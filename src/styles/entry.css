@@ -8,14 +8,53 @@
    several children carry display rules that would defeat it. */
 .entry-view [hidden] { display: none !important; }
 
+/* ---- breadcrumbs: orientation anywhere (Sprint 4.5.1) ---- */
+
+.breadcrumbs {
+  margin-bottom: var(--space-4);
+}
+
+.breadcrumbs__list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.breadcrumbs__item + .breadcrumbs__item::before {
+  content: "/";
+  margin: 0 var(--space-2);
+  opacity: 0.5;
+}
+
+.breadcrumbs__item a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.breadcrumbs__item a:hover { text-decoration: underline; }
+
+.breadcrumbs__item a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.breadcrumbs__item [aria-current="page"] {
+  color: var(--color-heading);
+  font-style: normal;
+}
+
 /* ---- header ---- */
 
 .entry-header {
   margin-bottom: var(--space-5);
-}
-
-.entry-header__book {
-  color: var(--color-accent-quiet);
 }
 
 .entry-header__title {
@@ -541,6 +580,86 @@ mark.find-mark--active {
   gap: var(--space-4);
   margin-top: var(--space-4);
 }
+
+.book-view__invite { padding: var(--space-3) 0; }
+
+.book-view__invite-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  letter-spacing: 0.03em;
+  color: var(--color-heading);
+  margin: 0 0 var(--space-1);
+}
+
+.book-view__invite-sub { margin: 0 0 var(--space-3); }
+
+/* ---- the Symbolarium ---- */
+
+.symbolarium__header { margin-bottom: var(--space-5); }
+
+.symbolarium__title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.02em;
+  color: var(--color-heading);
+  margin: var(--space-1) 0 var(--space-2);
+}
+
+.symbolarium__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-4);
+}
+
+.symbol-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  padding: var(--space-5) var(--space-4);
+}
+
+.symbol-card__glyph {
+  font-size: 2.2rem;
+  line-height: 1;
+  font-family: var(--font-display);
+  color: var(--color-heading);
+}
+
+.symbol-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 0.05em;
+  color: var(--color-heading);
+}
+
+.symbol-view__header { margin-bottom: var(--space-5); }
+
+.symbol-view__glyph {
+  display: block;
+  font-size: 3rem;
+  line-height: 1;
+  font-family: var(--font-display);
+  color: var(--color-heading);
+  margin-bottom: var(--space-2);
+}
+
+.symbol-view__title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.02em;
+  color: var(--color-heading);
+  display: inline-block;
+  margin: 0 var(--space-3) var(--space-2) 0;
+}
+
+.symbol-view__definition {
+  max-width: 60ch;
+  margin: var(--space-3) 0 0;
+}
+
+.symbol-view .card.panel { margin-bottom: var(--space-4); }
 
 /* ---- the print view is invisible on screen ---- */
 

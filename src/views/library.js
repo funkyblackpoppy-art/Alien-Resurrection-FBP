@@ -4,12 +4,18 @@
 
 import * as canonData from '../services/canon-data.js';
 import { navigate } from '../router.js';
+import { Breadcrumbs } from '../components/breadcrumbs.js';
 
 const dateFmt = (iso) => new Date(iso).toLocaleDateString();
 
 export function LibraryView() {
   const view = document.createElement('div');
   view.className = 'library';
+
+  view.appendChild(Breadcrumbs([
+    { label: 'Dashboard', href: '#/' },
+    { label: 'Library' },
+  ]));
 
   const intro = document.createElement('header');
   intro.className = 'library__intro';
@@ -77,7 +83,7 @@ export function LibraryView() {
       } else {
         const p = document.createElement('p');
         p.className = 'panel__empty';
-        p.textContent = 'This Book is unopened. Its first page is waiting for you.';
+        p.textContent = 'Not yet written. Every Canon begins with a single entry.';
         shelf.appendChild(p);
       }
 

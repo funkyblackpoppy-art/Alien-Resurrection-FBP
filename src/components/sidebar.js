@@ -7,6 +7,7 @@ import { getState, subscribe } from '../state.js';
 const NAV_ICONS = {
   '/': 'poppy',
   '/library': 'book',
+  '/symbolarium': 'star',
   '/atelier': 'atelier',
   '/search': 'search',
   '/settings': 'settings',
@@ -36,7 +37,7 @@ export function Sidebar() {
 
   const bloom = document.createElement('p');
   bloom.className = 'sidebar__bloom';
-  bloom.textContent = 'v0.5.1 · The First Bloom';
+  bloom.textContent = 'v0.5.2 · The First Bloom';
 
   // Nav
   const nav = document.createElement('nav');

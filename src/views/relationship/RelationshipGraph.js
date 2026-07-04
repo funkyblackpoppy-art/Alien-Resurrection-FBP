@@ -18,7 +18,7 @@ const NODE_COLORS = {
 
 const trim = (s, n = 20) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
 
-export function RelationshipGraph({ entry, entries, books }) {
+export function RelationshipGraph({ entry, entries, books, symbols = [] }) {
   const el = document.createElement('details');
   el.className = 'card entry-panel rel-graph';
 
@@ -103,7 +103,7 @@ export function RelationshipGraph({ entry, entries, books }) {
 
     // Connected objects.
     links.forEach((link) => {
-      const obj = resolveObject(link.id, { entries, books });
+      const obj = resolveObject(link.id, { entries, books, symbols });
       const g = ns('g');
       g.setAttribute('class', 'rel-graph__node');
       g.setAttribute('tabindex', '0');
@@ -141,7 +141,7 @@ export function RelationshipGraph({ entry, entries, books }) {
     alt.className = 'panel__list rel-graph__alt';
     alt.setAttribute('aria-label', 'Connections as a list');
     links.forEach((link) => {
-      const obj = resolveObject(link.id, { entries, books });
+      const obj = resolveObject(link.id, { entries, books, symbols });
       const li = document.createElement('li');
       if (obj.href) {
         const a = document.createElement('a');

@@ -5,7 +5,7 @@
 
 import { RELATIONSHIP_TYPES, createRelationship } from '../../services/RelationshipService.js';
 
-export function RelationshipModal({ entry, entries, books, onCreated }) {
+export function RelationshipModal({ entry, entries, books, symbols = [], onCreated }) {
   const dialog = document.createElement('dialog');
   dialog.className = 'rel-modal';
   dialog.setAttribute('aria-label', 'Connect this entry');
@@ -60,6 +60,12 @@ export function RelationshipModal({ entry, entries, books, onCreated }) {
     o.label = 'Book';
     datalist.appendChild(o);
   });
+  symbols.forEach((s) => {
+    const o = document.createElement('option');
+    o.value = s.name;
+    o.label = 'Symbol';
+    datalist.appendChild(o);
+  });
 
   dialog.querySelector('[data-cancel]').addEventListener('click', () => dialog.close());
 
@@ -73,6 +79,7 @@ export function RelationshipModal({ entry, entries, books, onCreated }) {
     const targetId =
       entries.find((en) => en.title.toLowerCase() === raw.toLowerCase())?.id ||
       books.find((b) => b.title.toLowerCase() === raw.toLowerCase())?.id ||
+      symbols.find((s) => s.name.toLowerCase() === raw.toLowerCase())?.id ||
       raw;
 
     await createRelationship({

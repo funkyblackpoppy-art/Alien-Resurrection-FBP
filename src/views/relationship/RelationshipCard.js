@@ -6,7 +6,7 @@
 import { RelationshipBadge } from './RelationshipBadge.js';
 
 // Resolve any canon id to something a card can show.
-export function resolveObject(id, { entries = [], books = [] } = {}) {
+export function resolveObject(id, { entries = [], books = [], symbols = [] } = {}) {
   const entry = entries.find((e) => e.id === id);
   if (entry) {
     return {
@@ -22,13 +22,25 @@ export function resolveObject(id, { entries = [], books = [] } = {}) {
   if (book) {
     return { kind: 'book', title: book.title, href: `#/book/${book.id}`, book: 'The Library', updated: null, status: 'canon' };
   }
-  // Symbols, companions, products… named but not yet pages of their own.
+  // Symbols answer to their id or their name.
+  const symbol = symbols.find((s) => s.id === id || s.name.toLowerCase() === String(id).toLowerCase());
+  if (symbol) {
+    return {
+      kind: 'symbol',
+      title: `${symbol.glyph} ${symbol.name}`,
+      href: `#/symbol/${symbol.id}`,
+      book: 'Symbolarium',
+      updated: null,
+      status: symbol.status,
+    };
+  }
+  // Companions, products… named but not yet pages of their own.
   return { kind: 'other', title: id, href: null, book: '', updated: null, status: '' };
 }
 
-export function RelationshipCard({ rel, direction, entries, books }) {
+export function RelationshipCard({ rel, direction, entries, books, symbols }) {
   const otherId = direction === 'in' ? rel.source : rel.target;
-  const obj = resolveObject(otherId, { entries, books });
+  const obj = resolveObject(otherId, { entries, books, symbols });
 
   const el = document.createElement(obj.href ? 'a' : 'article');
   el.className = 'rel-card';

@@ -7,6 +7,7 @@ import { listForEntry } from '../services/RelationshipService.js';
 import { RelationshipCard } from './relationship/RelationshipCard.js';
 import { wordCount } from '../services/markdown.js';
 import { navigate } from '../router.js';
+import { Breadcrumbs } from '../components/breadcrumbs.js';
 
 const dateFmt = (iso) => new Date(iso).toLocaleDateString();
 
@@ -18,11 +19,12 @@ export function BookView(params = {}) {
   return view;
 
   async function load() {
-    const [book, books, entries, rels] = await Promise.all([
+    const [book, books, entries, rels, symbols] = await Promise.all([
       canonData.getBook(params.id),
       canonData.listBooks(),
       canonData.listEntries(),
       listForEntry(params.id),
+      canonData.listSymbols(),
     ]);
 
     if (!book) {
@@ -44,6 +46,12 @@ export function BookView(params = {}) {
 
     const header = document.createElement('header');
     header.className = 'book-view__header';
+
+    view.appendChild(Breadcrumbs([
+      { label: 'Dashboard', href: '#/' },
+      { label: 'Library', href: '#/library' },
+      { label: book.title },
+    ]));
 
     const eyebrow = document.createElement('span');
     eyebrow.className = 'eyebrow';
@@ -115,7 +123,7 @@ export function BookView(params = {}) {
       list.className = 'rel-card-list';
       list.style.marginTop = 'var(--space-3)';
       all.forEach(({ rel, direction }) =>
-        list.appendChild(RelationshipCard({ rel, direction, entries, books })));
+        list.appendChild(RelationshipCard({ rel, direction, entries, books, symbols })));
       relCard.appendChild(list);
     } else {
       const p = document.createElement('p');
@@ -156,17 +164,24 @@ export function BookView(params = {}) {
       open.textContent = 'Open Entry →';
       entriesCard.appendChild(open);
     } else {
-      const p = document.createElement('p');
-      p.className = 'panel__empty';
-      p.textContent = 'This Book is unopened. Its first page is waiting for you.';
-      entriesCard.appendChild(p);
+      // Not an apology — an onboarding moment, in the Canon's voice.
+      const invite = document.createElement('div');
+      invite.className = 'book-view__invite';
+      const line1 = document.createElement('p');
+      line1.className = 'book-view__invite-title';
+      line1.textContent = 'This Book has not yet been written.';
+      const line2 = document.createElement('p');
+      line2.className = 'panel__empty book-view__invite-sub';
+      line2.textContent = 'Every Canon begins with a single entry.';
+      invite.append(line1, line2);
+      entriesCard.appendChild(invite);
     }
 
     const begin = document.createElement('button');
     begin.type = 'button';
     begin.className = 'btn panel__action';
-    begin.style.marginLeft = 'var(--space-3)';
-    begin.textContent = 'Begin an entry →';
+    begin.style.marginLeft = own.length ? 'var(--space-3)' : '0';
+    begin.textContent = own.length ? 'Begin an entry →' : 'Create the First Entry →';
     begin.addEventListener('click', async () => {
       const entry = await canonData.createEntry({ bookId: book.id });
       navigate(`/entry/${entry.id}`);

@@ -2,7 +2,7 @@
 // Works at any base path, including GitHub Pages project sites.
 // Bump CACHE_VERSION on each release to invalidate old caches.
 
-const CACHE_VERSION = 'bpc-v0.5.1';
+const CACHE_VERSION = 'bpc-v0.5.2';
 const SHELL = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const SHELL = [
   './src/theme.js',
   './src/components/sidebar.js',
   './src/components/header.js',
+  './src/components/breadcrumbs.js',
   './src/components/card.js',
   './src/components/dashboard-cards.js',
   './src/components/search-overlay.js',
@@ -22,6 +23,7 @@ const SHELL = [
   './src/views/dashboard.js',
   './src/views/library.js',
   './src/views/book.js',
+  './src/views/symbolarium.js',
   './src/views/atelier.js',
   './src/views/search.js',
   './src/views/settings.js',
@@ -46,6 +48,7 @@ const SHELL = [
   './src/data/books.json',
   './src/data/entries.json',
   './src/data/relationships.json',
+  './src/data/symbols.json',
   './src/styles/variables.css',
   './src/styles/typography.css',
   './src/styles/layout.css',
