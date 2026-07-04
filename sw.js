@@ -2,7 +2,7 @@
 // Works at any base path, including GitHub Pages project sites.
 // Bump CACHE_VERSION on each release to invalidate old caches.
 
-const CACHE_VERSION = 'bpc-v0.5.2';
+const CACHE_VERSION = 'bpc-v0.6.0';
 const SHELL = [
   './',
   './index.html',
@@ -24,7 +24,15 @@ const SHELL = [
   './src/views/library.js',
   './src/views/book.js',
   './src/views/symbolarium.js',
-  './src/views/atelier.js',
+  './src/views/lookingglass.js',
+  './src/views/atelier/AtelierView.js',
+  './src/views/atelier/Toolbar.js',
+  './src/views/atelier/Worktable.js',
+  './src/views/atelier/WorktableObject.js',
+  './src/views/atelier/Inspector.js',
+  './src/views/atelier/RelationshipLayer.js',
+  './src/views/atelier/StatusBar.js',
+  './src/views/atelier/TemplatePicker.js',
   './src/views/search.js',
   './src/views/settings.js',
   './src/views/notfound.js',
@@ -45,6 +53,7 @@ const SHELL = [
   './src/services/canon-data.js',
   './src/services/markdown.js',
   './src/services/RelationshipService.js',
+  './src/services/WorktableService.js',
   './src/data/books.json',
   './src/data/entries.json',
   './src/data/relationships.json',
@@ -55,6 +64,7 @@ const SHELL = [
   './src/styles/components.css',
   './src/styles/entry.css',
   './src/styles/relationship.css',
+  './src/styles/atelier.css',
   './src/styles/print.css'
 ];
 

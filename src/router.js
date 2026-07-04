@@ -5,7 +5,8 @@
 
 import { DashboardView } from './views/dashboard.js';
 import { LibraryView } from './views/library.js';
-import { AtelierView } from './views/atelier.js';
+import { AtelierView } from './views/atelier/AtelierView.js';
+import { LookingGlassView } from './views/lookingglass.js';
 import { SearchView } from './views/search.js';
 import { SettingsView } from './views/settings.js';
 import { NotFoundView } from './views/notfound.js';
@@ -20,8 +21,9 @@ export const routes = [
   { path: '/book/:id',    title: 'Book',        view: BookView },
   { path: '/symbolarium', title: 'Symbolarium', view: SymbolariumView, nav: 'Symbolarium' },
   { path: '/symbol/:id',  title: 'Symbol',      view: SymbolView },
-  { path: '/atelier',     title: 'Atelier',     view: AtelierView,     nav: 'Atelier' },
-  { path: '/search',    title: 'Search',    view: SearchView,    nav: 'Search' },
+  { path: '/atelier',       title: 'Atelier',       view: AtelierView,      nav: 'Atelier' },
+  { path: '/looking-glass', title: 'Looking Glass', view: LookingGlassView, nav: 'Looking Glass' },
+  { path: '/search',        title: 'Search',        view: SearchView,       nav: 'Search' },
   { path: '/settings',  title: 'Settings',  view: SettingsView,  nav: 'Settings' },
 ];
 

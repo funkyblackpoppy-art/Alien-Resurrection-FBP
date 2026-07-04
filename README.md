@@ -1,6 +1,6 @@
 # Black Poppy Canon
 
-**Version 0.5.2 — The First Bloom · Sprint 4.5.1: Foundation Repairs**
+**Version 0.6.0 — The First Bloom · Sprint 4.6: The Atelier**
 Author: Rachael Nike
 
 The living Canon of the Black Poppy Universe — a collection of principles, symbols, systems, and stories uncovered through creating.

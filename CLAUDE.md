@@ -4,7 +4,7 @@ Project: **Black Poppy Canon** — a vanilla JavaScript PWA. The front door to t
 Founder & Author: **Rachael Nike** (always address her as Rachael Nike, never Rachael alone).
 Application Engineer: **Zorya**. AI engineer: **Fable** (Claude, by another name).
 Live: https://blackpoppyethos.github.io/blackpoppycanon/ · Galaxy: **Ethos**
-Current release: **v0.5.2** (Sprint 4.5.1 — Foundation Repairs: breadcrumbs, auto Belongs To, Symbolarium). Milestone: The First Bloom.
+Current release: **v0.6.0** (Sprint 4.6 — The Atelier: worktable-based creative studio). Milestone: The First Bloom.
 
 ## Prime directives
 

@@ -132,7 +132,7 @@ export async function listForEntry(id) {
   };
 }
 
-export async function createRelationship({ source, target, type, notes = '', author = 'Rachael Nike' }) {
+export async function createRelationship({ source, target, type, notes = '', author = 'Rachael Nike', sourceLabel = '', targetLabel = '' }) {
   const rel = {
     id: `REL-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 36).toString(36).toUpperCase()}`,
     source,
@@ -141,6 +141,9 @@ export async function createRelationship({ source, target, type, notes = '', aut
     created: new Date().toISOString(),
     author,
     notes,
+    // Friendly names for ids that have no canon page (worktable objects).
+    sourceLabel,
+    targetLabel,
     version: 1,
     status: 'canon',
   };

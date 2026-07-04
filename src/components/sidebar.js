@@ -9,6 +9,7 @@ const NAV_ICONS = {
   '/library': 'book',
   '/symbolarium': 'star',
   '/atelier': 'atelier',
+  '/looking-glass': 'moon',
   '/search': 'search',
   '/settings': 'settings',
 };
@@ -37,7 +38,7 @@ export function Sidebar() {
 
   const bloom = document.createElement('p');
   bloom.className = 'sidebar__bloom';
-  bloom.textContent = 'v0.5.2 · The First Bloom';
+  bloom.textContent = 'v0.6.0 · The First Bloom';
 
   // Nav
   const nav = document.createElement('nav');
@@ -66,9 +67,9 @@ export function Sidebar() {
   async function paintConnections() {
     const rels = await recentRelationships(3);
     const { entries = [], books = [] } = getState();
-    const name = (id) =>
+    const name = (id, label) =>
       entries.find((e) => e.id === id)?.title ||
-      books.find((b) => b.id === id)?.title || id;
+      books.find((b) => b.id === id)?.title || label || id;
 
     connections.innerHTML = '';
     if (!rels.length) return;
@@ -85,11 +86,11 @@ export function Sidebar() {
         : rel.source.startsWith('BOOK') ? `#/book/${rel.source}` : '#/library';
       a.innerHTML = '';
       const from = document.createElement('span');
-      from.textContent = name(rel.source);
+      from.textContent = name(rel.source, rel.sourceLabel);
       const kind = document.createElement('em');
       kind.textContent = ` ${rel.type.toLowerCase()} `;
       const to = document.createElement('span');
-      to.textContent = name(rel.target);
+      to.textContent = name(rel.target, rel.targetLabel);
       a.append(from, kind, to);
       connections.appendChild(a);
     });
