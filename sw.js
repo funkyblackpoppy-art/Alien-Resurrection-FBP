@@ -2,7 +2,7 @@
 // Works at any base path, including GitHub Pages project sites.
 // Bump CACHE_VERSION on each release to invalidate old caches.
 
-const CACHE_VERSION = 'bpc-v0.4.0';
+const CACHE_VERSION = 'bpc-v0.5.0';
 const SHELL = [
   './',
   './index.html',
@@ -30,13 +30,18 @@ const SHELL = [
   './src/views/entry/EntryPreview.js',
   './src/views/entry/EntryToolbar.js',
   './src/views/entry/EntryMetadata.js',
-  './src/views/entry/RelationshipPanel.js',
   './src/views/entry/VersionHistory.js',
   './src/views/entry/PrintView.js',
+  './src/views/relationship/RelationshipPanel.js',
+  './src/views/relationship/RelationshipCard.js',
+  './src/views/relationship/RelationshipGraph.js',
+  './src/views/relationship/RelationshipModal.js',
+  './src/views/relationship/RelationshipBadge.js',
   './src/services/storage.js',
   './src/services/companions.js',
   './src/services/canon-data.js',
   './src/services/markdown.js',
+  './src/services/RelationshipService.js',
   './src/data/books.json',
   './src/data/entries.json',
   './src/data/relationships.json',
@@ -45,6 +50,7 @@ const SHELL = [
   './src/styles/layout.css',
   './src/styles/components.css',
   './src/styles/entry.css',
+  './src/styles/relationship.css',
   './src/styles/print.css'
 ];
 

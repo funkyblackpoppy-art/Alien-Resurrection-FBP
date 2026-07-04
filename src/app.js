@@ -5,6 +5,7 @@ import { initRouter } from './router.js';
 import { initSearch } from './components/search-overlay.js';
 import { setState } from './state.js';
 import * as canonData from './services/canon-data.js';
+import { migrateFromEntries } from './services/RelationshipService.js';
 
 export function initApp(root) {
   root.innerHTML = '';
@@ -54,6 +55,8 @@ export function initApp(root) {
         canonData.listBooks(),
         canonData.listEntries(),
       ]);
+      // Sprint 4.5: embedded entry relationships become first-class objects.
+      await migrateFromEntries(entries);
       const bookTitle = (id) => books.find((b) => b.id === id)?.title || '';
       setState({
         books,

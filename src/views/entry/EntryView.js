@@ -6,13 +6,15 @@
 // that reads like a journal page.
 
 import * as canonData from '../../services/canon-data.js';
+import { listForEntry } from '../../services/RelationshipService.js';
 import { wordCount, readingTime } from '../../services/markdown.js';
 import { recordOpened } from '../../state.js';
 import { EntryEditor } from './EntryEditor.js';
 import { EntryPreview } from './EntryPreview.js';
 import { EntryToolbar } from './EntryToolbar.js';
 import { EntryMetadata } from './EntryMetadata.js';
-import { RelationshipPanel } from './RelationshipPanel.js';
+import { RelationshipPanel } from '../relationship/RelationshipPanel.js';
+import { RelationshipGraph } from '../relationship/RelationshipGraph.js';
 import { VersionHistory } from './VersionHistory.js';
 import { PrintView } from './PrintView.js';
 
@@ -31,10 +33,11 @@ export function EntryView(params = {}) {
   return view;
 
   async function load() {
-    const [entry, books, entries] = await Promise.all([
+    const [entry, books, entries, rels] = await Promise.all([
       canonData.getEntry(params.id),
       canonData.listBooks(),
       canonData.listEntries(),
+      listForEntry(params.id),
     ]);
 
     if (!view.isConnected && !view.parentNode) {
@@ -53,10 +56,10 @@ export function EntryView(params = {}) {
       return;
     }
 
-    mount(structuredClone(entry), books, entries);
+    mount(structuredClone(entry), books, entries, rels.outgoing.length + rels.incoming.length);
   }
 
-  function mount(working, books, entries) {
+  function mount(working, books, entries, relCount) {
     view.innerHTML = '';
     document.body.classList.add('printing-entry');
 
@@ -197,8 +200,7 @@ export function EntryView(params = {}) {
     const toolbar = EntryToolbar({
       editor,
       onRelationship() {
-        relPanel.open = true;
-        relPanel.scrollIntoView({ block: 'start' });
+        relPanel.openConnect();
       },
       onPrint: printNow,
     });
@@ -255,12 +257,22 @@ export function EntryView(params = {}) {
       markDirty();
     }
 
-    const metaPanel = EntryMetadata({ entry: working, books, onChange: patch });
-    const relPanel = RelationshipPanel({ entry: working, books, entries, onChange: patch });
+    const metaPanel = EntryMetadata({ entry: working, books, relCount, onChange: patch });
+    const relPanel = RelationshipPanel({ entry: working, books, entries });
+    const graphPanel = RelationshipGraph({ entry: working, entries, books });
     const versionPanel = VersionHistory({ entry: working, onRestore: versionPanelRestore });
     const versionPanels = { current: versionPanel };
 
-    view.append(header, findBar, readArea, writeArea, statusLine, metaPanel, relPanel, versionPanel, printView.el);
+    view.append(header, findBar, readArea, writeArea, statusLine, metaPanel, relPanel.el, graphPanel.el, versionPanel, printView.el);
+
+    // A new connection should reach the graph too.
+    window.addEventListener('bpc:data-changed', function onRelChange() {
+      if (!view.isConnected) {
+        window.removeEventListener('bpc:data-changed', onRelChange);
+        return;
+      }
+      graphPanel.redraw();
+    });
 
     /* ---------- mode ---------- */
 

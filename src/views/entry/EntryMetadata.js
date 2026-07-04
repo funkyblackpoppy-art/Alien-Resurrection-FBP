@@ -7,7 +7,7 @@ import { ENTRY_TYPES, ENTRY_STATUSES } from '../../services/canon-data.js';
 const dateFmt = (iso) =>
   iso ? new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
-export function EntryMetadata({ entry, books, onChange }) {
+export function EntryMetadata({ entry, books, relCount, onChange }) {
   const el = document.createElement('details');
   el.className = 'card entry-panel entry-panel--metadata';
   el.open = false;
@@ -66,7 +66,7 @@ export function EntryMetadata({ entry, books, onChange }) {
   row('Created', dateFmt(entry.created));
   row('Modified', dateFmt(entry.updated));
   row('Author', entry.author || '—');
-  row('Relationships', String((entry.relationships || []).length));
+  row('Relationships', String(relCount ?? (entry.relationships || []).length));
 
   el.appendChild(dl);
   return el;

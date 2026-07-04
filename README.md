@@ -1,6 +1,6 @@
 # Black Poppy Canon
 
-**Version 0.4.0 — The First Bloom · Sprint 4.4: The Entry System**
+**Version 0.5.0 — The First Bloom · Sprint 4.5: The Relationship Engine**
 Author: Rachael Nike
 
 The living Canon of the Black Poppy Universe — a collection of principles, symbols, systems, and stories uncovered through creating.
@@ -33,9 +33,11 @@ A vanilla JavaScript Progressive Web App. Single-page application, native ES mod
     /components   sidebar, header, card, icons, dashboard-cards, search-overlay
     /views        dashboard, library, atelier, search, settings, notfound
       /entry      EntryView, EntryEditor, EntryPreview, EntryToolbar,
-                  EntryMetadata, RelationshipPanel, VersionHistory, PrintView
+                  EntryMetadata, VersionHistory, PrintView
+      /relationship  RelationshipPanel, RelationshipCard, RelationshipGraph,
+                     RelationshipModal, RelationshipBadge
     /services     storage, canon-data (THE adapter — all data flows through it),
-                  markdown, companions
+                  RelationshipService (the relationship engine), markdown, companions
     /data         books.json, entries.json, relationships.json (mock mode until Sprint 6)
     /styles       variables (design tokens), typography, layout, components, entry, print
 ```

@@ -6,7 +6,7 @@ import { storage } from './services/storage.js';
 
 const initialState = {
   bloom: 'The First Bloom',
-  version: '0.4.0',
+  version: '0.5.0',
 
   // Canon data (populated by the data layer in a future sprint)
   books: [],
